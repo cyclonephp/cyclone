@@ -1,22 +1,8 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
+
+defined('SYSPATH') or die('No direct script access.');
 
 //-- Environment setup --------------------------------------------------------
-
-/**
- * Set the default time zone.
- *
- * @see  http://kohanaframework.org/guide/using.configuration
- * @see  http://php.net/timezones
- */
-date_default_timezone_set('America/Chicago');
-
-/**
- * Set the default locale.
- *
- * @see  http://kohanaframework.org/guide/using.configuration
- * @see  http://php.net/setlocale
- */
-setlocale(LC_ALL, 'en_US.utf-8');
 
 /**
  * Enable the Kohana auto-loader.
@@ -34,69 +20,60 @@ spl_autoload_register(array('Kohana', 'auto_load'));
  */
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-//-- Configuration and initialization -----------------------------------------
+//-- environment setup -----------------------------------------
 
-/**
- * Initialize Kohana, setting the default options.
- *
- * The following options are available:
- *
- * - string   base_url    path, and optionally domain, of your application   NULL
- * - string   index_file  name of your index file, usually "index.php"       index.php
- * - string   charset     internal character set used for input and output   utf-8
- * - string   cache_dir   set the internal cache directory                   APPPATH/cache
- * - boolean  errors      enable or disable error handling                   TRUE
- * - boolean  profile     enable or disable internal profiling               TRUE
- * - boolean  caching     enable or disable internal caching                 FALSE
- */
-Kohana::init(array(
-	'base_url'   => '/',
-));
+Log::$log_level = Kohana::$environment = Kohana::DEVELOPMENT;
 
-/**
- * Attach the file write to logging. Multiple writers are supported.
- */
-Kohana::$log->attach(new Kohana_Log_File(APPPATH.'logs'));
+require APPPATH . 'env/' . Kohana::$environment . EXT;
 
-/**
- * Attach a file reader to config. Multiple readers are supported.
- */
+
+
 Kohana::$config->attach(new Kohana_Config_File);
-
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
 Kohana::modules(array(
-	// 'auth'       => MODPATH.'auth',       // Basic authentication
-	// 'cache'      => MODPATH.'cache',      // Caching with multiple backends
-	// 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
-	// 'database'   => MODPATH.'database',   // Database access
-	// 'image'      => MODPATH.'image',      // Image manipulation
-	// 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
-	// 'oauth'      => MODPATH.'oauth',      // OAuth authentication
-	// 'pagination' => MODPATH.'pagination', // Paging of results
-	// 'unittest'   => MODPATH.'unittest',   // Unit testing
-	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
-	));
+            'database' => MODPATH . 'database', // Database access
+            'pagination' => MODPATH . 'pagination', // Paging of results
+            'core' => MODPATH . 'core',
+            'record' => MODPATH . 'record',
+            'kform' => MODPATH . 'kform',
+            'dev' => MODPATH . 'dev',
+            'captcha' => MODPATH . 'captcha'
+        ));
+Session::instance();
+
+register_shutdown_function('Log::write');
 
 /**
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
-Route::set('default', '(<controller>(/<action>(/<id>)))')
-	->defaults(array(
-		'controller' => 'welcome',
-		'action'     => 'index',
-	));
 
-if ( ! defined('SUPPRESS_REQUEST'))
-{
-	/**
-	 * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].
-	 * If no source is specified, the URI will be automatically detected.
-	 */
-	echo Request::instance()
-		->execute()
-		->send_headers()
-		->response;
+Route::set('default', '(<controller>(/<action>(/<id>)))')
+        ->defaults(array(
+            'controller' => 'index',
+            'action' => 'index',
+        ));
+
+
+$request = Request::instance();
+
+if (Kohana::$environment != Kohana::DEVELOPMENT) {
+    try {
+        $request->execute();
+    } catch (ReflectionException $ex) {
+        Log::warning('404 not found: '.$_SERVER['PATH_INFO']);
+        $request->redirect(URL::base(), 404);
+    } catch (Exception_BadRequest $ex) {
+        Log::warning('500 bad request: '.$_SERVER['PATH_INFO']);
+        $request->redirect(URL::base(), 500);
+    } catch (Exception $ex) {
+        
+    }
+} else {
+    $request->execute();
 }
+
+echo $request->send_headers()->response;
+

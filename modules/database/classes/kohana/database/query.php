@@ -191,6 +191,8 @@ class Kohana_Database_Query {
 		// Compile the SQL query
 		$sql = $this->compile($db);
 
+        Log::debug('SQL: '.$sql);
+
 		if ( ! empty($this->_lifetime) AND $this->_type === Database::SELECT)
 		{
 			// Set the cache key based on the database instance name and SQL
