@@ -2,6 +2,8 @@
 
 defined('SYSPATH') or die('No direct script access.');
 
+date_default_timezone_set('Europe/Budapest');
+
 //-- Environment setup --------------------------------------------------------
 
 /**
@@ -22,13 +24,12 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 
 //-- environment setup -----------------------------------------
 
-Log::$log_level = Kohana::$environment = Kohana::DEVELOPMENT;
+Kohana::$environment = Kohana::DEVELOPMENT;
 
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
-
-
 Kohana::$config->attach(new Kohana_Config_File);
+
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
@@ -42,6 +43,10 @@ Kohana::modules(array(
             'captcha' => MODPATH . 'captcha'
         ));
 Session::instance();
+
+Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
+
+Log::$log_level = Kohana::$environment;
 
 register_shutdown_function('Log::write');
 
@@ -69,7 +74,8 @@ if (Kohana::$environment != Kohana::DEVELOPMENT) {
         Log::warning('500 bad request: '.$_SERVER['PATH_INFO']);
         $request->redirect(URL::base(), 500);
     } catch (Exception $ex) {
-        
+        Log::error('500 internal error: '.$_SERVER['PATH_INFO']);
+        $request->redirect(URL::base(), 500);
     }
 } else {
     $request->execute();

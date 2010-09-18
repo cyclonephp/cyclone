@@ -18,5 +18,3 @@ Kohana::init(array(
     'profile' => false,
     'caching' => true
 ));
-
-Controller_Core::$minify_js = true;
