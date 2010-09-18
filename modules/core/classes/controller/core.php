@@ -3,6 +3,8 @@
 
 class Controller_Core extends Controller_Template {
 
+    public static $minify_js;
+
     protected $content;
 
     protected $params = array();
@@ -49,20 +51,22 @@ class Controller_Core extends Controller_Template {
 
     /**
      * creates content view for the template view then renders response
-     * 
+     *
      * @see system/classes/kohana/controller/Kohana_Controller_Template#after()
      */
     public function after() {
         $this->action_file_path =  str_replace('_', DIRECTORY_SEPARATOR, $this->request->controller)
                                 .DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $this->request->action);
         $this->add_default_resources();
-        $this->minify_js();
+        if (self::$minify_js) {
+            $this->minify_js();
+        }
         $head_view = new View('head_resources');
         $head_view->res = self::$resources;
         $head_view->server_params = self::$js_params;
         $this->template_params['head_resources'] = $head_view;
         if (Request::$is_ajax && $this->auto_render == true) {
-            $this->request->response = is_array($this->content) ? 
+            $this->request->response = is_array($this->content) ?
                 json_encode($this->content) :
                 $this->content;
             $this->auto_render = false;
@@ -142,7 +146,7 @@ class Controller_Core extends Controller_Template {
         }
     }
 
-    
+
 
     /**
      * helper method
