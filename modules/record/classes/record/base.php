@@ -425,12 +425,4 @@ class Record_Base {
         $this->row = $row;
     }
 
-    public function map_to_tree($src, $classes) {
-        
-        foreach ($src as &$row) {
-            
-        }
-    }
-
-
 }
