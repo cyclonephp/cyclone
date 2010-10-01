@@ -40,7 +40,9 @@ Kohana::modules(array(
             'record' => MODPATH . 'record',
             'kform' => MODPATH . 'kform',
             'dev' => MODPATH . 'dev',
-            'captcha' => MODPATH . 'captcha'
+            'captcha' => MODPATH . 'captcha',
+            'unittest' => MODPATH.'unittest',
+        'userguide' => MODPATH.'userguide'
         ));
 Session::instance();
 
@@ -64,6 +66,7 @@ Route::set('default', '(<controller>(/<action>(/<id>)))')
 
 $request = Request::instance();
 
+if ( ! defined('SUPPRESS_REQUEST'))
 if (Kohana::$environment != Kohana::DEVELOPMENT) {
     try {
         $request->execute();
