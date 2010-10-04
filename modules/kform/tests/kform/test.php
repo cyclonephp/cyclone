@@ -71,6 +71,136 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         }
     }
 
+    public function testLoadInput() {
+        $form = new KForm(array(
+            'fields' => array(
+                'name1' => array(),
+                'name2' => array()
+            )
+        ));
+
+        $form->load_input(array(
+            'name1' => 'val1',
+            'name2' => 'val2',
+            'name3' => 'val3'
+        ), false);
+        $this->assertEquals(count($form->fields), 2);
+        $this->assertEquals($form->fields['name1']->get_val(), 'val1');
+    }
+
+    public function testValidation() {
+        $form = new KForm('examples/basic');
+        $form->load_input(array('name' => 'hello'));
+        $this->assertEquals($form->fields['name']->validation_errors,
+                array(
+                    'numeric' => 'hello: invalid number format',
+                    0 => 'username hello is not unique',
+                    1 => 'username hello is not unique'
+                ));
+    }
+
+    public function testResult() {
+        $form = new KForm(array(
+            'fields' => array(
+                'name1' => array(
+                    'type' => 'text',
+                ),
+                'name2' => array(
+                    'type' => 'checkbox'
+                ),
+                'name3' => array(
+                    'type' => 'list',
+                    'items' => array(
+                        'val1' => 'text1',
+                        'val2' => 'text2'
+                    )
+                ),
+                array(
+                    'type' => 'submit',
+                    'value' => 'Ok'
+                )
+            )
+        ));
+        $form->load_input(array(
+            'name1' => 'val1',
+            'name2' => true,
+            'name3' => 'val2'
+        ));
+        $this->assertEquals($form->result(), array(
+            'name1' => 'val1',
+            'name2' => true,
+            'name3' => 'val2'
+        ));
+        $this->assertTrue($form->result('stdClass') instanceof stdClass);
+    }
+
+    /**
+     *
+     * @dataProvider providerEdit
+     */
+    public function testEdit(array $fields, array $before_data
+            , $progress_id_required, $input, array $after_data) {
+        $cfg = Kohana::config('kform');
+        unset($_SESSION[$cfg['progress_key']]);
+        $form_before_submit = new KForm(array('fields' => $fields));
+        $form_before_submit->load_data($before_data);
+
+        if ($progress_id_required) {
+            $this->assertArrayHasKey($cfg['progress_key'], $form_before_submit->fields);
+        } else {
+            $form_fields = $form_before_submit->fields;
+            foreach ($before_data as $k => $v) {
+                $this->assertArrayHasKey($k, $form_fields);
+                $this->assertEquals($form_fields[$k]->get_val(), $v);
+            }
+        }
+
+        $form_after_submit = new KForm(array('fields' => $fields));
+        if ($progress_id_required) {
+            $input[$cfg['progress_key']] = $form_before_submit->fields[$cfg['progress_key']]->get_val();
+        }
+        $form_after_submit->load_input($input);
+        $result = $form_after_submit->result();
+        $this->assertEquals($result, $after_data);
+    }
+
+    public function providerEdit() {
+        $rval = array();
+        $fields = array(
+            'name1' => array('type' => 'text'),
+            'name2' => array('type' => 'text'),
+        );
+        $before_data = array('name1' => 'val1', 'name2' => 'val2');
+        $progress_id_required = false;
+        $input = array('name1' => 'val1_', 'name2' => 'val2_');
+        $after_data = array('name1' => 'val1_', 'name2' => 'val2_');
+        $rval []= array($fields, $before_data, $progress_id_required, $input, $after_data);
+
+
+        $fields = array(
+            'name1' => array('type' => 'text'),
+            'name2' => array('type' => 'text'),
+        );
+        $before_data = array('name1' => 'val1', 'name2' => 'val2', 'name3' => 'val3');
+        $progress_id_required = true;
+        $input = array('name1' => 'val1_', 'name2' => 'val2_');
+        $after_data = array('name1' => 'val1_', 'name2' => 'val2_', 'name3' => 'val3');
+        $rval []= array($fields, $before_data, $progress_id_required, $input, $after_data);
+
+
+        $fields = array(
+            'name1' => array('type' => 'text'),
+            'name2' => array('type' => 'text'),
+        );
+        $before_data = array('name1' => 'val1', 'name2' => 'val2', 'name3' => 'val3');
+        $progress_id_required = true;
+        $input = array('name1' => 'val1_');
+        $after_data = array('name1' => 'val1_', 'name2' => 'val2', 'name3' => 'val3');
+        $rval []= array($fields, $before_data, $progress_id_required, $input, $after_data);
+
+        return $rval;
+    }
+
     public function providerDataSource() {
         return array(
             array(
@@ -100,6 +230,10 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             array('submit', 'KForm_Input'),
             array('textarea', 'KForm_Input')
         );
+    }
+
+    public static function custom_callback($username) {
+        return false;
     }
 
 }

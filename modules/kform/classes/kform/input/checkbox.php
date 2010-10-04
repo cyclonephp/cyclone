@@ -13,6 +13,10 @@ class KForm_Input_Checkbox extends KForm_Input {
      * @param string $val
      */
     public function set_val($val) {
-        $this->value = $val == 'on';
+        $this->value = (boolean) $val == 'on';
+    }
+
+    public function pick_val(&$src, $saved_data = array()) {
+        $this->value = (boolean) Arr::get($src, $this->name);
     }
 }
