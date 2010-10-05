@@ -235,4 +235,42 @@ class KForm {
     public function __set($key, $value) {
         $this->model[$key] = $value;
     }
+
+    protected function set_defaults() {
+        if ( ! array_key_exists('view_root', $this->model)) {
+            $this->model['view_root'] = 'kform';
+        }
+
+        if ( ! array_key_exists('view', $this->model)) {
+            $this->model['view'] = 'form';
+        }
+
+        if ( ! array_key_exists('attributes', $this->model)) {
+            $this->model['attributes'] = array();
+        }
+
+        if ( ! array_key_exists('method', $this->model['attributes'])) {
+            $this->model['attributes']['method'] = 'post';
+        }
+
+        if ( ! array_key_exists('action', $this->model['attributes'])) {
+            $this->model['attributes']['action'] = '';
+        }
+    }
+
+    public function render() {
+        $this->set_defaults();
+        $view = new View($this->model['view_root'].DIRECTORY_SEPARATOR.$this->model['view']);
+        $view->fields = $this->model['fields'];
+        $view->attributes = $this->model['attributes'];
+        return $view->render();
+    }
+
+    public function  __toString() {
+        try {
+            return $this->render();
+        } catch (Exception $ex) {
+            Kohana::exception_handler($ex);
+        }
+    }
 }
