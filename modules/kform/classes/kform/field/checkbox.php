@@ -1,7 +1,7 @@
 <?php
 
 
-class KForm_Input_Checkbox extends KForm_Input {
+class KForm_Field_Checkbox extends KForm_Field {
 
     public function  __construct($name, array $model) {
         parent::__construct($name, $model, 'checkbox');

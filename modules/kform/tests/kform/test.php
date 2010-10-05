@@ -23,7 +23,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             )
         ));
 
-        $this->assertTrue($form->fields['basic'] instanceof KForm_Input);
+        $this->assertTrue($form->fields['basic'] instanceof KForm_Field);
     }
 
     /**
@@ -42,7 +42,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testInputCheckbox() {
-        $checkbox = new KForm_Input_Checkbox('', array());
+        $checkbox = new KForm_Field_Checkbox('', array());
         $checkbox->set_val('on');
 
         $this->assertTrue($checkbox->get_val());
@@ -126,12 +126,12 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             'name2' => true,
             'name3' => 'val2'
         ));
-        $this->assertEquals($form->result(), array(
+        $this->assertEquals($form->get_data(), array(
             'name1' => 'val1',
             'name2' => true,
             'name3' => 'val2'
         ));
-        $this->assertTrue($form->result('stdClass') instanceof stdClass);
+        $this->assertTrue($form->get_data('stdClass') instanceof stdClass);
     }
 
     /**
@@ -160,7 +160,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             $input[$cfg['progress_key']] = $form_before_submit->fields[$cfg['progress_key']]->get_val();
         }
         $form_after_submit->load_input($input);
-        $result = $form_after_submit->result();
+        $result = $form_after_submit->get_data();
         $this->assertEquals($result, $after_data);
     }
 
@@ -222,13 +222,13 @@ class KForm_Test extends Kohana_Unittest_TestCase {
 
     public function providerExplicitInput() {
         return array(
-            array('text', 'KForm_Input'),
-            array('hidden', 'KForm_Input'),
-            array('checkbox', 'KForm_Input_Checkbox'),
-            array('password', 'KForm_Input'),
-            array('list', 'KForm_Input_List'),
-            array('submit', 'KForm_Input'),
-            array('textarea', 'KForm_Input')
+            array('text', 'KForm_Field'),
+            array('hidden', 'KForm_Field'),
+            array('checkbox', 'KForm_Field_Checkbox'),
+            array('password', 'KForm_Field'),
+            array('list', 'KForm_Field_List'),
+            array('submit', 'KForm_Field'),
+            array('textarea', 'KForm_Field')
         );
     }
 

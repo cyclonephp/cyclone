@@ -1,7 +1,7 @@
 <?php
 
 
-class KForm_Input_List extends KForm_Input {
+class KForm_Field_List extends KForm_Field {
 
     public function  __construct($name, array $model) {
         parent::__construct($name, $model, 'radiogroup');

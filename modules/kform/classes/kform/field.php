@@ -1,7 +1,7 @@
 <?php
 
 
-class KForm_Input {
+class KForm_Field {
 
     /**
      *
@@ -61,6 +61,10 @@ class KForm_Input {
      * @param array $src the main array the form is populated from, e.g. it can
      * be the $_POST array in a lot of cases. All the form data is visible for
      * this method, it can extract any kind of data from it.
+     * @param array $saved_data the business data saved before form rendering, or
+     * an empty array. The field must take it's value from this array if it can't
+     * find the required input values in $src. It can happen if the input(s) were
+     * disabled on the client side therefore weren't submitted.
      */
     public function pick_val(&$src, $saved_data = array()) {
         $this->value = Arr::get($src, $this->name);

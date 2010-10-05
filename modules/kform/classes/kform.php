@@ -49,11 +49,11 @@ class KForm {
     protected function _init($load_data_sources) {
         foreach($this->model['fields'] as $name => &$field) {
             $type = Arr::get($field, 'type', 'text');
-            $class = 'KForm_Input_'.ucfirst($type);
+            $class = 'KForm_Field_'.ucfirst($type);
             if (class_exists($class)) {
                 $field = new $class($name, $field);
             } else  {
-                $field = new KForm_Input($name, $field, $type);
+                $field = new KForm_Field($name, $field, $type);
             }
             
             if ($load_data_sources) {
@@ -77,6 +77,21 @@ class KForm {
         $save && $this->_save_data($src);
     }
 
+    /**
+     * saves the business data to be edited until the next input population.
+     *
+     * This business data will be needed in two cases:
+     * * the form does not have any fields with a key of a business data.
+     *      In this case the form input (submit data) will definitely not contain
+     *      this data segment and it must be loaded to return proper value.
+     * * the form has got a field with this name, but the inputs are disabled
+     *      on the client side and the form submit will not contain the value
+     *
+     * @see KForm::load_data()
+     * @see KForm::load_input()
+     * @see KForm::result()
+     * @param array $data
+     */
     protected function _save_data(array $data) {
         if (null === $this->progress_id) {
             $this->progress_id = $this->_create_progress_id();
@@ -85,6 +100,12 @@ class KForm {
         $_SESSION[$this->config['session_key']]['progress'][$this->progress_id] = $data;
     }
 
+    /**
+     * returns the previously saved business data.
+     *
+     * @param string $progress_id
+     * @return array
+     */
     protected function _get_saved_data($progress_id) {
         $sess_key = $this->config['session_key'];
         if (array_key_exists($sess_key, $_SESSION)
@@ -95,6 +116,13 @@ class KForm {
         return array();
     }
 
+    /**
+     * creates an unique identifier for the business data edit process, and puts
+     * it into the form fields as a hidden input. The saved data will be reloaded
+     * if an incoming input has this generated progress ID.
+     *
+     * @return string
+     */
     protected function _create_progress_id() {
         $sess_key = $this->config['session_key'];
         if ( ! array_key_exists($sess_key, $_SESSION)) {
@@ -111,7 +139,7 @@ class KForm {
         $progress_id = sha1($_SESSION[$sess_key]['progress_counter']++);
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
-        $input = new KForm_Input($this->config['progress_key'], array(), 'hidden');
+        $input = new KForm_Field($this->config['progress_key'], array(), 'hidden');
         $input->set_val($progress_id);
         $this->model['fields'] [$this->config['progress_key']] = $input;
 
@@ -120,7 +148,7 @@ class KForm {
 
     /**
      * loads the result of a form submission into the form fields. You will need
-     * to use this method every time when you want to handle a form submitssion
+     * to use this method every time when you want to handle a form submission
      * with KForm.
      *
      * @param array $src
@@ -155,7 +183,13 @@ class KForm {
         return $valid;
     }
 
-    public function result($result_type = 'array') {
+    /**
+     * Returns the business data created via the last form input.
+     *
+     * @param string $result_type
+     * @return mixed
+     */
+    public function get_data($result_type = 'array') {
         $result_type = Arr::get($this->model, 'result_type', $result_type);
         if ( ! is_null($this->progress_id)) {
             $saved_data = $this->_get_saved_data($this->progress_id);
@@ -174,6 +208,11 @@ class KForm {
             }
         } else {
             $result = new $result_type;
+            if (isset($saved_data)) {
+                foreach($saved_data as $k => $v) {
+                    $result->$k = $v;
+                }
+            }
             foreach ($this->fields as $name => $field) {
                 if ( ! is_int($name)) {
                     $result->$name = $field->get_val();
