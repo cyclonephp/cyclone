@@ -49,6 +49,12 @@ return array(
                 '3' => 'group 03'
             )
         ),
+        'expires' => array(
+            'type' => 'date',
+            'min_date' => array('year' => '2010', 'month' => '01', 'day' => '01'),
+            'max_date' => 'now',
+            'label' => 'expires'
+        ),
         array(
             'type' => 'submit',
             'label' => 'ok'

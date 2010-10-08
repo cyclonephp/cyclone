@@ -152,6 +152,48 @@ class KForm_Test extends Kohana_Unittest_TestCase {
 
     /**
      *
+     * @dataProvider providerFieldDate
+     */
+    public function testFieldDate($date_string, $input, $date_format) {
+        $form = new KForm(array(
+            'fields' => array(
+                'mydate' => array(
+                    'type' => 'date'
+                )
+            )
+        ));
+        $form->model['fields']['mydate']->value_format = $date_format;
+
+        $form->load_input(array(
+           'mydate_year' => $input['year'],
+           'mydate_month' => $input['month'],
+           'mydate_day' => $input['day']
+        ));
+        $data = $form->get_data();
+        $this->assertEquals($data['mydate'], $date_string);
+
+        $form = new KForm(array(
+            'fields' => array(
+                'mydate' => array(
+                    'type' => 'date'
+                )
+            )
+        ));
+        $form->model['fields']['mydate']->value_format = $date_format;
+        $form->load_data(array('mydate' => $date_string));
+        $data = $form->get_data();
+        $this->assertEquals($data['mydate'], $date_string);
+    }
+
+    public function providerFieldDate() {
+        return array(
+            array('2010-09-17', array('year' => '2010', 'month' => '09', 'day' => '17'), 'year-month-day'),
+            array('09/17/2010', array('year' => '2010', 'month' => '09', 'day' => '17'), 'month/day/year')
+        );
+    }
+
+    /**
+     *
      * @dataProvider providerEdit
      */
     public function testEdit(array $fields, array $before_data
@@ -244,7 +286,8 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             array('password', 'KForm_Field'),
             array('list', 'KForm_Field_List'),
             array('submit', 'KForm_Field'),
-            array('textarea', 'KForm_Field')
+            array('textarea', 'KForm_Field'),
+            array('date', 'KForm_Field_Date')
         );
     }
 
