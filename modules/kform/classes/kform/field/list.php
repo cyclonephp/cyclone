@@ -3,8 +3,8 @@
 
 class KForm_Field_List extends KForm_Field {
 
-    public function  __construct($name, array $model) {
-        parent::__construct($name, $model, 'radiogroup');
+    public function  __construct(KForm $form, $name, array $model) {
+        parent::__construct($form, $name, $model, 'list');
     }
 
     public function  load_data_source() {
@@ -29,6 +29,36 @@ class KForm_Field_List extends KForm_Field {
                    $this->model['items'] [$row->{$val_field}] = $row->{$text_field};
                 }
             }
+        }
+    }
+
+    protected function before_rendering() {
+        $this->model['errors'] = $this->validation_errors;
+        if ( ! array_key_exists('attributes', $this->model)) {
+            $this->model['attributes'] = array();
+        }
+
+        $multiple = Arr::get($this->model, 'multiple');
+
+        if ($multiple && is_null($this->value)) {
+            $this->value = array();
+        }
+        $this->model['attributes']['value'] = $this->value;
+        $this->model['attributes']['name'] = $this->name;
+
+        if ($multiple) {
+            $this->model['attributes']['name'] .= '[]';
+        }
+        $this->model['attributes']['type'] = $this->type;
+        $this->model['name'] = $this->name;
+
+        if ( ! array_key_exists('view', $this->model)) {
+            $this->model['view'] = 'select';
+        }
+        if ($this->model['view'] == 'buttons') {
+            $this->model['view'] = $multiple ? 'checkboxlist' : 'radiogroup';
+        } elseif ($this->model['view'] == 'select' && $multiple) {
+            $this->model['attributes']['multiple'] = 'multiple';
         }
     }
     

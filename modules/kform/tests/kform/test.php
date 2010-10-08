@@ -42,7 +42,9 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testInputCheckbox() {
-        $checkbox = new KForm_Field_Checkbox('', array());
+        $checkbox = new KForm_Field_Checkbox(new KForm(array(
+            'fields' => array()
+        )), '', array());
         $checkbox->set_val('on');
 
         $this->assertTrue($checkbox->get_val());
@@ -132,6 +134,20 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             'name3' => 'val2'
         ));
         $this->assertTrue($form->get_data('stdClass') instanceof stdClass);
+    }
+
+    public function testOnEmpty() {
+        $form = new KForm(array(
+            'fields' => array(
+                'name1' => array(
+                    'type' => 'text',
+                    'on_empty' => null
+                )
+            )
+        ));
+        $form->load_input(array('name1' => ''));
+        $data = $form->get_data();
+        $this->assertNull($data['name1']);
     }
 
     /**

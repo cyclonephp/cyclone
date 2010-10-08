@@ -7,10 +7,10 @@
     <span class="descr"> <?= $description ?></span>
 <? endif; ?>
     </label>
-    <div class="radiogroup">
-        <? foreach ($items as $val => $text) : ?>
-        <input type="radio" value="<?= $val ?>"/><?= $text ?><br/>
-        <? endforeach; ?>
+    <div class="checkboxlist">
+    <? foreach ($items as $val => $text) : ?>
+        <input type="checkbox" value="<?= $val ?>"<? if (in_array($val, $attributes['value'])) echo ' checked="checked"'?>/><?= $text ?><br/>
+    <? endforeach; ?>
     </div>
     <div class="clear"></div>
 </div>

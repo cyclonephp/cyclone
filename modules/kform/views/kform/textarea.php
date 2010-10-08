@@ -1,12 +1,12 @@
 <div class="input">
-<? if (array_key_exists('errors', $model)) : ?>
-<? foreach ($model['errors'] as $error) : ?>
-    <div class="error"><?=$error?></div>
-<? endforeach; ?>
+    <? if (isset($errors)) foreach ($errors as $error) : ?>
+    <div class="error"><?= $error ?></div>
+    <? endforeach; ?>
+        <label for="<?= $name ?>"><?= $label ?>
+<? if (isset($description)) : ?>
+    <span class="descr"> <?= $description ?></span>
 <? endif; ?>
-    <label for="<?=$model['name']?>"><?=$model['label']?></label>
-    <textarea name="<?= Arr::get($model, 'name')?>" cols="<?= Arr::get($model, 'cols')?>" rows="<?= Arr::get($model, 'rows')?>">
-    <?= Arr::get($model, 'value')?>
-    </textarea>
+    </label>
+    <textarea <?= HTML::attributes($attributes) ?>><?= $value ?></textarea>
     <div class="clear"></div>
 </div>

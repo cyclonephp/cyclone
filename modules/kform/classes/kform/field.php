@@ -33,12 +33,20 @@ class KForm_Field {
     public $validation_errors = array();
 
     /**
+     * set at the constructor
+     *
+     * @var KForm
+     */
+    protected $form;
+
+    /**
      *
      * @param string $name the name of the input field
      * @param array $model the field definition
      * @param string $type the type of the HTML input
      */
-    public function  __construct($name, array $model, $type) {
+    public function  __construct(KForm $form, $name, array $model, $type) {
+        $this->form = $form;
         $this->model = $model;
         $this->name = $name;
         $this->type = $type;
@@ -66,10 +74,13 @@ class KForm_Field {
      * find the required input values in $src. It can happen if the input(s) were
      * disabled on the client side therefore weren't submitted.
      */
-    public function pick_val(&$src, $saved_data = array()) {
+    public function pick_val(&$src, &$saved_data = array()) {
         $this->value = Arr::get($src, $this->name);
         if (null === $this->value) {
             $this->set_val(Arr::get($saved_data, $this->name));
+        }
+        if ('' === $this->value && array_key_exists('on_empty', $this->model)) {
+            $this->value = $this->model['on_empty'];
         }
     }
 
@@ -148,6 +159,37 @@ class KForm_Field {
             $error_template = str_replace(':' . ($k + 1), $v, $error_template);
         }
         $this->validation_errors[$validator] = $error_template;
+    }
+
+    protected function before_rendering() {
+        $this->model['errors'] = $this->validation_errors;
+        if ( ! array_key_exists('attributes', $this->model)) {
+            $this->model['attributes'] = array();
+        }
+        $this->model['attributes']['value'] = $this->value;
+        $this->model['attributes']['name'] = $this->name;
+        $this->model['attributes']['type'] = $this->type;
+        $this->model['name'] = $this->name;
+        if ( ! array_key_exists('view', $this->model)) {
+            $this->model['view'] = $this->type;
+        }
+    }
+
+    public function render() {
+        $this->before_rendering();
+        $view = new View($this->form->view_root
+                .DIRECTORY_SEPARATOR.$this->model['view'],
+                $this->model);
+        return $view->render();
+    }
+
+    public function __toString() {
+        try {
+            return $this->render();
+        } catch (Exception $ex) {
+            Kohana::exception_handler($ex);
+            return '';
+        }
     }
 
 }

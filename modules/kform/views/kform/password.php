@@ -1,10 +1,12 @@
 <div class="input">
-<? if (array_key_exists('errors', $model)) : ?>
-<? foreach ($model['errors'] as $error) : ?>
-    <div class="error"><?=$error?></div>
-<? endforeach; ?>
+    <? if (isset($errors)) foreach ($errors as $error) : ?>
+    <div class="error"><?= $error ?></div>
+    <? endforeach; ?>
+    <label for="<?= $name ?>"><?= $label ?>
+<? if (isset($description)) : ?>
+    <span class="descr"> <?= $description ?></span>
 <? endif; ?>
-    <label for="<?=$model['name']?>"><?=$model['label']?></label>
-    <input type="password" name="<?= Arr::get($model, 'name')?>" value="<?= Arr::get($model, 'value')?>"/>
+    </label>
+    <input <?= HTML::attributes($attributes) ?>/>
     <div class="clear"></div>
 </div>

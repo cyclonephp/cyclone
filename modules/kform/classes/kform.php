@@ -51,9 +51,9 @@ class KForm {
             $type = Arr::get($field, 'type', 'text');
             $class = 'KForm_Field_'.ucfirst($type);
             if (class_exists($class)) {
-                $field = new $class($name, $field);
+                $field = new $class($this, $name, $field);
             } else  {
-                $field = new KForm_Field($name, $field, $type);
+                $field = new KForm_Field($this, $name, $field, $type);
             }
             
             if ($load_data_sources) {
@@ -139,7 +139,7 @@ class KForm {
         $progress_id = sha1($_SESSION[$sess_key]['progress_counter']++);
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
-        $input = new KForm_Field($this->config['progress_key'], array(), 'hidden');
+        $input = new KForm_Field($this, $this->config['progress_key'], array(), 'hidden');
         $input->set_val($progress_id);
         $this->model['fields'] [$this->config['progress_key']] = $input;
 
@@ -260,9 +260,8 @@ class KForm {
 
     public function render() {
         $this->set_defaults();
-        $view = new View($this->model['view_root'].DIRECTORY_SEPARATOR.$this->model['view']);
-        $view->fields = $this->model['fields'];
-        $view->attributes = $this->model['attributes'];
+        $view = new View($this->model['view_root']
+                .DIRECTORY_SEPARATOR.$this->model['view'], $this->model);
         return $view->render();
     }
 
@@ -271,6 +270,7 @@ class KForm {
             return $this->render();
         } catch (Exception $ex) {
             Kohana::exception_handler($ex);
+            return '';
         }
     }
 }

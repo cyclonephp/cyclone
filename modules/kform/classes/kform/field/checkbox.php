@@ -3,8 +3,8 @@
 
 class KForm_Field_Checkbox extends KForm_Field {
 
-    public function  __construct($name, array $model) {
-        parent::__construct($name, $model, 'checkbox');
+    public function  __construct(KForm $form, $name, array $model) {
+        parent::__construct($form, $name, $model, 'checkbox');
     }
 
     /**
@@ -16,7 +16,7 @@ class KForm_Field_Checkbox extends KForm_Field {
         $this->value = (boolean) $val == 'on';
     }
 
-    public function pick_val(&$src, $saved_data = array()) {
+    public function pick_val(&$src, &$saved_data = array()) {
         $this->value = (boolean) Arr::get($src, $this->name);
     }
 }
