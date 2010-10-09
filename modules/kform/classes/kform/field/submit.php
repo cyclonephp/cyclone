@@ -7,11 +7,11 @@ class KForm_Field_Submit extends KForm_Field {
         parent::__construct($form, $name, $model, 'submit');
     }
 
-    public function set_val($val) {
+    public function set_data($val) {
 
     }
 
-    public function get_val() {
+    public function get_data() {
         return null;
     }
 

@@ -45,13 +45,13 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $checkbox = new KForm_Field_Checkbox(new KForm(array(
             'fields' => array()
         )), '', array());
-        $checkbox->set_val('on');
+        $checkbox->set_data('on');
 
-        $this->assertTrue($checkbox->get_val());
+        $this->assertTrue($checkbox->get_data());
 
-        $checkbox->set_val(null);
+        $checkbox->set_data(null);
 
-        $this->assertFalse($checkbox->get_val());
+        $this->assertFalse($checkbox->get_data());
     }
 
     /**
@@ -81,18 +81,18 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             )
         ));
 
-        $form->load_input(array(
+        $form->set_input(array(
             'name1' => 'val1',
             'name2' => 'val2',
             'name3' => 'val3'
         ), false);
         $this->assertEquals(count($form->fields), 2);
-        $this->assertEquals($form->fields['name1']->get_val(), 'val1');
+        $this->assertEquals($form->fields['name1']->get_data(), 'val1');
     }
 
     public function testValidation() {
         $form = new KForm('examples/basic');
-        $form->load_input(array('name' => 'hello'));
+        $form->set_input(array('name' => 'hello'));
         $this->assertEquals($form->fields['name']->validation_errors,
                 array(
                     'numeric' => 'hello: invalid number format',
@@ -123,7 +123,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
                 )
             )
         ));
-        $form->load_input(array(
+        $form->set_input(array(
             'name1' => 'val1',
             'name2' => true,
             'name3' => 'val2'
@@ -145,7 +145,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
                 )
             )
         ));
-        $form->load_input(array('name1' => ''));
+        $form->set_input(array('name1' => ''));
         $data = $form->get_data();
         $this->assertNull($data['name1']);
     }
@@ -164,7 +164,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         ));
         $form->model['fields']['mydate']->value_format = $date_format;
 
-        $form->load_input(array(
+        $form->set_input(array(
            'mydate_year' => $input['year'],
            'mydate_month' => $input['month'],
            'mydate_day' => $input['day']
@@ -180,7 +180,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             )
         ));
         $form->model['fields']['mydate']->value_format = $date_format;
-        $form->load_data(array('mydate' => $date_string));
+        $form->set_data(array('mydate' => $date_string));
         $data = $form->get_data();
         $this->assertEquals($data['mydate'], $date_string);
     }
@@ -220,7 +220,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             )
         ));
 
-        $form->load_data(array('name' => 'username'));
+        $form->set_data(array('name' => 'username'));
         $form->render();
         $this->assertFalse(array_key_exists('name', $form->fields));
 
@@ -232,7 +232,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
                 )
             )
         ));
-        $form->load_data(array('name' => 'username'));
+        $form->set_data(array('name' => 'username'));
         $form->render();
         $this->assertEquals('disabled', $form->fields['name']->model['attributes']['disabled']);
     }
@@ -247,7 +247,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $cfg = Kohana::config('kform');
         unset($_SESSION[$cfg['progress_key']]);
         $form_before_submit = new KForm(array('fields' => $fields));
-        $form_before_submit->load_data($before_data);
+        $form_before_submit->set_data($before_data);
 
         if ($progress_id_required) {
             $this->assertArrayHasKey($cfg['progress_key'], $form_before_submit->fields);
@@ -255,15 +255,15 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             $form_fields = $form_before_submit->fields;
             foreach ($before_data as $k => $v) {
                 $this->assertArrayHasKey($k, $form_fields);
-                $this->assertEquals($form_fields[$k]->get_val(), $v);
+                $this->assertEquals($form_fields[$k]->get_data(), $v);
             }
         }
 
         $form_after_submit = new KForm(array('fields' => $fields));
         if ($progress_id_required) {
-            $input[$cfg['progress_key']] = $form_before_submit->fields[$cfg['progress_key']]->get_val();
+            $input[$cfg['progress_key']] = $form_before_submit->fields[$cfg['progress_key']]->get_data();
         }
-        $form_after_submit->load_input($input);
+        $form_after_submit->set_input($input);
         $result = $form_after_submit->get_data();
         $this->assertEquals($result, $after_data);
     }

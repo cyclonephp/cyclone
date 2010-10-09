@@ -56,11 +56,11 @@ class KForm_Field {
         
     }
 
-    public function set_val($val) {
+    public function set_data($val) {
         $this->value = $val;
     }
 
-    public function get_val() {
+    public function get_data() {
         return $this->value;
     }
 
@@ -74,10 +74,10 @@ class KForm_Field {
      * find the required input values in $src. It can happen if the input(s) were
      * disabled on the client side therefore weren't submitted.
      */
-    public function pick_val(&$src, &$saved_data = array()) {
+    public function pick_input(&$src, &$saved_data = array()) {
         $this->value = Arr::get($src, $this->name);
         if (null === $this->value) {
-            $this->set_val(Arr::get($saved_data, $this->name));
+            $this->set_data(Arr::get($saved_data, $this->name));
         }
         if ('' === $this->value && array_key_exists('on_empty', $this->model)) {
             $this->value = $this->model['on_empty'];
@@ -90,7 +90,7 @@ class KForm_Field {
      *
      * @param array $src
      */
-    public function push_val(&$src) {
+    public function push_input(&$src) {
         $src[$this->name] = $this->value;
     }
 

@@ -68,10 +68,10 @@ class KForm {
      *
      * @param array $src
      */
-    public function load_data($src, $save = true) {
+    public function set_data($src, $save = true) {
         foreach ($src as $k => $v) {
             if (array_key_exists($k, $this->model['fields'])) {
-                $this->model['fields'][$k]->set_val($v);
+                $this->model['fields'][$k]->set_data($v);
             }
         }
         $save && $this->_save_data($src);
@@ -140,7 +140,7 @@ class KForm {
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
         $input = new KForm_Field($this, $this->config['progress_key'], array(), 'hidden');
-        $input->set_val($progress_id);
+        $input->set_data($progress_id);
         $this->model['fields'] [$this->config['progress_key']] = $input;
 
         return $progress_id;
@@ -153,14 +153,14 @@ class KForm {
      *
      * @param array $src
      */
-    public function load_input($src, $validate = true) {
+    public function set_input($src, $validate = true) {
         if (array_key_exists($this->config['progress_key'], $src)) {
             $saved_data = $this->_get_saved_data($src[$this->config['progress_key']]);
         } else {
             $saved_data = array();
         }
         foreach ($this->fields as $field) {
-            $field->pick_val($src, $saved_data);
+            $field->pick_input($src, $saved_data);
         }
         if ($validate) {
             return $this->validate();
@@ -203,7 +203,7 @@ class KForm {
             }
             foreach ($this->fields as $name => $field) {
                 if ( ! is_int($name)) {
-                    $result[$name] = $field->get_val();
+                    $result[$name] = $field->get_data();
                 }
             }
         } else {
@@ -215,7 +215,7 @@ class KForm {
             }
             foreach ($this->fields as $name => $field) {
                 if ( ! is_int($name)) {
-                    $result->$name = $field->get_val();
+                    $result->$name = $field->get_data();
                 }
             }
         }

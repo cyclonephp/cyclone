@@ -22,7 +22,7 @@ class KForm_Field_Date extends KForm_Field {
         parent::__construct($form, $name, $model, 'date');
     }
 
-    public function  pick_val(&$src, &$saved_data = array()) {        
+    public function  pick_input(&$src, &$saved_data = array()) {
         $this->value = array(
             'year' => $src[$this->get_segment_name('year')],
             'month' => $src[$this->get_segment_name('month')],
@@ -34,7 +34,7 @@ class KForm_Field_Date extends KForm_Field {
         return $this->name.$this->suffixes[$segment];
     }
 
-    public function  set_val($val) {
+    public function  set_data($val) {
         $escaped_value_format = str_replace('/', '\/', $this->value_format);
         $pattern = '/'.$escaped_value_format.'/';
         foreach (array_keys($this->value) as $segment) {
@@ -48,7 +48,7 @@ class KForm_Field_Date extends KForm_Field {
         );
     }
 
-    public function  get_val() {
+    public function  get_data() {
         return strtr($this->value_format, $this->value);
     }
 

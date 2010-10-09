@@ -12,11 +12,11 @@ class KForm_Field_Checkbox extends KForm_Field {
      *
      * @param string $val
      */
-    public function set_val($val) {
+    public function set_data($val) {
         $this->value = (boolean) $val == 'on';
     }
 
-    public function pick_val(&$src, &$saved_data = array()) {
+    public function pick_input(&$src, &$saved_data = array()) {
         $this->value = (boolean) Arr::get($src, $this->name);
     }
 }
