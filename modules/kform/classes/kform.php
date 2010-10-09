@@ -222,6 +222,10 @@ class KForm {
         return $result;
     }
 
+    public function edit_mode() {
+        return ! is_null($this->progress_id);
+    }
+
     /**
      * shortcut to model access
      */
@@ -236,7 +240,20 @@ class KForm {
         $this->model[$key] = $value;
     }
 
-    protected function set_defaults() {
+    protected function before_rendering() {
+        if (is_null($this->progress_id)) {
+            foreach ($this->model['fields'] as $name => &$field) {
+                if (Arr::get($field->model, 'on_create') == 'hide') {
+                    unset($this->model['fields'][$name]);
+                }
+            }
+        } else {
+            foreach ($this->model['fields'] as $name => &$field) {
+                if (Arr::get($field->model, 'on_edit') == 'hide') {
+                    unset($this->model['fields'][$name]);
+                }
+            }
+        }
         if ( ! array_key_exists('view_root', $this->model)) {
             $this->model['view_root'] = 'kform';
         }
@@ -259,7 +276,7 @@ class KForm {
     }
 
     public function render() {
-        $this->set_defaults();
+        $this->before_rendering();
         $view = new View($this->model['view_root']
                 .DIRECTORY_SEPARATOR.$this->model['view'], $this->model);
         return $view->render();

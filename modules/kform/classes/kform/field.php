@@ -166,6 +166,13 @@ class KForm_Field {
         if ( ! array_key_exists('attributes', $this->model)) {
             $this->model['attributes'] = array();
         }
+        if (( ! $this->form->edit_mode()
+                && 'disable' == Arr::get($this->model, 'on_create'))
+            || ($this->form->edit_mode()
+                && 'disable' == Arr::get($this->model, 'on_edit'))) {
+            
+            $this->model['attributes']['disabled'] = 'disabled';
+        }
         $this->model['attributes']['value'] = $this->value;
         $this->model['attributes']['name'] = $this->name;
         $this->model['attributes']['type'] = $this->type;

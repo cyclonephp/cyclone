@@ -185,12 +185,58 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals($data['mydate'], $date_string);
     }
 
-    public function providerFieldDate() {
-        return array(
-            array('2010-09-17', array('year' => '2010', 'month' => '09', 'day' => '17'), 'year-month-day'),
-            array('09/17/2010', array('year' => '2010', 'month' => '09', 'day' => '17'), 'month/day/year')
-        );
+    public function testOnCreate() {
+        $form = new KForm(array(
+            'fields' => array(
+                'name' => array(
+                    'type' => 'text',
+                    'on_create' => 'hide',
+                )
+            )
+        ));
+
+        $form->render();
+        $this->assertFalse(array_key_exists('name', $form->fields));
+
+        $form = new KForm(array(
+            'fields' => array(
+                'name' => array(
+                    'type' => 'text',
+                    'on_create' => 'disable',
+                )
+            )
+        ));
+        $form->render();
+        $this->assertEquals('disabled', $form->fields['name']->model['attributes']['disabled']);
     }
+
+    public function testOnEdit() {
+        $form = new KForm(array(
+            'fields' => array(
+                'name' => array(
+                    'type' => 'text',
+                    'on_edit' => 'hide',
+                )
+            )
+        ));
+
+        $form->load_data(array('name' => 'username'));
+        $form->render();
+        $this->assertFalse(array_key_exists('name', $form->fields));
+
+        $form = new KForm(array(
+            'fields' => array(
+                'name' => array(
+                    'type' => 'text',
+                    'on_edit' => 'disable',
+                )
+            )
+        ));
+        $form->load_data(array('name' => 'username'));
+        $form->render();
+        $this->assertEquals('disabled', $form->fields['name']->model['attributes']['disabled']);
+    }
+
 
     /**
      *
@@ -257,6 +303,13 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $rval []= array($fields, $before_data, $progress_id_required, $input, $after_data);
 
         return $rval;
+    }
+
+    public function providerFieldDate() {
+        return array(
+            array('2010-09-17', array('year' => '2010', 'month' => '09', 'day' => '17'), 'year-month-day'),
+            array('09/17/2010', array('year' => '2010', 'month' => '09', 'day' => '17'), 'month/day/year')
+        );
     }
 
     public function providerDataSource() {
