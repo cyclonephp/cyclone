@@ -1,7 +1,7 @@
 <?php
 
 
-class DB_Query_Select {
+class DB_Query_Select extends DB_Query implements DB_Expression {
 
     public $columns;
 
@@ -16,6 +16,8 @@ class DB_Query_Select {
     public $group_by;
 
     public $having_conditions;
+
+    public $order_by;
 
     public $offset;
 
@@ -45,7 +47,7 @@ class DB_Query_Select {
     public function join($table, $join_type = 'INNER') {
         $join = array(
             'table' => $table,
-            'join_type' => $join_type,
+            'type' => $join_type,
             'conditions' => array()
         );
         $this->joins []= &$join;
@@ -68,6 +70,14 @@ class DB_Query_Select {
 
     public function where() {
         $this->where_conditions []= DB::create_expr(func_get_args());
+        return $this;
+    }
+
+    public function order_by($column, $direction = 'ASC') {
+        $this->order_by []= array(
+            'column' => $column,
+            'direction' => $direction
+        );
         return $this;
     }
 
@@ -102,6 +112,10 @@ class DB_Query_Select {
 
     public function exec($database = 'default') {
         return DB::inst($database)->exec_select($this);
+    }
+
+    public function  compile_expr(DB_Adapter $adapter) {
+        return $adapter->compile_select($this);
     }
 
     

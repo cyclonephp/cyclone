@@ -1,7 +1,7 @@
 <?php
 
 
-class DB_Query_Delete {
+class DB_Query_Delete extends DB_Query {
 
     public $table;
 

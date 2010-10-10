@@ -1,7 +1,7 @@
 <?php
 
 
-class DB_Query_Update {
+class DB_Query_Update extends DB_Query {
 
     public $table;
 
@@ -21,6 +21,7 @@ class DB_Query_Update {
 
     public function where() {
         $this->conditions []= DB::create_expr(func_get_args());
+        return $this;
     }
 
     public function compile($database = 'default') {

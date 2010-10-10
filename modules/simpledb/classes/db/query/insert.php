@@ -1,7 +1,7 @@
 <?php
 
 
-class DB_Query_Insert {
+class DB_Query_Insert extends DB_Query {
 
     public $table;
 

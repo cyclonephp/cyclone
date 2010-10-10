@@ -9,4 +9,8 @@ class DB_Expression_Custom implements DB_Expression {
         $this->str = $str;
     }
 
+    public function  compile_expr(DB_Adapter $adapter) {
+        return $this->str;
+    }
+
 }

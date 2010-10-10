@@ -57,5 +57,13 @@ class DB {
                 return new DB_Expression_Binary($args[0], $args[1], $args[2]);
         }
     }
+
+    public static function clear_connections() {
+        self::$_instances = array();
+    }
+
+    public static function esc($param) {
+        return new DB_Expression_Param($param);
+    }
     
 }
