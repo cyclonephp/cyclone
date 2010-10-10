@@ -22,4 +22,12 @@ class DB_Query_Delete {
         $this->limit = $limit;
         return $this;
     }
+
+    public function compile($database = 'default') {
+        return DB::inst($database)->compile_delete($this);
+    }
+
+    public function exec($database = 'default') {
+        return DB::inst($database)->exec_delete($this);
+    }
 }

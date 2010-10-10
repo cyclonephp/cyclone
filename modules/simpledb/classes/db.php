@@ -5,6 +5,11 @@ class DB {
 
     protected static $_instances = array();
 
+    /**
+     *
+     * @param string $config config file name
+     * @return DB_Adapter
+     */
     public static function inst($config = 'default') {
         if ( ! array_key_exists($config, self::$_instances)) {
             $cfg = Kohana::config('simpledb/'.$config);

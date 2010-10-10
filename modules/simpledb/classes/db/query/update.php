@@ -23,4 +23,12 @@ class DB_Query_Update {
         $this->conditions []= DB::create_expr(func_get_args());
     }
 
+    public function compile($database = 'default') {
+        return DB::inst($database)->compile_update($this);
+    }
+
+    public function exec($database = 'default') {
+        return DB::inst($database)->exec_update($this);
+    }
+
 }

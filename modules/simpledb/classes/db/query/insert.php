@@ -16,4 +16,12 @@ class DB_Query_Insert {
         $this->values = $values;
         return $this;
     }
+
+    public function compile($database = 'default') {
+        return DB::inst($database)->compile_insert($this);
+    }
+
+    public function exec($database = 'default') {
+        return DB::inst($database)->exec_insert($this);
+    }
 }

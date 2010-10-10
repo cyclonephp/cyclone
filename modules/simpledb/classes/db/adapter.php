@@ -52,13 +52,13 @@ abstract class DB_Adapter {
 
     abstract function compile_delete(DB_Query_Delete $query);
 
-    abstract function exec_select($query);
+    abstract function exec_select(DB_Query_Select $query);
 
-    abstract function exec_insert($query);
+    abstract function exec_insert(DB_Query_Insert $query);
 
-    abstract function exec_update($query);
+    abstract function exec_update(DB_Query_Update $query);
 
-    abstract function exec_delete($query);
+    abstract function exec_delete(DB_Query_Delete $query);
 
     /**
      * @param boolean $autocommit
