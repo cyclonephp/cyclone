@@ -43,6 +43,11 @@ abstract class DB_Adapter {
         }
     }
 
+    /**
+     * @param boolean $autocommit
+     */
+    abstract function autocommit($autocommit);
+
     abstract function compile_select(DB_Query_Select $query);
 
     abstract function compile_insert(DB_Query_Insert $query);
