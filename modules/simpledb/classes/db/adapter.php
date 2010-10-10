@@ -43,10 +43,6 @@ abstract class DB_Adapter {
         }
     }
 
-    /**
-     * @param boolean $autocommit
-     */
-    abstract function autocommit($autocommit);
 
     abstract function compile_select(DB_Query_Select $query);
 
@@ -63,5 +59,14 @@ abstract class DB_Adapter {
     abstract function exec_update($query);
 
     abstract function exec_delete($query);
+
+    /**
+     * @param boolean $autocommit
+     */
+    abstract function autocommit($autocommit);
+
+    abstract function commit();
+
+    abstract function rollback();
     
 }
