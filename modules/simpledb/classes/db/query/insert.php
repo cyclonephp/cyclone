@@ -13,7 +13,7 @@ class DB_Query_Insert extends DB_Query {
     }
 
     public function values($values) {
-        $this->values = $values;
+        $this->values []= $values;
         return $this;
     }
 

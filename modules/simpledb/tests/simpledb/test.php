@@ -87,8 +87,41 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
                 'SELECT `id`, `name`, (SELECT count(1) FROM `posts` WHERE `posts`.`author_fk` = `user`.`id`) AS `post_count` FROM `users` LEFT JOIN `groups` ON `users`.`group_fk` = `group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT `20` OFFSET `10`');
     }
 
+    /**
+     *
+     * @expectedException DB_Exception
+     */
+    public function testExecUpdate() {
+        $affected = DB::update('user')->values(array('name' => 'crystal88_'))->exec();
+        $this->assertEquals($affected, 0);
+        DB::update('users')->values(array('name' => 'crystal88_'))->exec();
+    }
+
+    /**
+     *
+     * @expectedException DB_Exception
+     */
+    public function testExecDelete() {
+        $affected = DB::delete('user')->exec();
+        $this->assertEquals($affected, 0);
+        DB::delete('users')->exec();
+    }
+
+    /**
+     *
+     * @expectedException DB_Exception
+     */
+    public function testExecInsert() {
+        $affected = DB::insert('user')->values(array('name' => 'crystal'))->exec();
+        $this->assertEquals(1, $affected);
+        $affected = DB::insert('user')->values(array('name' => 'crystal'))
+                ->values(array('name' => 'crystal'))->exec();
+        $this->assertEquals(2, $affected);
+        DB::insert('users')->values(array('name' => 'crystal'))->exec();
+    }
+
     public function  setUp() {
-        DB::inst();
+        DB::delete('user')->exec();
     }
 
     public function  tearDown() {

@@ -1,4 +1,4 @@
 <?php
 
 
-class DB_Exception {}
+class DB_Exception extends Exception {}

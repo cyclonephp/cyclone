@@ -3,6 +3,10 @@
 
 class DB_Adapter_Mysqli extends DB_Adapter {
 
+    /**
+     *
+     * @var mysqli
+     */
     protected $mysqli;
 
     protected function connect() {
@@ -54,8 +58,14 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     public function  compile_insert(DB_Query_Insert $query) {
         $rval = 'INSERT INTO ';
         $rval .= $this->escape_identifier($query->table);
-        $rval .= ' ('.$this->escape_values(array_keys($query->values)).')';
-        $rval .= ' VALUES ('.$this->escape_params($query->values).')';
+        if (empty($query->values))
+            throw new DB_Exception('no value lists to be inserted');
+        $rval .= ' ('.$this->escape_values(array_keys($query->values[0])).') VALUES ';
+        foreach ($query->values as $value_set) {
+            $value_sets []= '('.$this->escape_params($value_set).')';
+        }
+        
+        $rval .= implode(', ', $value_sets);
         return $rval;
     }
 
@@ -91,14 +101,23 @@ class DB_Adapter_Mysqli extends DB_Adapter {
 
     public function  exec_insert(DB_Query_Insert $query) {
         $sql = $this->compile_insert($query);
+        if ( ! $this->mysqli->query($sql))
+            throw new DB_Exception($this->mysqli->error, $this->mysqli->errno);
+        return $this->mysqli->affected_rows;
     }
 
     public function  exec_update(DB_Query_Update $query) {
         $sql = $this->compile_update($query);
+        if ( ! $this->mysqli->query($sql))
+            throw new DB_Exception($this->mysqli->error, $this->mysqli->errno);
+        return $this->mysqli->affected_rows;
     }
 
     public function  exec_delete(DB_Query_Delete $query) {
         $sql = $this->compile_delete($query);
+        if ( ! $this->mysqli->query($sql))
+            throw new DB_Exception ($this->mysqli->error, $this->mysqli->errno);
+        return $this->mysqli->affected_rows;
     }
 
     public function  autocommit($autocommit) {
