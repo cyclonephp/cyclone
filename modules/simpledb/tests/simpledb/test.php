@@ -12,7 +12,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testQueryFactory() {
         $query = DB::select();
-        $this->assertEquals($query->columns, array('*'));
+        $this->assertEquals($query->columns, array(DB::expr('*')));
 
         $query = DB::update('user');
         $this->assertEquals($query->table, 'user');
@@ -118,6 +118,34 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
                 ->values(array('name' => 'crystal'))->exec();
         $this->assertEquals(2, $affected);
         DB::insert('users')->values(array('name' => 'crystal'))->exec();
+    }
+
+    public function testExecSelect() {
+        $names = array('user1', 'user2');
+        $insert = DB::insert('user');
+        foreach ($names as $name) {
+            $insert->values(array('name' => $name));
+        }
+        $insert->exec();
+        $result = DB::select()->from('user')->exec();
+        $this->assertTrue($result instanceof DB_Query_Result);
+        $this->assertEquals(2, $result->count());
+        $idx = 0;
+        foreach ($result as $v) {
+            $this->assertEquals($v['name'], $names[$idx++]);
+        }
+        $result->rows('stdClass');
+        $idx = 0;
+        foreach ($result as $v) {
+            $this->assertEquals($v->name, $names[$idx++]);
+        }
+        $result->index_by('name');
+        $idx = 0;
+        foreach ($result as $k => $v) {
+            $this->assertEquals($v->name, $names[$idx]);
+            $this->assertEquals($k, $names[$idx++]);
+        }
+        print_r($result);
     }
 
     public function  setUp() {

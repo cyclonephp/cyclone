@@ -27,7 +27,7 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
 
     public function columns() {
         if (0 == func_num_args()) {
-            $this->columns = array('*');
+            $this->columns = array(DB::expr('*'));
         } else {
             $this->columns = func_get_args();
         }
@@ -35,7 +35,7 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
     }
 
     public function columns_arr($columns) {
-        $this->columns = empty($columns) ? array('*') : $columns;
+        $this->columns = empty($columns) ? array(DB::expr('*')) : $columns;
         return $this;
     }
 

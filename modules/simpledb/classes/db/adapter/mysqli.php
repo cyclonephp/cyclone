@@ -97,6 +97,10 @@ class DB_Adapter_Mysqli extends DB_Adapter {
 
     public function  exec_select(DB_Query_Select $query) {
         $sql = $this->compile_select($query);
+        $result = $this->mysqli->query($sql);
+        if ($result === false)
+            throw new DB_Exception($this->mysqli->error, $this->mysqli->errno);
+        return new DB_Query_Result_Mysqli($result);
     }
 
     public function  exec_insert(DB_Query_Insert $query) {
@@ -133,6 +137,8 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function escape_identifier($identifier) {
+        if ($identifier instanceof DB_Expression) //die(' ITTT');
+            return $identifier->compile_expr($this);
         $segments = explode('.', $identifier);
         return '`'.implode('`.`', $segments).'`';
     }
