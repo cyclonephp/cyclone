@@ -93,7 +93,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
      */
     public function testExecUpdate() {
         $affected = DB::update('user')->values(array('name' => 'crystal88_'))->exec();
-        $this->assertEquals($affected, 0);
+        $this->assertEquals($affected, 2);
         DB::update('users')->values(array('name' => 'crystal88_'))->exec();
     }
 
@@ -103,8 +103,13 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
      */
     public function testExecDelete() {
         $affected = DB::delete('user')->exec();
-        $this->assertEquals($affected, 0);
+        $this->assertEquals($affected, 2);
         DB::delete('users')->exec();
+    }
+
+    public function testSet() {
+        $sql = DB::select()->from('user')->where('col', 'IN', DB::expr(array(1, 2)))->compile();
+        $this->assertEquals($sql, "SELECT * FROM `user` WHERE `col` IN ('1', '2')");
     }
 
     /**
@@ -122,11 +127,6 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testExecSelect() {
         $names = array('user1', 'user2');
-        $insert = DB::insert('user');
-        foreach ($names as $name) {
-            $insert->values(array('name' => $name));
-        }
-        $insert->exec();
         $result = DB::select()->from('user')->exec();
         $this->assertTrue($result instanceof DB_Query_Result);
         $this->assertEquals(2, $result->count());
@@ -145,14 +145,69 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
             $this->assertEquals($v->name, $names[$idx]);
             $this->assertEquals($k, $names[$idx++]);
         }
-        print_r($result);
     }
 
-    public function  setUp() {
+    public function testAsArray() {
+        $names = array('user1', 'user2');
+        $result = DB::select()->from('user')->exec()->index_by('name')->as_array();
+        $idx = 0;
+        foreach ($result as $k => $v) {
+            $this->assertEquals($v['name'], $names[$idx]);
+            $this->assertEquals($k, $names[$idx++]);
+        }
+    }
+
+    public function testCommitRollback() {
+        DB::inst()->autocommit(false);
+        $deleted_rows = DB::delete('user')->exec();
+        $this->assertEquals($deleted_rows, 2);
+        DB::inst()->rollback();
+        $existing_rows = DB::select()->from('user')->exec()->count();
+        $this->assertEquals($existing_rows, 2);
+        $deleted_rows = DB::delete('user')->exec();
+        $this->assertEquals($deleted_rows, 2);
+        DB::inst()->commit();
+        $existing_rows = DB::select()->from('user')->exec()->count();
+        $this->assertEquals($existing_rows, 0);
+    }
+
+    public function testTransactionSuccess() {
+        $tx = new DB_Transaction;
+        $tx []= DB::delete('user')->limit(1);
+        $tx []= DB::delete('user')->limit(1);
+        $tx->exec();
+    }
+
+    public function testTransactionFailure() {
+        $tx = new DB_Transaction;
+        $tx []= DB::delete('user')->limit(1);
+        $tx []= DB::delete('badtablename')->limit(1);
+        try {
+            $tx->exec();
+            $failed = false;
+        } catch (DB_Exception $ex) {
+            $failed = true;
+        }
+        $this->assertTrue($failed);
+        $this->assertEquals(2, DB::select()->from('user')->exec()->count());
+    }
+
+    public function testStarEscaping() {
+        $sql = DB::select('user.*')->from('user')->compile();
+        $this->assertEquals($sql, 'SELECT `user`.* FROM `user`');
+    }
+
+    public function setUp() {
         DB::delete('user')->exec();
+        $names = array('user1', 'user2');
+        $insert = DB::insert('user');
+        foreach ($names as $name) {
+            $insert->values(array('name' => $name));
+        }
+        $insert->exec();
     }
 
-    public function  tearDown() {
+    public function tearDown() {
         DB::clear_connections();
     }
 

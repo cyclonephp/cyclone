@@ -50,6 +50,9 @@ class DB {
     public static function create_expr($args) {
         switch (count($args)) {
             case 1:
+                if (is_array($args[0])) {
+                    return new DB_Expression_Set($args[0]);
+                }
                 return new DB_Expression_Custom($args[0]);
             case 2:
                 return new DB_Expression_Unary($args[0], $args[1]);

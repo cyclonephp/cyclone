@@ -14,6 +14,9 @@ abstract class DB_Query_Result extends ArrayIterator implements Countable, Trave
 
     public function index_by($column) {
         $this->index_by = $column;
+        return $this;
     }
+
+    public abstract function as_array();
 
 }

@@ -52,5 +52,13 @@ class DB_Query_Result_Mysqli extends DB_Query_Result {
         $this->result->free();
     }
 
+    public function as_array() {
+        $rval = array();
+        foreach ($this as $k => $v) {
+            $rval[$k] = $v;
+        }
+        return $rval;
+    }
+
     
 }

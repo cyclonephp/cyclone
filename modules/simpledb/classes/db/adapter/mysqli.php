@@ -125,22 +125,33 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function  autocommit($autocommit) {
-        $this->mysqli->autocommit($autocommit);
+         if ( ! $this->mysqli->autocommit($autocommit))
+            throw new DB_Exception ('failed to change autocommit mode');
     }
 
     public function  commit() {
-        $this->mysqli->commit();
+        if ( ! $this->mysqli->commit())
+            throw new DB_Exception('failed to commit transaction');
     }
 
     public function rollback() {
-        $this->mysqli->rollback();
+        if ( ! $this->mysqli->rollback())
+            throw new DB_Exception('failed to rollback transaction');
     }
 
     public function escape_identifier($identifier) {
-        if ($identifier instanceof DB_Expression) //die(' ITTT');
+        if ($identifier instanceof DB_Expression)
             return $identifier->compile_expr($this);
         $segments = explode('.', $identifier);
-        return '`'.implode('`.`', $segments).'`';
+        $rval = '`'.$segments[0].'`';
+        if (count($segments) > 1) {
+            if ('*' == $segments[1]) {
+                $rval .= '.*';
+            } else {
+                $rval .= '.`'.$segments[1].'`';
+            }
+        }
+        return $rval;
     }
 
     public function escape_param($param) {

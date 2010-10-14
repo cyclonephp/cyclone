@@ -110,6 +110,11 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
         return DB::inst($database)->compile_select($this);
     }
 
+    /**
+     *
+     * @param string $database
+     * @return DB_Query_Result
+     */
     public function exec($database = 'default') {
         return DB::inst($database)->exec_select($this);
     }
