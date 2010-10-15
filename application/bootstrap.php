@@ -37,7 +37,6 @@ Kohana::modules(array(
             'simpledb' => MODPATH.'simpledb',
             'pagination' => MODPATH . 'pagination', // Paging of results
             'core' => MODPATH . 'core',
-            'record' => MODPATH . 'record-new',
             'kform' => MODPATH . 'kform',
             'dev' => MODPATH . 'dev',
             'captcha' => MODPATH . 'captcha',
