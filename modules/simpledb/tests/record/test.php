@@ -40,4 +40,12 @@ class Record_Test extends Kohana_Unittest_TestCase {
         $user2->save();
     }
 
+    public function testGetOne() {
+        $user = Record_User::inst()->get_one(array('name', '=', DB::esc('user1')));
+        $this->assertTrue($user instanceof Record_User);
+        $this->assertEquals(1, $user->id);
+        $this->assertEquals('user1', $user->name);
+    }
+
+
 }

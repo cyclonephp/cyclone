@@ -49,6 +49,29 @@ abstract class Record_Base {
 
     }
 
+    public function get_one() {
+        $schema = $this->schema();
+        $query = DB::select()->from($schema->table_name);
+        $args = func_get_args();
+        $this->build_sfw($query, $args);
+        $result = $query->exec($schema->database)->rows($schema->class)->as_array();
+        if (empty($result))
+            return null;
+        return $result[0];
+    }
+
+    protected function build_sfw(DB_Query_Select $query, $args) {
+        foreach ($args as $arg) {
+            if ( ! is_array($arg))
+                throw new Exception("$arg is not an array");
+            switch (count($arg)) {
+                case 2: $query->order_by($arg[0], $arg[1]); break;
+                case 3: $query->where($arg[0], $arg[1], $arg[2]); break;
+                default: throw new Exception('arguments must be 2 or 3 length arrays and not '.  count($arg));
+            }
+        }
+    }
+
     public function save() {
         $schema = $this->schema();
         if (array_key_exists($schema->primary_key, $this->_row)) {
