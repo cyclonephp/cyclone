@@ -117,11 +117,11 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
      * @expectedException DB_Exception
      */
     public function testExecInsert() {
-        $affected = DB::insert('user')->values(array('name' => 'crystal'))->exec();
-        $this->assertEquals(1, $affected);
-        $affected = DB::insert('user')->values(array('name' => 'crystal'))
+        $insert_id = DB::insert('user')->values(array('name' => 'crystal'))->exec();
+        $this->assertEquals(3, $insert_id);
+        $insert_id = DB::insert('user')->values(array('name' => 'crystal'))
                 ->values(array('name' => 'crystal'))->exec();
-        $this->assertEquals(2, $affected);
+        $this->assertEquals(4, $insert_id);
         DB::insert('users')->values(array('name' => 'crystal'))->exec();
     }
 
@@ -134,12 +134,14 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         foreach ($result as $v) {
             $this->assertEquals($v['name'], $names[$idx++]);
         }
+        $result = DB::select()->from('user')->exec();
         $result->rows('stdClass');
         $idx = 0;
         foreach ($result as $v) {
             $this->assertEquals($v->name, $names[$idx++]);
         }
-        $result->index_by('name');
+        $result = DB::select()->from('user')->exec();
+        $result->index_by('name')->rows('stdClass');
         $idx = 0;
         foreach ($result as $k => $v) {
             $this->assertEquals($v->name, $names[$idx]);
@@ -197,8 +199,13 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals($sql, 'SELECT `user`.* FROM `user`');
     }
 
+    public function testNullValues() {
+        $sql = DB::select()->from('user')->where('id', 'IS', null)->compile();
+        $this->assertEquals($sql, "SELECT * FROM `user` WHERE `id` IS NULL");
+    }
+
     public function setUp() {
-        DB::delete('user')->exec();
+        DB::query('truncate user')->exec();
         $names = array('user1', 'user2');
         $insert = DB::insert('user');
         foreach ($names as $name) {

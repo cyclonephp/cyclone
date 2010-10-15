@@ -107,7 +107,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         $sql = $this->compile_insert($query);
         if ( ! $this->mysqli->query($sql))
             throw new DB_Exception($this->mysqli->error, $this->mysqli->errno);
-        return $this->mysqli->affected_rows;
+        return $this->mysqli->insert_id;
     }
 
     public function  exec_update(DB_Query_Update $query) {
@@ -122,6 +122,10 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         if ( ! $this->mysqli->query($sql))
             throw new DB_Exception ($this->mysqli->error, $this->mysqli->errno);
         return $this->mysqli->affected_rows;
+    }
+
+    public function exec_custom($sql) {
+        $this->mysqli->query($sql);
     }
 
     public function  autocommit($autocommit) {

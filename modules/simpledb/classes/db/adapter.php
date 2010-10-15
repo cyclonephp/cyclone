@@ -60,6 +60,8 @@ abstract class DB_Adapter {
 
     abstract function exec_delete(DB_Query_Delete $query);
 
+    abstract function exec_custom($sql);
+
     abstract function compile_alias($expr, $alias);
 
     /**

@@ -35,10 +35,9 @@ Kohana::$config->attach(new Kohana_Config_File);
  */
 Kohana::modules(array(
             'simpledb' => MODPATH.'simpledb',
-            'database' => MODPATH . 'database', // Database access
             'pagination' => MODPATH . 'pagination', // Paging of results
             'core' => MODPATH . 'core',
-            'record' => MODPATH . 'record',
+            'record' => MODPATH . 'record-new',
             'kform' => MODPATH . 'kform',
             'dev' => MODPATH . 'dev',
             'captcha' => MODPATH . 'captcha',

@@ -19,6 +19,10 @@ class DB {
         return self::$_instances[$config];
     }
 
+    public static function query($sql) {
+        return new DB_Query_Custom($sql);
+    }
+
     public static function select() {
         $query = new DB_Query_Select;
         $query->columns_arr(func_get_args());
@@ -55,9 +59,19 @@ class DB {
                 }
                 return new DB_Expression_Custom($args[0]);
             case 2:
-                return new DB_Expression_Unary($args[0], $args[1]);
+                return new DB_Expression_Unary($args[0], self::create_nullexpr($args[1]));
             case 3:
-                return new DB_Expression_Binary($args[0], $args[1], $args[2]);
+                return new DB_Expression_Binary(self::create_nullexpr($args[0])
+                        , $args[1]
+                        , self::create_nullexpr($args[2]));
+        }
+    }
+
+    protected static function create_nullexpr($arg) {
+        if (null === $arg) {
+            return new DB_Expression_Custom('NULL');
+        } else {
+            return $arg;
         }
     }
 
