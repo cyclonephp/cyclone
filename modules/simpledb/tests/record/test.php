@@ -78,11 +78,15 @@ class Record_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals('user2', $user->name);
     }
 
-    public function tesstDelete() {
+    /**
+     * @expectedException Exception
+     */
+    public function testDelete() {
         $user = Record_User::inst()->get(1);
         $user->delete();
         Record_User::inst()->delete(2);
-        $remaining = DB::select()->from('user');
+        $remaining = DB::select()->from('user')->exec();
         $this->assertEquals(0, count($remaining));
+        Record_User::inst()->delete();
     }
 }
