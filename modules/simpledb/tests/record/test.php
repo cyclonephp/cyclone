@@ -53,6 +53,7 @@ class Record_Test extends Kohana_Unittest_TestCase {
             array('name', 'desc')
         );
         $this->assertTrue($users instanceof DB_Query_Result);
+        $this->assertEquals(2, count($users));
         $users = $users->as_array();
         $this->assertEquals($users[0]->id, 2);
         $this->assertEquals($users[0]->name, 'user2');

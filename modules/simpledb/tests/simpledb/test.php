@@ -140,8 +140,8 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         foreach ($result as $v) {
             $this->assertEquals($v->name, $names[$idx++]);
         }
-        $result = DB::select()->from('user')->exec();
-        $result->index_by('name')->rows('stdClass');
+        $result = DB::select()->from('user')->exec()
+                ->index_by('name')->rows('stdClass');
         $idx = 0;
         foreach ($result as $k => $v) {
             $this->assertEquals($v->name, $names[$idx]);
@@ -151,10 +151,11 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testAsArray() {
         $names = array('user1', 'user2');
-        $result = DB::select()->from('user')->exec()->index_by('name')->as_array();
+        $result = DB::select()->from('user')->exec()->index_by('name')->rows('stdClass')->as_array();
+        $this->assertEquals(count($result), 2);
         $idx = 0;
         foreach ($result as $k => $v) {
-            $this->assertEquals($v['name'], $names[$idx]);
+            $this->assertEquals($v->name, $names[$idx]);
             $this->assertEquals($k, $names[$idx++]);
         }
     }
