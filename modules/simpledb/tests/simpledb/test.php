@@ -57,9 +57,9 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testCompileUpdate() {
         $query = DB::update('user')->values(array('name' => 'crystal', 'email' => 'ebence88@gmail.com'))
-                ->where('id', '=', DB::esc(1));
+                ->where('id', '=', DB::esc(1))->limit(10);
 
-        $this->assertEquals("UPDATE `user` SET `name` = 'crystal', `email` = 'ebence88@gmail.com' WHERE `id` = '1'",
+        $this->assertEquals("UPDATE `user` SET `name` = 'crystal', `email` = 'ebence88@gmail.com' WHERE `id` = '1' LIMIT 10",
                 $query->compile());
     }
 

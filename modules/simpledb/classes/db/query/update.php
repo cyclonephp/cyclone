@@ -9,6 +9,8 @@ class DB_Query_Update extends DB_Query {
 
     public $conditions;
 
+    public $limit;
+
     public function table($table) {
         $this->table = $table;
         return $this;
@@ -21,6 +23,11 @@ class DB_Query_Update extends DB_Query {
 
     public function where() {
         $this->conditions []= DB::create_expr(func_get_args());
+        return $this;
+    }
+
+    public function limit($limit) {
+        $this->limit = (int) $limit;
         return $this;
     }
 

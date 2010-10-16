@@ -80,6 +80,9 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         if ( ! empty($query->conditions)) {
             $rval .= ' WHERE '.$this->compile_expressions($query->conditions);
         }
+        if ( ! is_null($query->limit)) {
+            $rval .= ' LIMIT '.$query->limit;
+        }
         return $rval;
     }
 

@@ -19,7 +19,7 @@ class DB_Query_Delete extends DB_Query {
     }
 
     public function limit($limit) {
-        $this->limit = $limit;
+        $this->limit = (int) $limit;
         return $this;
     }
 
