@@ -92,12 +92,12 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
     }
 
     public function offset($offset) {
-        $this->offset = $offset;
+        $this->offset = (int) $offset;
         return $this;
     }
 
     public function limit($limit) {
-        $this->limit = $limit;
+        $this->limit = (int) $limit;
         return $this;
     }
 

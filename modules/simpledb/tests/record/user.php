@@ -1,7 +1,7 @@
 <?php
 
 
-class Record_User extends Record_Base {
+class Record_User extends Record_Abstract {
 
     protected function  setup() {
         $this->_schema->database = 'default';

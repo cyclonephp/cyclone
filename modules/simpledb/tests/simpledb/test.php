@@ -84,7 +84,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
                 ;
 
         $this->assertEquals($query->compile(), 
-                'SELECT `id`, `name`, (SELECT count(1) FROM `posts` WHERE `posts`.`author_fk` = `user`.`id`) AS `post_count` FROM `users` LEFT JOIN `groups` ON `users`.`group_fk` = `group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT `20` OFFSET `10`');
+                'SELECT `id`, `name`, (SELECT count(1) FROM `posts` WHERE `posts`.`author_fk` = `user`.`id`) AS `post_count` FROM `users` LEFT JOIN `groups` ON `users`.`group_fk` = `group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
     }
 
     /**

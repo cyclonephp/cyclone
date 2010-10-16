@@ -47,10 +47,10 @@ class DB_Adapter_Mysqli extends DB_Adapter {
             }
         }
         if ( ! is_null($query->limit)) {
-            $rval .= ' LIMIT '.$this->escape_value($query->limit);
+            $rval .= ' LIMIT '.$query->limit;
         }
         if ( ! is_null($query->offset)) {
-            $rval .= ' OFFSET '.$this->escape_value($query->offset);
+            $rval .= ' OFFSET '.$query->offset;
         }
         return $rval;
     }
