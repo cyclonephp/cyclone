@@ -60,6 +60,14 @@ abstract class Record_Base {
         return $result[0];
     }
 
+    public function get_list() {
+        $schema = $this->schema();
+        $query = DB::select()->from($schema->table_name);
+        $args = func_get_args();
+        $this->build_sfw($query, $args);
+        return $query->exec($schema->database)->rows($schema->class);
+    }
+
     protected function build_sfw(DB_Query_Select $query, $args) {
         foreach ($args as $arg) {
             if ( ! is_array($arg))

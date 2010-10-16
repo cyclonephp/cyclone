@@ -47,5 +47,14 @@ class Record_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals('user1', $user->name);
     }
 
-
+    public function testGetList() {
+        $users = Record_User::inst()->get_list(
+            array('id', 'in', DB::expr(array(1, 2))),
+            array('name', 'desc')
+        );
+        $this->assertTrue($users instanceof DB_Query_Result);
+        $users = $users->as_array();
+        $this->assertEquals($users[0]->id, 2);
+        $this->assertEquals($users[0]->name, 'user2');
+    }
 }
