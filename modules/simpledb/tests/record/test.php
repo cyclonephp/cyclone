@@ -89,4 +89,9 @@ class Record_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals(0, count($remaining));
         Record_User::inst()->delete();
     }
+
+    public function testCount() {
+        $count = Record_User::inst()->count(array('id', '=', DB::esc(1)));
+        $this->assertEquals(1, $count);
+    }
 }

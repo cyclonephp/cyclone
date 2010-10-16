@@ -121,6 +121,15 @@ abstract class Record_Abstract {
         }
     }
 
+    public function count() {
+        $schema = $this->schema();
+        $query = DB::select(array(DB::expr('count(1)'), 'count'))->from($schema->table_name);
+        $args = func_get_args();
+        $this->build_sfw($query, $args);
+        $result = $query->exec($schema->database)->as_array();
+        return $result[0]['count'];
+    }
+
     public function save() {
         $schema = $this->schema();
         if (array_key_exists($schema->primary_key, $this->_row)) {
