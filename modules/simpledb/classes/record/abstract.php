@@ -169,4 +169,17 @@ abstract class Record_Abstract {
         }
     }
 
+    public function  __unset($name) {
+        if (array_key_exists($name, $this->_row)) {
+            unset($this->_row[$name]);
+        } elseif (array_key_exists($name, $this->_transient_data)) {
+            unset($this->_transient_data[$name]);
+        }
+    }
+
+    public function  __isset($name) {
+        return array_key_exists($name, $this->_row)
+                || array_key_exists($name, $this->_transient_data);
+    }
+
 }
