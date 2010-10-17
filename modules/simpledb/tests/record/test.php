@@ -25,6 +25,8 @@ class Record_Test extends Kohana_Unittest_TestCase {
         $this->assertTrue($user instanceof Record_User);
         $this->assertEquals(1, $user->id);
         $this->assertEquals('user1', $user->name);
+        $user = Record_User::inst()->get(20);
+        $this->assertNull($user);
     }
 
     public function testSave() {
@@ -41,11 +43,15 @@ class Record_Test extends Kohana_Unittest_TestCase {
         $user2->save();
     }
 
+    /**
+     * @expectedException Exception
+     */
     public function testGetOne() {
         $user = Record_User::inst()->get_one(array('name', '=', DB::esc('user1')));
         $this->assertTrue($user instanceof Record_User);
         $this->assertEquals(1, $user->id);
         $this->assertEquals('user1', $user->name);
+        Record_User::inst()->get_one(array('id', 'in', DB::expr(array(1, 2))));
     }
 
     public function testGetList() {

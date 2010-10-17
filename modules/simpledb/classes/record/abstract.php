@@ -9,18 +9,46 @@ abstract class Record_Abstract {
      */
     private static $_instances = array();
 
+    /**
+     *
+     * @var array holds the data of the database row represented by the object
+     */
     protected $_row = array();
 
+    /**
+     *
+     * @var array holds the transient properties of the object that hasn't got
+     * suitable database fields
+     */
     protected $_transient_data = array();
 
-    protected $_dirty = false;
-    
-    protected $_auto_save = false;
-
+    /**
+     *
+     * @var stdClass this property only has non-null value in the singleton
+     * instances. This holds the mapping-related information. Must be set up
+     * in the setup() abstract method.
+     *
+     * @property database
+     * @property table_name
+     * @property columns
+     * @property class
+     */
     protected $_schema;
 
+    /**
+     * the $_schema object properties must be set up here.
+     */
     protected abstract function setup();
 
+    /**
+     * This method must be called by the singleton accessor static methods
+     * of descendant Record classes. The parameter must be __CLASS__ in all cases.
+     * A singleton instance is created for the class, and it's setup() method is
+     * called.
+     *
+     * @param string $classname
+     * @return Record_Abstract
+     */
     protected static function _inst($classname) {
         if ( ! array_key_exists($classname, self::$_instances)) {
             $inst = new $classname;
@@ -33,6 +61,11 @@ abstract class Record_Abstract {
         return self::$_instances[$classname];
     }
 
+    /**
+     * Accessor for the singleton instance related to the object.
+     * 
+     * @return stdClass
+     */
     protected function schema() {
         if ( ! array_key_exists(get_class($this), self::$_instances)) {
             self::_inst(get_class($this));
@@ -40,12 +73,21 @@ abstract class Record_Abstract {
         return self::$_instances[get_class($this)]->_schema;
     }
 
+    /**
+     * Returns a record object that represents the databae row
+     * that owns the primary key passed by the $id parameter
+     *
+     * @param int/mixed $id
+     * @return Record_Abstract
+     */
     public function get($id) {
         $query = DB::select()
                 ->from($this->schema()->table_name)
                 ->where($this->schema()->primary_key, '=', DB::esc($id))
                 ->exec($this->schema()->database)
                         ->rows($this->schema()->class)->as_array();
+        if (empty($query))
+            return null;
         return $query[0];
 
     }
@@ -56,9 +98,11 @@ abstract class Record_Abstract {
         $args = func_get_args();
         $this->build_sfw($query, $args);
         $result = $query->exec($schema->database)->rows($schema->class)->as_array();
-        if (empty($result))
-            return null;
-        return $result[0];
+        switch(count($result)) {
+            case 1: return $result[0];
+            case 0: return null;
+            default: throw new Exception('more than one results');
+        }
     }
 
     public function get_list() {
