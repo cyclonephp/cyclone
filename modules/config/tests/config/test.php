@@ -17,5 +17,10 @@ class Config_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals(Config::inst()->readers, array());
         Config::inst()->detach_reader($db_reader);
     }
+
+    public function testSetup() {
+        Config::setup();
+        $this->assertTrue(Config::inst()->readers[0] instanceof Config_Reader_File);
+    }
     
 }

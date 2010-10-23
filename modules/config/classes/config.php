@@ -15,6 +15,16 @@ class Config {
         return self::$_instances[$name];
     }
 
+    public static function setup($setupfile = 'setup') {
+        $reader = new Config_Reader_File;
+        foreach ($reader->read($setupfile) as $name => $instance) {
+            $cfg = new Config;
+            $cfg->readers = &$instance['readers'];
+            $cfg->writers = &$instance['writers'];
+            self::$_instances [$name]= $cfg;
+        }
+    }
+
     private function __construct() {
         // empty private constructor
     }

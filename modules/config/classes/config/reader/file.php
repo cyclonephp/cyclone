@@ -3,6 +3,18 @@
 class Config_Reader_File implements Config_Reader {
 
     public function read($key) {
-        return $key;
+        $segments = explode('.', $key);
+        $filename = array_shift($segments);
+        $files = Kohana::find_file('config', $filename, null, true);
+        $merged = array();
+        foreach ($files as $file) {
+            $merged = Arr::merge($merged, require $file);
+        }
+        $current = &$merged;
+        while ( ! empty($segments)) {
+            $current = &$current[array_shift($segments)];
+        }
+        return $current;
     }
+    
 }
