@@ -19,7 +19,7 @@ class Config_Reader_File_Env implements Config_Reader {
         if (is_array($env_val) && is_array($def_val)) {
             return Arr::merge($env_val, $def_val);
         } else {
-            return is_null($env_val) ? $def_val : $env_val;
+            return $env_val === false ? $def_val : $env_val;
         }
     }
 

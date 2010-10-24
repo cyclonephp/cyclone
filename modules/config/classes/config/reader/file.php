@@ -12,6 +12,8 @@ class Config_Reader_File implements Config_Reader {
         $segments = explode('.', $key);
         $filename = array_shift($segments);
         $files = Kohana::find_file($this->root_path, $filename, null, true);
+        if (empty($files))
+            return false;
         $merged = array();
         foreach ($files as $file) {
             $merged = Arr::merge($merged, require $file);
