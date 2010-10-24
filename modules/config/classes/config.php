@@ -4,7 +4,7 @@ class Config {
 
     protected static $_instances = array();
 
-    public $readers;
+    public $readers = array();
 
     public $writers;
 

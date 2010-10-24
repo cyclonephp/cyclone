@@ -2,10 +2,16 @@
 
 class Config_Reader_File implements Config_Reader {
 
+    public $root_path;
+
+    public function  __construct($root_path = 'config') {
+        $this->root_path = $root_path;
+    }
+
     public function read($key) {
         $segments = explode('.', $key);
         $filename = array_shift($segments);
-        $files = Kohana::find_file('config', $filename, null, true);
+        $files = Kohana::find_file($this->root_path, $filename, null, true);
         $merged = array();
         foreach ($files as $file) {
             $merged = Arr::merge($merged, require $file);
