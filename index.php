@@ -77,7 +77,8 @@ Kohana::modules(array(
             'dev' => TOOLPATH . 'dev',
             'captcha' => MODPATH . 'captcha',
             'unittest' => TOOLPATH.'unittest',
-        'userguide' => TOOLPATH.'userguide'
+            'userguide' => TOOLPATH.'userguide',
+            'config' => MODPATH.'config'
         ));
 Session::instance();
 
