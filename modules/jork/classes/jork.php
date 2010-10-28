@@ -19,8 +19,9 @@ class JORK {
 
     public static function adapter($name = 'default') {
         if ( ! array_key_exists($name, self::$_adapters)) {
-            $class = 'JORK_Adapter_'.ucfirst($name);
-            self::$_adapters[$name] = new $class;
+            $cfg = Config::inst()->get('jork/'.$name);
+            $class = 'JORK_Adapter_'.ucfirst($cfg['adapter']);
+            self::$_adapters[$name] = new $class(DB::inst($cfg['db_inst']));
         }
         return self::$_adapters[$name];
     }

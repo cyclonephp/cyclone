@@ -3,6 +3,11 @@
 
 class JORK_Test extends Kohana_Unittest_TestCase {
 
+    public function setUp() {
+        Config::setup();
+        Kohana::$environment = Kohana::TESTING;
+    }
+
     public function testBasicSelect() {
         $query = JORK::from('Model_User');
         $this->assertTrue($query instanceof  JORK_Query_Select);
