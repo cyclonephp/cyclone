@@ -53,5 +53,9 @@ class JORK_Query_Select {
         return $this;
     }
 
+    public function exec($adapter = 'default') {
+        JORK::adapter($adapter)->exec_select($this);
+    }
+
     
 }

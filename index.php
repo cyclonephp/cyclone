@@ -69,6 +69,7 @@ Kohana::$config->attach(new Kohana_Config_File);
  */
 Kohana::modules(array(
             'simpledb' => MODPATH.'simpledb',
+            'jork' => MODPATH.'jork',
             'pagination' => MODPATH . 'pagination',
             'core' => MODPATH . 'core',
             'record' => MODPATH . 'record',
