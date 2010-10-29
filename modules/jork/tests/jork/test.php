@@ -21,11 +21,16 @@ class JORK_Test extends Kohana_Unittest_TestCase {
                 ;
     }
 
-    public function testSimpleSelect() {
-        $result = JORK::from('Model_User user')->exec();
-        $this->assertTrue($result instanceof JORK_Query_Result);
-        foreach ($result as $user) {
-            $this->assertTrue($user instanceof Model_User);
-        }
+//    public function testSimpleSelect() {
+//        $result = JORK::from('Model_User user')->exec();
+//        $this->assertTrue($result instanceof JORK_Query_Result);
+//        foreach ($result as $user) {
+//            $this->assertTrue($user instanceof Model_User);
+//        }
+//    }
+
+    public function testGetSchema() {
+        JORK::schema('Model_User');
     }
+
 }

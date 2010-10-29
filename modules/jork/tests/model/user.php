@@ -5,8 +5,8 @@ class Model_User extends JORK_Model_Abstract {
 
 
     protected function setup() {
-        $this->schema->table = 'users';
-        $this->schema->columns = array(
+        $this->_schema->table = 'users';
+        $this->_schema->columns = array(
             'id' => array(
                 'type' => 'int',
                 'primary' => true,
@@ -27,7 +27,7 @@ class Model_User extends JORK_Model_Abstract {
                 'not null' => true
             )
         );
-        $this->schema->secondary_tables = array(
+        $this->_schema->secondary_tables = array(
             'user_details' => array(
                 'email' => array(
                     'type' => 'string',
@@ -35,13 +35,17 @@ class Model_User extends JORK_Model_Abstract {
                 )
             )
         );
-        $this->schema->components = array(
+        $this->_schema->components = array(
             'posts' => array(
                 'class' => 'Model_Post',
                 'type' => JORK::ONE_TO_MANY,
                 'join_column' => 'user_fk'
             )
         );
+    }
+
+    public static function inst() {
+        return parent::_inst(__CLASS__);
     }
     
 }

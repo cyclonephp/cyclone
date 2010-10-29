@@ -30,4 +30,9 @@ class Model_Category extends JORK_Model_Abstract {
             )
         );
     }
+
+    public static function inst() {
+        return parent::_inst(__CLASS__);
+    }
+    
 }
