@@ -3,8 +3,8 @@
 class Model_Topic extends JORK_Model_Abstract {
 
     public function setup() {
-        $this->schema->table = 'topics';
-        $this->schema->columns = array(
+        $this->_schema->table = 'topics';
+        $this->_schema->columns = array(
             'id' => array(
                 'type' => 'int',
                 'primary' => true,
@@ -16,7 +16,7 @@ class Model_Topic extends JORK_Model_Abstract {
                 'not null' => true
             )
         );
-        $this->schema->components = array(
+        $this->_schema->components = array(
             'categories' => array(
                 'class' => 'Model_Category',
                 'mapped_by' => 'topics'

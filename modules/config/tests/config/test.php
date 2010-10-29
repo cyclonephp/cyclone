@@ -20,7 +20,7 @@ class Config_Test extends Kohana_Unittest_TestCase {
 
     public function testSetup() {
         Config::setup();
-        $this->assertTrue(Config::inst()->readers[0] instanceof Config_Reader_File);
+        $this->assertTrue(Config::inst()->readers[0] instanceof Config_Reader_File_Env);
     }
     
 }

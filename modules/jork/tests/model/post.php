@@ -14,12 +14,20 @@ class Model_Post extends JORK_Model_Abstract {
             ),
             'name' => array(
                 'type' => 'string'
+            ),
+            'topic_fk' => array(
+                'type' => 'int not null'
             )
         );
         $this->_schema->components = array(
             'author' => array(
                 'class' => 'Model_User',
                 'mapped_by' => 'posts'
+            ),
+            'topic' => array(
+                'class' => 'Model_Topic',
+                'type' => JORK::MANY_TO_ONE,
+                'join_column' => 'topic_fk'
             )
         );
     }

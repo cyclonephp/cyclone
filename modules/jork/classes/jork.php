@@ -9,6 +9,8 @@ class JORK {
 
     const MANY_TO_MANY = 2;
 
+    const MANY_TO_ONE = 3;
+
     /**
      * @var array the singleton adapter instances per config
      */

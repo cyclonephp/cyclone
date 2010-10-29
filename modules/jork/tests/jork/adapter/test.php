@@ -28,13 +28,20 @@ class JORK_Adapter_Test extends Kohana_Unittest_TestCase {
             )
         ));
 
-        $jork_query = JORK::from('Model_User')->join('posts.category');
+        $jork_query = JORK::from('Model_User')->join('posts.topic');
         $db_query = JORK::adapter()->map_select($jork_query);
         $this->assertEquals($db_query->joins[0], array(
             'table' => 'posts',
             'type' => 'INNER',
             'conditions' => array(
                 array('users.id', '=', 'posts.user_fk')
+            )
+        ));
+        $this->assertEquals($db_query->joins[1], array(
+            'table' => 'topics',
+            'type' => 'INNER',
+            'conditions' => array(
+                array('posts.topic_fk', '=', 'topics.id')
             )
         ));
     }

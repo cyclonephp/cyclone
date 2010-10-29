@@ -68,7 +68,7 @@ abstract class JORK_Adapter_Abstract implements JORK_Adapter {
         $entity_name = $parts[0];
 
         $schema = JORK::schema($entity_name);
-        
+
         if (1 == $part_count) {
             $table_name = $table_alias = $schema->table;
         } elseif (2 == $part_count) {
@@ -83,32 +83,45 @@ abstract class JORK_Adapter_Abstract implements JORK_Adapter {
                 if ( ! array_key_exists($component, $schema->components))
                     throw new JORK_Exception('component '.$component.' of class '.$entity_name.' does not exist');
 
-                $db_joins []= self::component2join($entity_name
-                            , $table_alias
-                            , $component);
+                self::component2join($entity_name
+                    , $table_alias
+                    , $component
+                    , &$db_joins);
+
+                $entity_name = $schema->components[$component]['class'];
+                $schema = JORK::schema($entity_name);
             }
         }
 
         return $db_joins;
     }
 
-    protected static function component2join($class, $table, $component) {
+    protected static function component2join($class, $table, $component, &$db_join_arr) {
         $schema = JORK::schema($class);
         $comp_def = $schema->components[$component];
 
         $remote_schema = JORK::schema($comp_def['class']);
 
-        $db_join = array(
-            'table' => $remote_schema->table,
-            'type' => 'INNER'
-        );
         if (JORK::ONE_TO_MANY == $comp_def['type']) {
-            $db_join['conditions'] = array(
-                array($table.'.'.$schema->primary_key(), '=',
-                    $remote_schema->table.'.'.$comp_def['join_column'])
+            $db_join = array(
+                'table' => $remote_schema->table,
+                'type' => 'INNER',
+                'conditions' => array(
+                     array($table.'.'.$schema->primary_key(), '=',
+                        $remote_schema->table.'.'.$comp_def['join_column'])
+                )
+            );
+            $db_join_arr []= $db_join;
+        } elseif (JORK::MANY_TO_ONE == $comp_def['type']) {
+            $db_join_arr []= array(
+                'table' => $remote_schema->table,
+                'type' => 'INNER',
+                'conditions' => array(
+                    array($schema->table.'.'.$comp_def['join_column'], '=',
+                        $remote_schema->table.'.'.$remote_schema->primary_key())
+                )
             );
         }
-        return $db_join;
     }
 
 }
