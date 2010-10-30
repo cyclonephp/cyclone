@@ -122,19 +122,20 @@ abstract class JORK_Adapter_Abstract implements JORK_Adapter {
                 )
             );
         } elseif (JORK::MANY_TO_MANY == $comp_def['type']) {
+            $join_table = $comp_def['join_table'];
             $db_join_arr []= array(
-                'table' => $comp_def['join_table']['name'],
+                'table' => $join_table['name'],
                 'type' => 'INNER',
                 'conditions' => array(
                     array($schema->table.'.'.$schema->primary_key()
-                        , '=', $comp_def['join_table']['name'].'.'.$comp_def['join_table']['join_column'])
+                        , '=', $join_table['name'].'.'.$join_table['join_column'])
                 )
             );
             $db_join_arr []= array(
                 'table' => $remote_schema->table,
                 'type' => 'INNER',
                 'conditions' => array(
-                    array($comp_def['join_table']['name'].'.'.$comp_def['join_table']['inverse_join_column'], '='
+                    array($join_table['name'].'.'.$join_table['inverse_join_column'], '='
                     , $remote_schema->table.'.'.$remote_schema->primary_key())
                 )
             );
