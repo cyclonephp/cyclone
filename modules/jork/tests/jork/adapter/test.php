@@ -45,4 +45,40 @@ class JORK_Adapter_Test extends Kohana_Unittest_TestCase {
             )
         ));
     }
+
+
+    public function testMapPropertyChainManyToMany() {
+        $jork_query = JORK::from('Model_User')->join('posts.topic.categories');
+        $db_query = JORK::adapter()->map_select($jork_query);
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => 'posts',
+                'type' => 'INNER',
+                'conditions' => array(
+                    array('users.id', '=', 'posts.user_fk')
+                )
+            ),
+            array(
+                'table' => 'topics',
+                'type' => 'INNER',
+                'conditions' => array(
+                    array('posts.topic_fk', '=', 'topics.id')
+                )
+            ),
+            array(
+                'table' => 'categories_topics',
+                'type' => 'INNER',
+                'conditions' => array(
+                    array('topics.id', '=', 'categories_topics.topic_fk')
+                )
+            ),
+            array(
+                'table' => 'categories',
+                'type' => 'INNER',
+                'conditions' => array(
+                    array('categories_topics.category_fk', '=', 'categories.id')
+                )
+            )
+        ));
+    }
 }

@@ -39,10 +39,14 @@ class JORK {
         return self::$_adapters[$name];
     }
 
+    /**
+     *
+     * @param string $class
+     * @return JORK_Schema
+     */
     public static function schema($class) {
         static $schemas = array();
         if ( ! array_key_exists($class, $schemas)) {
-            //$refclass = new ReflectionClass($class);
             $schemas[$class] = JORK_Model_Abstract::schema_by_class($class);
         }
         return $schemas[$class];

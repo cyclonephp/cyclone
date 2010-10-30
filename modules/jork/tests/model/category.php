@@ -5,8 +5,8 @@ class Model_Category extends JORK_Model_Abstract {
 
 
     public function setup() {
-        $this->schema->table = 'categories';
-        $this->schema->columns = array(
+        $this->_schema->table = 'categories';
+        $this->_schema->columns = array(
             'id' => array(
                 'type' => 'int',
                 'primary' => true,
@@ -18,15 +18,11 @@ class Model_Category extends JORK_Model_Abstract {
                 'not null' => true
             )
         );
-        $this->schema->components = array(
+        $this->_schema->components = array(
             'topics' => array(
                 'class' => 'Model_Topic',
                 'type' => JORK::MANY_TO_MANY,
-                'join_table' => array(
-                    'name' => 'categories_topics',
-                    'join_column' => 'category_fk',
-                    'inverse_join_column' => 'topic_fk'
-                )
+                'mapped_by' => 'categories'
             )
         );
     }

@@ -19,7 +19,12 @@ class Model_Topic extends JORK_Model_Abstract {
         $this->_schema->components = array(
             'categories' => array(
                 'class' => 'Model_Category',
-                'mapped_by' => 'topics'
+                'type' => JORK::MANY_TO_MANY,
+                'join_table' => array(
+                    'name' => 'categories_topics',
+                    'join_column' => 'topic_fk',
+                    'inverse_join_column' => 'category_fk'
+                )
             )
         );
     }
