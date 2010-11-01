@@ -30,7 +30,7 @@ class JORK_Test extends Kohana_Unittest_TestCase {
 //    }
 
     public function testGetSchema() {
-        JORK::schema('Model_User');
+        $this->assertTrue(JORK::schema('Model_User') instanceof JORK_Schema);
     }
 
 }

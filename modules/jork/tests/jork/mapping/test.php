@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Adapter_Test extends Kohana_Unittest_TestCase {
+class JORK_Mapping_Test extends Kohana_Unittest_TestCase {
 
     public function testMapEntity() {
         $jork_query = JORK::from('Model_User user');

@@ -25,6 +25,10 @@ class Model_Topic extends JORK_Model_Abstract {
                     'join_column' => 'topic_fk',
                     'inverse_join_column' => 'category_fk'
                 )
+            ),
+            'posts' => array(
+				'class' => 'Model_Post',
+				'mapped_by' => 'topic'
             )
         );
     }

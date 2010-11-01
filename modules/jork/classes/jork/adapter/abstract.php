@@ -139,6 +139,9 @@ abstract class JORK_Adapter_Abstract implements JORK_Adapter {
                     , $remote_schema->table.'.'.$remote_schema->primary_key())
                 )
             );
+        } elseif (JORK::ONE_TO_ONE == $comp_def['type']) {
+            //TODO implement
+            throw new Exception('not yet implemented');
         }
     }
 
