@@ -33,4 +33,11 @@ class JORK_Test extends Kohana_Unittest_TestCase {
         $this->assertTrue(JORK::schema('Model_User') instanceof JORK_Schema);
     }
 
+    public function testJoinFactory() {
+        $query = JORK::from('Model_User')
+            ->join('posts.topics')
+            ->join('posts.topics.creator');
+        
+    }
+
 }

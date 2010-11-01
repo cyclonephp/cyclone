@@ -17,6 +17,12 @@ class JORK_Query_Select {
 
     public $limit;
 
+    protected $alias_factory;
+
+    public function  __construct() {
+        $this->alias_factory = new JORK_Alias_Factory($this);
+    }
+
     public function join($component_path, $type = 'INNER') {
         $this->joins []= array(
             'component_path' => $component_path,
