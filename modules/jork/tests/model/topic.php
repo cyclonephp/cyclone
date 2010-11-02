@@ -3,7 +3,7 @@
 class Model_Topic extends JORK_Model_Abstract {
 
     public function setup() {
-        $this->_schema->table = 'topics';
+        $this->_schema->table = 't_topics';
         $this->_schema->columns = array(
             'id' => array(
                 'type' => 'int',

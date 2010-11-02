@@ -9,4 +9,8 @@ class JORK_Query_Join {
     public $table;
 
     public $table_alias;
+
+    public static function factory(array $comp_path, $final_alias = NULL) {
+        
+    }
 }

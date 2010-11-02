@@ -5,7 +5,7 @@ class JORK_Query_Select {
 
     public $entity;
 
-    public $joins;
+    public $joins = array();
 
     public $where_conditions;
 
