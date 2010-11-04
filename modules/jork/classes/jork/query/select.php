@@ -17,10 +17,7 @@ class JORK_Query_Select {
 
     public $limit;
 
-    protected $alias_factory;
-
     public function  __construct() {
-        $this->alias_factory = new JORK_Alias_Factory($this);
         $this->joins = new ArrayObject;
     }
 
