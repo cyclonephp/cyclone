@@ -35,22 +35,30 @@ class JORK_Test extends Kohana_Unittest_TestCase {
 
     public function testJoinFactory() {
         $query = JORK::from('Model_User user')
-            ->join('posts.topics')
+            ->join('posts.topics user_topics')
             ->join('posts.topics.creator topic_creator');
+        $expected = new ArrayObject(array(
+                    array(
+                        'component' => 'posts',
+                        'nexts' => new ArrayObject(array(
+                            array(
+                                'component' => 'topics',
+                                'nexts' => new ArrayObject(array(
+                                    array(
+                                        'component' => 'creator',
+                                        'nexts' => new ArrayObject,
+                                        'alias' => 'topic_creator',
+                                    )
+                                )),
+                                'alias' => 'user_topics',
+                            ))
+                        )
+                    )
+                ));
 
-        $this->assertEquals(count($query->joins), 1);
+        //print_r($query->joins); print_r($expected);
 
-        $this->assertTrue($query->joins[0] instanceof JORK_Query_Join);
-
-        $this->assertEquals($query->joins[0]->entity_class, 'Model_Post');
-        $this->assertNull($query->joins[0]->entity_alias);
-
-        $this->assertEquals($query->joins[0]->table, 't_posts');
-
-        $this->assertNull($query->joins[0]->table_alias);
-
-
-        $this->assertEquals(count($query->joins[0]->joins), 2);
+        $this->assertEquals($query->joins, $expected);
         
     }
 
