@@ -9,16 +9,11 @@ class JORK_Mapping_Test extends Kohana_Unittest_TestCase {
         list($db_query, $metadata) = $mapper->map();
         $this->assertEquals($db_query->tables
                 , array(array('t_users', 't_users_1')));
-
-        $exp_metadata = new JORK_Mapping_Metadata;
-        $exp_metadata->entity = 'Model_User';
-        $exp_metadata->table = 't_users_1';
-        $this->assertEquals($exp_metadata, $metadata);
     }
 
     public function testMapJoin() {
         $jork_query = JORK::from('Model_User user')
-            ->join('posts.topics user_topics');
+            ->join('posts.topic user_topics');
             //->join('posts.topics.creator topic_creator');
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, $metadata) = $mapper->map();
