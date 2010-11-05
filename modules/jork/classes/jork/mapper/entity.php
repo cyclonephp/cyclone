@@ -51,6 +51,14 @@ class JORK_Mapper_Entity {
         $this->create_next_mappers($jork_select->joins);
     }
 
+    /**
+     * Creates the appropriate mapper objects for the next properties
+     * in the selected property chain.
+     * 
+     * @param array $joins the next joins
+     * @see JORK_Mapper_Entity::__construct()
+     * @see JORK_Mapper_Component::__construct()
+     */
     protected function create_next_mappers($joins) {
         foreach ($joins as $join) {
             $this->_next_mappers []= JORK_Mapper_Component::factory($this

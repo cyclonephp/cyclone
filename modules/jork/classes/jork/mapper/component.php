@@ -27,7 +27,19 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
             , DB_Query_Select $db_query) {
         $this->_alias_factory = $alias_factory;
         $this->_db_query = $db_query;
-        
+        $this->_entity_schema = JORK::schema(
+            $parent_mapper->_entity_schema->components[$join_def['component']]['class']
+        );
+        $this->_parent_mapper = $parent_mapper;
+        $this->_component = $join_def['component'];
+        $this->_table = $this->_alias_factory->for_table($this->_entity_schema->table);
+
+        if (array_key_exists('mapped_by', $this->_parent_mapper->_entity_schema->components[$this->_component])) {
+            //TODO reverse mapping
+        } else {
+            $this->component2join();
+        }
+
         $this->create_next_mappers($join_def['nexts']);
     }
 
