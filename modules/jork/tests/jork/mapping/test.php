@@ -15,8 +15,8 @@ class JORK_Mapping_Test extends Kohana_Unittest_TestCase {
         $jork_query = JORK::from('Model_User user')
             ->join('posts.topic user_topics');
             //->join('posts.topics.creator topic_creator');
-        $mapper = new JORK_Mapper_Select($jork_query);
-        list($db_query, $metadata) = $mapper->map();
+        $select_mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, $comp_mapper) = $select_mapper->map();
         $this->assertEquals($db_query->joins, array(
             array(
                 'table' => array('t_posts', 't_posts_1')
@@ -26,6 +26,9 @@ class JORK_Mapping_Test extends Kohana_Unittest_TestCase {
                 )
             )
         ));
+        $this->assertTrue($comp_mapper instanceof JORK_Mapper_Entity);
+        $this->assertEquals($comp_mapper->table, 't_user_1');
+        $this->assertEquals($comp_mapper->entity_class, 'Model_User');
     }
 
 }

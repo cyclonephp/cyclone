@@ -20,38 +20,12 @@ class JORK_Mapper_Select {
     }
 
     public function map() {
-        $this->map_entity();
-
-        $component_mapper = new JORK_Mapper_Component($this->_alias_factory
-                , &$this->_db_query->joins);
-
-        $this->_mapper = $component_mapper->build(JORK::schema($this->_jork_query->entity['entity_class'])
-                , $this->_jork_query->joins);
+        $this->_mapper = new JORK_Mapper_Entity($this->_jork_query
+                , $this->_alias_factory
+                , &$this->_db_query);
 
         return array($this->_db_query, $this->_mapper);
     }
 
-    protected function map_entity() {
-        $entity_schema = JORK::schema($this->_jork_query->entity['entity_class']);
-
-        $table_alias = $this->_alias_factory->for_table($entity_schema->table);
-
-        $this->_db_query->tables = array(
-            array($entity_schema->table
-                , $table_alias)
-        );
-
-    }
-
-    protected function map_joins(ArrayObject $joins, JORK_Schema $parent_schema) {
-//        foreach($joins as $join) {
-//            $component = $join['component'];
-//            $comp_def = $parent_schema->components[$component];
-//            JORK_Mapper_Component::component2join($comp_def
-//                    , $this->_alias_factory
-//                    , &$this->_db_query->joins
-//                    , &$this->_metadata->properties);
-//        }
-    }
 
 }
