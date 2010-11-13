@@ -14,6 +14,6 @@ RewriteEngine On
 # Rewrite all other URLs to index.php/URL
 #RewriteRule .* index.php/$0 [PT,L]
 
-RewriteCond $1 !^(index\.php|res|robots\.txt|$)
+RewriteCond $1 !^(index\.php|res|media|robots\.txt|$)
 RewriteRule ^(.*)$ index.php/$1 [L]
 
