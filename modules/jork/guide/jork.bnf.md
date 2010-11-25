@@ -2,27 +2,33 @@
 <pre> 
 statement := select_statement | update_statement | insert_statement | delete_statement
 
-select_statement := select_clause? from_clause with_clause?
+select_statement := select_clause? from_clause with_clause*
 	join_clause* where_clause? order_by_clause? group_by_clause? having_clause?
 	offset_clause? limit_clause?
 	
-select_clause := 'SELECT' property_list
+select_clause := 'SELECT' select_list?
+
+select_list := select_list_item (', ' select_list_item)*
+
+select_list_item := property_chain property_projection? (' ' alias_name)?
+
+alias_name := identifier
+
+property_projection := '{' property_chain (',' property_chain)* '}'
 	
 from_clause := 'FROM' from_list
 
-with_clause := 'WITH' with_list
+with_clause := 'WITH' 'ONLY'? with_list
 
-property_list := expression (',' expression)*
-
-expression := property_chain | database_expression
+expression := property_chain | database_expression | '(' select_statement ')'
 
 property_chain := identifier ('.' identifier)*
 
-database_expresson := [a-zA-Z_-+/*(){} ]+
+database_expression := [a-zA-Z_-+/*(){} ]+
 
 identifier := [a-zA-Z_]+
 
-from_list = entity_class_def (',' entity_class_def)* | property_chain (' ' entity_alias)?
+from_list = entity_class | entity_class_def (',' entity_class_def)* | property_chain (' ' entity_alias)?
 
 entity_class_def := entity_class (' ' entity_alias)?
 
@@ -32,7 +38,7 @@ entity_alias := identifier
 
 with_list := with_list_item (',' with_list_item)*
 
-with_list_item := property_chain (' ' entity_alias)?
+with_list_item := (property_chain (' ' entity_alias)?) | '(' select_statement ')'
 
 join_clause := ('LEFT' | 'RIGHT') 'JOIN' entity_class_def 'ON' logical_expression
 
@@ -47,13 +53,17 @@ having_clause := 'HAVING' logical_expression
 logical_expression := (comparator_expression | composite_logical_expression | exists_expression) 
 	| ( '(' comparator_expression | composite_logical_expression | exists_expression ')' )
 
-comparator_expression := expression ('=' | '<', '>', '<=', '>=') expression
+comparator_expression := (expression ('=' | '<' | '>' | '<=' | '>=') expression)
+	| expression 'NOT'? 'IN' '(' select_statement ')'
 
 composite_logical_expression := logical_expression ('AND' | 'OR') logical_expression
 
 exists_expression := 'NOT'? 'EXISTS' select_statement
 
+
 order_by_item := property_chain 'ASC' | 'DESC'
+
+group_by_item := expression
 
 offset_clause := 'OFFSET' integer
 
