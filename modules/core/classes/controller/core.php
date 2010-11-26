@@ -5,13 +5,15 @@ class Controller_Core extends Controller_Template {
 
     public static $minify_js;
 
+    public static $minify_css;
+
+    public static $config;
+
     protected $content;
 
     protected $params = array();
 
     protected $template_params = array();
-
-    protected $view_class = 'View';
 
     protected static $js_params = array();
 
@@ -25,6 +27,9 @@ class Controller_Core extends Controller_Template {
         $this->process_auth();
         if (Request::$is_ajax) {
             $this->auto_render = true;
+        }
+        if ($this->request == Request::instance()) {
+            self::$config = Config::inst();
         }
     }
 
@@ -58,13 +63,12 @@ class Controller_Core extends Controller_Template {
         $this->action_file_path =  str_replace('_', DIRECTORY_SEPARATOR, $this->request->controller)
                                 .DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $this->request->action);
         $this->add_default_resources();
-        if (self::$minify_js) {
-            $this->minify_js();
+        if (self::$config->get('core.minify.js')) {
+            $this->minify_assets('js');
         }
-        $head_view = new View('head_resources');
-        $head_view->res = self::$resources;
-        $head_view->server_params = self::$js_params;
-        $this->template_params['head_resources'] = $head_view;
+        if (self::$config->get('core.minify.css')) {
+            $this->minify_assets('css');
+        }
         if (Request::$is_ajax && $this->auto_render == true) {
             $this->request->response = is_array($this->content) ?
                 json_encode($this->content) :
@@ -72,8 +76,10 @@ class Controller_Core extends Controller_Template {
             $this->auto_render = false;
         }
         if ($this->auto_render == true) {
-            if ($this->content == null) {
-                $this->template->_content = new $this->view_class(
+            
+            $this->template_params['head_resources'] = $this->create_head_view();
+            if (NULL == $this->content) {
+                $this->template->_content = new View(
                        $this->action_file_path,
                         $this->params);
             } else if (is_string($this->content)) {
@@ -91,62 +97,80 @@ class Controller_Core extends Controller_Template {
         parent::after();
     }
 
+    protected function create_head_view() {
+        $head_view = new View('head_resources');
+        $head_view->res = self::$resources;
+        $head_view->server_params = self::$js_params;
+        return $head_view;
+    }
+
     protected function add_default_resources() {
-        if (file_exists(DOCROOT.'res/js/'.$this->action_file_path.'.js')) {
+        $asset_path = self::$config->get('core.asset_path');
+        $js_path = $asset_path.'js';
+        $css_path = $asset_path.'css';
+        
+        if (Kohana::find_file($js_path, $this->action_file_path, 'js')) {
             $this->add_js($this->action_file_path);
         }
-        if (file_exists(DOCROOT.'res/js/'.$this->request->controller.'.js')) {
+        if (Kohana::find_file($js_path, $this->request->controller, 'js')) {
             $this->add_js($this->request->controller);
         }
 
-        if (file_exists(DOCROOT.'res/css/'.$this->action_file_path.'.css')) {
+        if (Kohana::find_file($js_path, 'template', 'js')) {
+            $this->add_js('template');
+        }
+
+        if (Kohana::find_file($css_path, $this->action_file_path, 'css')) {
             $this->add_css($this->action_file_path);
         }
-        if (file_exists(DOCROOT.'res/css/'.$this->request->controller.'.css')) {
+        if (Kohana::find_file($css_path, $this->request->controller, 'css')) {
             $this->add_css($this->request->controller);
         }
 
-        if (file_exists(DOCROOT.'res/css/template.css')) {
+        if (Kohana::find_file($css_path, 'template', 'css')) {
             $this->add_css('template');
         }
 
-        if (file_exists(DOCROOT.'res/js/template.js')) {
-            $this->add_js('template');
-        }
     }
 
-    protected function minify_js() {
+    /**
+     *
+     * @param string $type 'css' or 'js'
+     */
+    protected function minify_assets($type) {
         $delete_keys = array();
-        $all_js_files = array(); //array containing the js file names
-        foreach (self::$resources['js'] as $k => $item) {
-            if ($item['minify']) {
-                $delete_keys []= $k;
-                $all_js_files []= $item['file'];
+        $all_files = array(); //array containing the js file names
+        $path = self::$config->get('core.asset_path').$type;
+        foreach (self::$resources[$type] as $k => $minifiable) {
+            if ($minifiable) {
+                $all_files []= $k;
             }
         }
-        if ( ! empty($delete_keys)) {
-            foreach ($delete_keys as $key) {
-                unset(self::$resources['js'][$key]);
+        if ( ! empty($all_files)) {
+            foreach ($all_files as $key) {
+                unset(self::$resources[$type][$key]);
             }
-            $all_filenames = '';
-            foreach ($all_js_files as $filename) {
-                $all_filenames .= $filename;
-            }
-            $minified_file_rel_path = '/res/js/'.sha1($all_filenames).'.js';
-            $minified_file_abs_path = Text::reduce_slashes(DOCROOT.$minified_file_rel_path);
+            $minified_file_rel_path = 'res'.DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.sha1(implode('', $all_files)).'.'.$type;
+            $minified_file_abs_path = DOCROOT.$minified_file_rel_path;
             if ( ! file_exists($minified_file_abs_path)) {
-                $all_js_src = '';
-                foreach ($all_js_files as $js_file) {
-                    $all_js_src .= JSMin::minify(file_get_contents(Text::reduce_slashes(DOCROOT.$js_file)));
+                $all_src = '';
+                if ($type == 'js') {
+                    foreach ($all_files as $file) {
+                        $all_src .=
+                            JSMin::minify(file_get_contents(Kohana::find_file($path, $file, 'js')));
+                    }
+                } elseif($type == 'css') {
+                    foreach ($all_files as $file) {
+                        $all_src .=
+                            CssMin::minify(file_get_contents(Kohana::find_file($path, $file, 'css')));
+                    }
                 }
-                Log::debug('generating javascript file: '.$minified_file_abs_path);
-                file_put_contents($minified_file_abs_path, $all_js_src);
+                Log::debug('generating asset file: '.$minified_file_abs_path);
+                file_put_contents($minified_file_abs_path, $all_src);
             }
-            self::$resources['js'] []= array('file' => $minified_file_rel_path);
+            self::$resources[$type] []= array('file' => $minified_file_rel_path);
         }
     }
-
-
 
     /**
      * helper method
@@ -174,17 +198,15 @@ class Controller_Core extends Controller_Template {
         }
     }
 
-    public static function add_css($str) {
-        $str = '/res/css/'.$str.'.css';
-        if (array_search($str, self::$resources['css']) === false) {
-            self::$resources['css'] []= $str;
+    public static function add_css($str, $minify = TRUE) {
+        if ( ! array_key_exists($str, self::$resources['css'])) {
+            self::$resources['css'][$str] =  $minify;
         }
     }
 
-    public static function add_js($str, $minify = true) {
-        $str = '/res/js/'.$str.'.js';
-        if (array_search($str, self::$resources['js']) === false) {
-            self::$resources['js'] []= array('file' => $str, 'minify' => $minify);
+    public static function add_js($str, $minify = TRUE) {
+        if ( !array_key_exists($str, self::$resources['js'])) {
+            self::$resources['js'][$str] = $minify;
         }
     }
 

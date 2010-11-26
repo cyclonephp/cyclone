@@ -28,25 +28,25 @@ class Log {
 
     public static function debug($entry) {
         if (self::$log_levels[self::$log_level] >= self::DEBUG) {
-            self::add_entry('DEBUG', $entry, $user_id);
+            self::add_entry('DEBUG', $entry);
         }
     }
 
     public static function info($entry) {
         if (self::$log_levels[self::$log_level] >= self::INFO) {
-            self::add_entry('INFO', $entry, $user_id);
+            self::add_entry('INFO', $entry);
         }
     }
 
     public static function warning($entry) {
         if (self::$log_levels[self::$log_level] >= self::WARNING) {
-            self::add_entry('WARNING', $entry, $user_id);
+            self::add_entry('WARNING', $entry);
         }
     }
 
     public static function error($entry) {
         if (self::$log_levels[self::$log_level] >= self::ERROR) {
-            self::add_entry('ERROR', $entry, $user_id);
+            self::add_entry('ERROR', $entry);
         }
     }
 
