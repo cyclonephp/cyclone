@@ -137,11 +137,15 @@ class Controller_Core extends Controller_Template {
         $new_resources = array();
         $all_files = array(); //array containing the file names to be minified
         $path = self::$config->get('core.asset_path').$type;
+        $max_latest_mod = 0; //latest file modification date for asset files to be minified
         foreach (self::$resources[$type] as $k => $minifiable) {
+            $abs_path = Kohana::find_file($path, $k, $type);
             if ($minifiable) {
                 $all_files []= $k;
+                if (($tmp = filemtime($abs_path)) > $max_latest_mod) {
+                    $max_latest_mod = $tmp;
+                }
             } else {
-                $abs_path = Kohana::find_file($path, $k, 'css');
                 $rel_path = substr($abs_path, strlen(DOCROOT));
                 $new_resources []= $rel_path;
             }
@@ -149,7 +153,8 @@ class Controller_Core extends Controller_Template {
         if ( ! empty($all_files)) {
             $minified_file_rel_path = 'res'.DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.sha1(implode('', $all_files)).'.'.$type;
             $minified_file_abs_path = DOCROOT.$minified_file_rel_path;
-            if ( ! file_exists($minified_file_abs_path)) {
+            if ( ! file_exists($minified_file_abs_path) 
+                    || filemtime($minified_file_abs_path) < $max_latest_mod) {
                 $all_src = '';
                 if ($type == 'js') {
                     foreach ($all_files as $file) {
