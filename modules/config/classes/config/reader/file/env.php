@@ -23,11 +23,11 @@ class Config_Reader_File_Env implements Config_Reader {
         }
     }
 
-    public function  __construct($default_path = 'config/all') {
-        $this->env_reader = new Config_Reader_File('config'
+    public function  __construct($root_path = 'config') {
+        $this->env_reader = new Config_Reader_File($root_path
                 .DIRECTORY_SEPARATOR
                 .Kohana::$environment);
-        $this->default_reader = new Config_Reader_File($default_path);
+        $this->default_reader = new Config_Reader_File($root_path.DIRECTORY_SEPARATOR.'all');
     }
 
     

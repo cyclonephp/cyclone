@@ -3,7 +3,7 @@
 
 class Controller_Core extends Controller_Template {
 
-    public static $minify_js;
+    public static $config;
 
     protected $content;
 
@@ -11,21 +11,16 @@ class Controller_Core extends Controller_Template {
 
     protected $template_params = array();
 
-    protected $view_class = 'View';
-
-    protected static $js_params = array();
-
-    public static $resources = array(
-            'css' => array(),
-            'js' => array()
-    );
-
     public function before() {
         parent::before();
         $this->process_auth();
         if (Request::$is_ajax) {
             $this->auto_render = true;
         }
+        if ($this->request == Request::instance()) {
+            self::$config = Config::inst();
+        }
+        
     }
 
     protected function process_auth() {
@@ -58,13 +53,6 @@ class Controller_Core extends Controller_Template {
         $this->action_file_path =  str_replace('_', DIRECTORY_SEPARATOR, $this->request->controller)
                                 .DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $this->request->action);
         $this->add_default_resources();
-        if (self::$minify_js) {
-            $this->minify_js();
-        }
-        $head_view = new View('head_resources');
-        $head_view->res = self::$resources;
-        $head_view->server_params = self::$js_params;
-        $this->template_params['head_resources'] = $head_view;
         if (Request::$is_ajax && $this->auto_render == true) {
             $this->request->response = is_array($this->content) ?
                 json_encode($this->content) :
@@ -72,8 +60,10 @@ class Controller_Core extends Controller_Template {
             $this->auto_render = false;
         }
         if ($this->auto_render == true) {
-            if ($this->content == null) {
-                $this->template->_content = new $this->view_class(
+            
+            $this->template_params['head_resources'] = Asset_Pool::inst()->get_head_view();
+            if (NULL == $this->content) {
+                $this->template->_content = new View(
                        $this->action_file_path,
                         $this->params);
             } else if (is_string($this->content)) {
@@ -92,61 +82,33 @@ class Controller_Core extends Controller_Template {
     }
 
     protected function add_default_resources() {
-        if (file_exists(DOCROOT.'res/js/'.$this->action_file_path.'.js')) {
+        $asset_path = self::$config->get('core.asset_path');
+        $js_path = $asset_path.'js';
+        $css_path = $asset_path.'css';
+        
+        if (Kohana::find_file($js_path, $this->action_file_path, 'js')) {
             $this->add_js($this->action_file_path);
         }
-        if (file_exists(DOCROOT.'res/js/'.$this->request->controller.'.js')) {
+        if (Kohana::find_file($js_path, $this->request->controller, 'js')) {
             $this->add_js($this->request->controller);
         }
 
-        if (file_exists(DOCROOT.'res/css/'.$this->action_file_path.'.css')) {
+        if (Kohana::find_file($js_path, 'template', 'js')) {
+            $this->add_js('template');
+        }
+
+        if (Kohana::find_file($css_path, $this->action_file_path, 'css')) {
             $this->add_css($this->action_file_path);
         }
-        if (file_exists(DOCROOT.'res/css/'.$this->request->controller.'.css')) {
+        if (Kohana::find_file($css_path, $this->request->controller, 'css')) {
             $this->add_css($this->request->controller);
         }
 
-        if (file_exists(DOCROOT.'res/css/template.css')) {
+        if (Kohana::find_file($css_path, 'template', 'css')) {
             $this->add_css('template');
         }
 
-        if (file_exists(DOCROOT.'res/js/template.js')) {
-            $this->add_js('template');
-        }
     }
-
-    protected function minify_js() {
-        $delete_keys = array();
-        $all_js_files = array(); //array containing the js file names
-        foreach (self::$resources['js'] as $k => $item) {
-            if ($item['minify']) {
-                $delete_keys []= $k;
-                $all_js_files []= $item['file'];
-            }
-        }
-        if ( ! empty($delete_keys)) {
-            foreach ($delete_keys as $key) {
-                unset(self::$resources['js'][$key]);
-            }
-            $all_filenames = '';
-            foreach ($all_js_files as $filename) {
-                $all_filenames .= $filename;
-            }
-            $minified_file_rel_path = '/res/js/'.sha1($all_filenames).'.js';
-            $minified_file_abs_path = Text::reduce_slashes(DOCROOT.$minified_file_rel_path);
-            if ( ! file_exists($minified_file_abs_path)) {
-                $all_js_src = '';
-                foreach ($all_js_files as $js_file) {
-                    $all_js_src .= JSMin::minify(file_get_contents(Text::reduce_slashes(DOCROOT.$js_file)));
-                }
-                Log::debug('generating javascript file: '.$minified_file_abs_path);
-                file_put_contents($minified_file_abs_path, $all_js_src);
-            }
-            self::$resources['js'] []= array('file' => $minified_file_rel_path);
-        }
-    }
-
-
 
     /**
      * helper method
@@ -174,25 +136,19 @@ class Controller_Core extends Controller_Template {
         }
     }
 
-    public static function add_css($str) {
-        $str = '/res/css/'.$str.'.css';
-        if (array_search($str, self::$resources['css']) === false) {
-            self::$resources['css'] []= $str;
-        }
+    public static function add_css($str, $minify = TRUE) {
+        Asset_Pool::inst()->add_asset($str, 'css', $minify);
     }
 
-    public static function add_js($str, $minify = true) {
-        $str = '/res/js/'.$str.'.js';
-        if (array_search($str, self::$resources['js']) === false) {
-            self::$resources['js'] []= array('file' => $str, 'minify' => $minify);
-        }
+    public static function add_js($str, $minify = TRUE) {
+        Asset_Pool::inst()->add_asset($str, 'js', $minify);
     }
 
     public static function add_js_param($key, $value) {
-        self::$js_params[$key] = $value;
+        Asset_Pool::inst()->$js_params[$key] = $value;
     }
 
     public static function add_js_params(array $params) {
-        self::$js_params += $params;
+        Asset_Pool::inst()->$js_params += $params;
     }
 }

@@ -34,8 +34,6 @@ require SYSPATH.'classes/kohana/core'.EXT;
 
 require SYSPATH.'classes/kohana'.EXT;
 
-defined('SYSPATH') or die('No direct script access.');
-
 date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
@@ -82,7 +80,9 @@ Kohana::modules(array(
         ));
 Session::instance();
 
-Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
+Config::setup();
+
+//Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
 
 Log::$log_level = Kohana::$environment;
 

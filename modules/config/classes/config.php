@@ -8,6 +8,11 @@ class Config {
 
     public $writers;
 
+    /**
+     *
+     * @param string $name config setup name
+     * @return Config
+     */
     public static function inst($name = 'default') {
         if ( ! array_key_exists($name, self::$_instances)) {
             self::$_instances[$name] = new Config;
@@ -31,7 +36,7 @@ class Config {
 
     public function get($key) {
         foreach ($this->readers as $reader) {
-            if (($tmp = $reader->read($key)) !== false) {
+            if (($tmp = $reader->read($key)) !== -1) {
                 return $tmp;
             }
         }
