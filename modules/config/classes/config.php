@@ -8,6 +8,11 @@ class Config {
 
     public $writers;
 
+    /**
+     *
+     * @param string $name config setup name
+     * @return Config
+     */
     public static function inst($name = 'default') {
         if ( ! array_key_exists($name, self::$_instances)) {
             self::$_instances[$name] = new Config;
