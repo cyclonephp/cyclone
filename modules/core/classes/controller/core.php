@@ -138,18 +138,19 @@ class Controller_Core extends Controller_Template {
      * @param string $type 'css' or 'js'
      */
     protected function minify_assets($type) {
-        $delete_keys = array();
-        $all_files = array(); //array containing the js file names
+        $new_resources = array();
+        $all_files = array(); //array containing the file names to be minified
         $path = self::$config->get('core.asset_path').$type;
         foreach (self::$resources[$type] as $k => $minifiable) {
             if ($minifiable) {
                 $all_files []= $k;
+            } else {
+                $abs_path = Kohana::find_file($path, $k, 'css');
+                $rel_path = substr($abs_path, strlen(DOCROOT));
+                $new_resources []= $rel_path;
             }
         }
         if ( ! empty($all_files)) {
-            foreach ($all_files as $key) {
-                unset(self::$resources[$type][$key]);
-            }
             $minified_file_rel_path = 'res'.DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.sha1(implode('', $all_files)).'.'.$type;
             $minified_file_abs_path = DOCROOT.$minified_file_rel_path;
             if ( ! file_exists($minified_file_abs_path)) {
@@ -168,8 +169,9 @@ class Controller_Core extends Controller_Template {
                 Log::debug('generating asset file: '.$minified_file_abs_path);
                 file_put_contents($minified_file_abs_path, $all_src);
             }
-            self::$resources[$type] []= array('file' => $minified_file_rel_path);
+            $new_resources []= $minified_file_rel_path;
         }
+        self::$resources[$type] = $new_resources;
     }
 
     /**
