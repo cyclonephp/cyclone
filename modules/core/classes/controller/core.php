@@ -3,10 +3,6 @@
 
 class Controller_Core extends Controller_Template {
 
-    public static $minify_js;
-
-    public static $minify_css;
-
     public static $config;
 
     protected $content;
