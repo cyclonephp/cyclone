@@ -199,13 +199,25 @@ class Controller_Core extends Controller_Template {
     }
 
     public static function add_css($str, $minify = TRUE) {
+        static $path = NULL;
+        if (NULL == $path) {
+            $path = self::$config->get('core.asset_path').'css';
+        }
         if ( ! array_key_exists($str, self::$resources['css'])) {
+            if (FALSE === Kohana::find_file($path, $str, 'css'))
+                throw new Exception('css file not found: '.$str);
             self::$resources['css'][$str] =  $minify;
         }
     }
 
     public static function add_js($str, $minify = TRUE) {
-        if ( !array_key_exists($str, self::$resources['js'])) {
+        static $path = NULL;
+        if (NULL == $path) {
+            $path = self::$config->get('core.asset_path').'js';
+        }
+        if ( ! array_key_exists($str, self::$resources['js'])) {
+            if (FALSE === Kohana::find_file($path, $str, 'js'))
+                throw new Exception('js file not found: '.$str);            
             self::$resources['js'][$str] = $minify;
         }
     }

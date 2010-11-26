@@ -8,8 +8,7 @@ class Controller_Index extends Controller_Core {
 	}
 
     public function action_assets() {
-        $this->add_css('hello');
-        $this->add_js('hello');
+       
     }
 
 }
