@@ -31,7 +31,7 @@ class Config {
 
     public function get($key) {
         foreach ($this->readers as $reader) {
-            if (($tmp = $reader->read($key)) !== false) {
+            if (($tmp = $reader->read($key)) !== -1) {
                 return $tmp;
             }
         }

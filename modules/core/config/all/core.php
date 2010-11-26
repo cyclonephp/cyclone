@@ -2,7 +2,7 @@
 return array(
     'minify' => array(
         'css' => TRUE,
-        'js' => TRUE
+        'js' => false
     ),
     'asset_path' => 'assets'.DIRECTORY_SEPARATOR
 );
