@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Schema {
+class JORK_Mapping_Schema {
 
     public $class;
 

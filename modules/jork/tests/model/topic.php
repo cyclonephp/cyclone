@@ -12,12 +12,16 @@ class Model_Topic extends JORK_Model_Abstract {
             ),
             'name' => array(
                 'type' => 'string',
-                'max_length' => 64,
-                'not null' => true
+                'constraints' => array(
+                    'max_length' => 64,
+                    'not null' => true
+                )
             ),
             'created_by' => array(
 				'type' => 'int',
-				'not null' => true
+                'constraints' => array(
+                    'not null' => true
+                )
             )
         );
         $this->_schema->components = array(
@@ -38,7 +42,8 @@ class Model_Topic extends JORK_Model_Abstract {
             'posts' => array(
 				'class' => 'Model_Post',
 				'mapped_by' => 'topic'
-            )
+            ),
+            'modinfo' => 'Model_ModInfo'
         );
     }
 

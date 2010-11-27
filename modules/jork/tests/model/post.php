@@ -16,7 +16,10 @@ class Model_Post extends JORK_Model_Abstract {
                 'type' => 'string'
             ),
             'topic_fk' => array(
-                'type' => 'int not null'
+                'type' => 'int',
+                'constraints' => array(
+                    'not null' => true
+                )
             )
         );
         $this->_schema->components = array(
@@ -28,7 +31,8 @@ class Model_Post extends JORK_Model_Abstract {
                 'class' => 'Model_Topic',
                 'type' => JORK::MANY_TO_ONE,
                 'join_column' => 'topic_fk'
-            )
+            ),
+            'modinfo' => 'Model_ModInfo'
         );
     }
 

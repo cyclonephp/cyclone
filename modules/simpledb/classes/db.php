@@ -12,7 +12,7 @@ class DB {
      */
     public static function inst($config = 'default') {
         if ( ! array_key_exists($config, self::$_instances)) {
-            $cfg = Kohana::config('simpledb/'.$config);
+            $cfg = Config::inst('simpledb')->get('simpledb/'.$config);
             $class = 'DB_Adapter_'.ucfirst($cfg['adapter']);
             self::$_instances[$config] = new $class($cfg);
         }

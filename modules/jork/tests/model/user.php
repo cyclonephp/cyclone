@@ -6,6 +6,7 @@ class Model_User extends JORK_Model_Abstract {
 
     protected function setup() {
         $this->_schema->table = 't_users';
+        $this->_schema->secondary_tables = array('user_contact_info');
         $this->_schema->columns = array(
             'id' => array(
                 'type' => 'int',
@@ -14,24 +15,36 @@ class Model_User extends JORK_Model_Abstract {
             ),
             'name' => array(
                 'type' => 'string',
-                'not null' => true,
-                'max_length' => 64
+                'constraints' => array(
+                    'not null' => true,
+                    'max_length' => 64
+                )
             ),
             'password' => array(
                 'type' => 'string',
-                'not null' => true,
-                'length' => 32
+                'constraints' => array(
+                    'not null' => true,
+                    'length' => 32
+                )
             ),
             'created_at' => array(
                 'type' => 'datetime',
-                'not null' => true
-            )
-        );
-        $this->_schema->secondary_tables = array(
-            'user_details' => array(
-                'email' => array(
-                    'type' => 'string',
+                'constraints' => array(
+                    'not null' => true
+                )
+            ),
+            'email' => array(
+                'type' => 'string',
+                'table' => 'user_contact_info',
+                'constraints' => array(
                     'max_length' => 128
+                )
+            ),
+            'phone_num' => array(
+                'type' => 'string',
+                'table' => 'user_contact_info',
+                'constraints' => array(
+                    'regex' => '/^\d{2}-\d{2}-\d{3}-\d{4}$/'
                 )
             )
         );

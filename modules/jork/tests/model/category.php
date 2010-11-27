@@ -14,8 +14,11 @@ class Model_Category extends JORK_Model_Abstract {
             ),
             'name' => array(
                 'type' => 'string',
-                'max_length' => 64,
-                'not null' => true
+                'constraints' => array(
+                    'max_length' => 64,
+                    'min_length' => 3,
+                    'not null' => true
+                )
             )
         );
         $this->_schema->components = array(
@@ -23,7 +26,8 @@ class Model_Category extends JORK_Model_Abstract {
                 'class' => 'Model_Topic',
                 'type' => JORK::MANY_TO_MANY,
                 'mapped_by' => 'categories'
-            )
+            ),
+            'modinfo' => 'Model_ModInfo'
         );
     }
 
