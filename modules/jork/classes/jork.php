@@ -48,12 +48,12 @@ class JORK {
      * @param string $class
      * @return JORK_Schema
      */
-    public static function schema($class) {
-        static $schemas = array();
-        if ( ! array_key_exists($class, $schemas)) {
-            $schemas[$class] = JORK_Model_Abstract::schema_by_class($class);
-        }
-        return $schemas[$class];
-    }
+//    public static function schema($class) {
+//        static $schemas = array();
+//        if ( ! array_key_exists($class, $schemas)) {
+//            $schemas[$class] = JORK_Model_Abstract::schema_by_class($class);
+//        }
+//        return $schemas[$class];
+//    }
 
 }
