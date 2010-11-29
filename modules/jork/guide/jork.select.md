@@ -160,9 +160,17 @@ logical expressions too.
 
 ### The offset and limit clause
 
-## Mapping process
+### Database expressions
 
-1. Resolving root entities
+Database expressions can appear at the following clauses of the JORK query:
+* select list
+* 
+
+## Query mapping process
+
+1. Determining if there is an implicit root entity
+
+2. Resolving root entities
 	* FROM clause
 	* JOIN clause
 	* WITH clause
@@ -172,3 +180,35 @@ logical expressions too.
 	The name must be the alias name for each item or the property chain
 	if the alias does not exist. After a name is stored, it can be used 
 	as an explicit root entity class.
+
+3. Initializing tables
+	searching for all atomic properties whose table appears in the SQL query. 
+	
+	A table must appear in the query in the following cases:
+	* at least one atomic property appears in the select clause that is
+		mapped to the table
+	* at 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	should be selected. An atomic
+	property should be selected in the following cases:
+	* all atomic properties of the select list items without projection should
+		be selected
+	* if there is a projected property in the select list, then for all 
+		items in the projection:
+		* if the item is an atomic property, then it should be selected
+		* otherwise the join columns should be selected (?)
+	* if a property appears in the WITH clause, then all of it's atomic
+		properties should be selected if it is a component, otherwise
+		it must be selected
+

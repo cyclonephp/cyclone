@@ -2,6 +2,8 @@
 
 class Config {
 
+    const NOT_FOUND = -1;
+
     protected static $_instances = array();
 
     public $readers = array();
@@ -36,7 +38,7 @@ class Config {
 
     public function get($key) {
         foreach ($this->readers as $reader) {
-            if (($tmp = $reader->read($key)) !== -1) {
+            if (($tmp = $reader->read($key)) !== Config::NOT_FOUND) {
                 return $tmp;
             }
         }

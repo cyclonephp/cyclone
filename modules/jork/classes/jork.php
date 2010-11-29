@@ -21,7 +21,7 @@ class JORK {
      * @return JORK_Query_Select
      */
     public static function from($entity) {
-        $query = new JORK_Query_Select;
+        $query = new JORK_Query_Builder_Select;
         list($enity_class, $alias) = JORK_Alias_Factory::entitydef_segments($entity);
         $query->entity = array(
             'entity_class' => $enity_class,
@@ -48,12 +48,12 @@ class JORK {
      * @param string $class
      * @return JORK_Schema
      */
-    public static function schema($class) {
-        static $schemas = array();
-        if ( ! array_key_exists($class, $schemas)) {
-            $schemas[$class] = JORK_Model_Abstract::schema_by_class($class);
-        }
-        return $schemas[$class];
-    }
+//    public static function schema($class) {
+//        static $schemas = array();
+//        if ( ! array_key_exists($class, $schemas)) {
+//            $schemas[$class] = JORK_Model_Abstract::schema_by_class($class);
+//        }
+//        return $schemas[$class];
+//    }
 
 }
