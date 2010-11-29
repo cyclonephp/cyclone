@@ -56,7 +56,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 
 //-- environment setup -----------------------------------------
 
-Kohana::$environment = Kohana::DEVELOPMENT;
+Kohana::$environment = Kohana::TESTING;
 
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
@@ -74,9 +74,10 @@ Kohana::modules(array(
             'kform' => MODPATH . 'kform',
             'dev' => TOOLPATH . 'dev',
             'captcha' => MODPATH . 'captcha',
-            'unittest' => TOOLPATH.'unittest',
+           // 'unittest' => TOOLPATH.'unittest',
             'userguide' => TOOLPATH.'userguide',
-            'config' => MODPATH.'config'
+            'config' => MODPATH.'config',
+	    'installer' => TOOLPATH.'installer'
         ));
 Session::instance();
 
