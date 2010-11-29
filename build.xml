@@ -32,18 +32,48 @@
 			<then>
 				<fail message="directory ${dir} is not writable"/>
 			</then>
-			<else>
-			
-			</else>
 		</if>
 	</target>
 	
 	<target name="checkenv">
 		<foreach list="${apppath},${modpath},${toolpath},${assetpath}" param="dir" target="check_dir"/>
 		<foreach list="${logpath},${cachepath},${assetpath}" param="dir" target="check_writable"/>
+        <php function="function_exists" returnProperty="spl_enabled">
+            <param value="spl_autoload_register"/>
+        </php>
+        <if>
+			<equals arg1="" arg2="${spl_enabled}"/>
+			<then>
+				<fail message="SPL not found"/>
+			</then>
+		</if>
+
+        <php function="class_exists" returnProperty="reflection_enabled">
+            <param value="Reflection"/>
+        </php>
+        <if>
+			<equals arg1="" arg2="${spl_enabled}"/>
+			<then>
+				<fail message="Reflection is not enabled"/>
+			</then>
+		</if>
 	</target>
 	
+	<target name="phplint">
+        <phplint level="info" haltonfailure="true">
+            <fileset dir="${project.basedir}">
+                <include name="**/classes/**/*.php"/>
+            </fileset>
+        </phplint>
+	</target>
+
+    <target name="jslint">
+        <fileset dir="${project.basedir}">
+            <include name="**/*.js"/>
+        </fileset>
+    </target>
 	
+	<target name="lint" depends="phplint,jslint"/>
 	
 	
 </project>
