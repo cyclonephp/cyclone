@@ -10,7 +10,7 @@ select_clause := 'SELECT' select_list?
 
 select_list := select_list_item (', ' select_list_item)*
 
-select_list_item := property_chain property_projection? (' ' alias_name)?
+select_list_item := ((property_chain property_projection?) | database_expression) (' ' alias_name)?
 
 alias_name := identifier
 
