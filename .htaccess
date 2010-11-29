@@ -17,3 +17,7 @@ RewriteEngine On
 RewriteCond $1 !(^(index\.php|res|robots\.txt|$)|.*/assets/)
 RewriteRule ^(.*)$ index.php/$1 [L]
 
+AuthType Basic
+AuthName "incubation"
+AuthUserFile /usr/local/apache2/passwd/passwords
+Require user crystal
