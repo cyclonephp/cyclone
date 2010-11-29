@@ -4,14 +4,6 @@ define('EXT', '.php');
 
 error_reporting(E_ALL | E_STRICT);
 
-/**
- * End of standard configuration! Changing any of the code below should only be
- * attempted by those with a working knowledge of Kohana internals.
- *
- * @see  http://kohanaframework.org/guide/using.configuration
- */
-
-
 define('DOCROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
 
 define('APPPATH', DOCROOT.'application'.DIRECTORY_SEPARATOR);
@@ -38,25 +30,13 @@ date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
 
-/**
- * Enable the Kohana auto-loader.
- *
- * @see  http://kohanaframework.org/guide/using.autoloading
- * @see  http://php.net/spl_autoload_register
- */
 spl_autoload_register(array('Kohana', 'auto_load'));
 
-/**
- * Enable the Kohana auto-loader for unserialization.
- *
- * @see  http://php.net/spl_autoload_call
- * @see  http://php.net/manual/var.configuration.php#unserialize-callback-func
- */
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
 //-- environment setup -----------------------------------------
 
-Kohana::$environment = Kohana::TESTING;
+Kohana::$environment = $_ENV['CYCLONEPHP_ENV];
 
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
