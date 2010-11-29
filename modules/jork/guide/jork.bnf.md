@@ -40,7 +40,7 @@ with_list := with_list_item (',' with_list_item)*
 
 with_list_item := (property_chain (' ' entity_alias)?) | '(' select_statement ')'
 
-join_clause := ('LEFT' | 'RIGHT') 'JOIN' entity_class_def 'ON' logical_expression
+join_clause := ('LEFT' | 'INNER')? 'JOIN' entity_class_def 'ON' logical_expression
 
 where_clause := 'WHERE' logical_expression
 
