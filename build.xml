@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF8"?>
+
+
+<project name="cyclonephp" phingVersion="2.4.3" default="test" basedir=".">
+
+	<property file="./build.properties"/>
+
+	<target name="test" description="running phpunit tests">
+		<includepath classpath="${includepath}"/>
+		<exec command="phpunit --bootstrap=index.php tools/unittest/tests.php" 
+			checkreturn="true" dir="${project.basedir}" logoutput = "true"/>
+	</target>
+	
+	<target name="check_dir">
+		<php function="is_dir" returnProperty="is_dir">
+				<param value="${dir}"/>
+		</php>
+		<if>
+			<equals arg1="" arg2="${is_dir}"/>
+			<then>
+				<fail message="${dir} is not a directory"/>
+			</then>
+		</if>
+	</target>
+	
+	<target name="check_writable">
+		<php function="is_writable" returnProperty="is_wri">
+			<param value="${dir}"/>
+		</php>
+		<if>
+			<equals arg1="" arg2="${is_wri}"/>
+			<then>
+				<fail message="directory ${dir} is not writable"/>
+			</then>
+			<else>
+			
+			</else>
+		</if>
+	</target>
+	
+	<target name="checkenv">
+		<foreach list="${apppath},${modpath},${toolpath},${assetpath}" param="dir" target="check_dir"/>
+		<foreach list="${logpath},${cachepath},${assetpath}" param="dir" target="check_writable"/>
+	</target>
+	
+	
+	
+	
+</project>

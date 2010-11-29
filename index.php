@@ -54,7 +54,7 @@ Kohana::modules(array(
             'kform' => MODPATH . 'kform',
             'dev' => TOOLPATH . 'dev',
             'captcha' => MODPATH . 'captcha',
-           // 'unittest' => TOOLPATH.'unittest',
+            'unittest' => TOOLPATH.'unittest',
             'userguide' => TOOLPATH.'userguide',
             'config' => MODPATH.'config',
 	    'installer' => TOOLPATH.'installer'
