@@ -5,7 +5,7 @@ class Model_User extends JORK_Model_Abstract {
 
 
     protected function setup() {
-        $this->_schema->table = 'users';
+        $this->_schema->table = 't_users';
         $this->_schema->columns = array(
             'id' => array(
                 'type' => 'int',

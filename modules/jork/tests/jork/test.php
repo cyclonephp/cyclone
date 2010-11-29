@@ -14,10 +14,10 @@ class JORK_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testSelect() {
-        $query = JORK::from(array('Model_User', 'user'))
-            ->join(array('user.posts', 'post'))
-            ->join(array('post.topic', 'topic'))
-            ->join(array('topic.categories', 'categories'))
+        $query = JORK::from('Model_User user')
+            ->join('user.posts post')
+            ->join('post.topic topic')
+            ->join('topic.categories categories')
                 ;
     }
 
@@ -31,6 +31,34 @@ class JORK_Test extends Kohana_Unittest_TestCase {
 
     public function testGetSchema() {
         $this->assertTrue(JORK::schema('Model_User') instanceof JORK_Schema);
+    }
+
+    public function testJoin() {
+        $query = JORK::from('Model_User user')
+            ->join('posts.topics user_topics')
+            ->join('posts.topics.creator topic_creator');
+        $expected = new ArrayObject(array(
+                    array(
+                        'component' => 'posts',
+                        'nexts' => new ArrayObject(array(
+                            array(
+                                'component' => 'topics',
+                                'nexts' => new ArrayObject(array(
+                                    array(
+                                        'component' => 'creator',
+                                        'nexts' => new ArrayObject,
+                                        'alias' => 'topic_creator',
+                                    )
+                                )),
+                                'alias' => 'user_topics',
+                            ))
+                        )
+                    )
+                ));
+
+
+        $this->assertEquals($query->joins, $expected);
+        
     }
 
 }

@@ -17,12 +17,40 @@ class JORK_Query_Select {
 
     public $limit;
 
+    public function  __construct() {
+        $this->joins = new ArrayObject;
+    }
+
     public function join($component_path, $type = 'INNER') {
-        $this->joins []= array(
-            'component_path' => $component_path,
-            'type' => $type
-        );
+        list($path, $alias) = JORK_Alias_Factory::entitydef_segments($component_path);
+        $this->merge_join_path(explode('.', $path), $alias);
         return $this;
+    }
+
+    protected function merge_join_path(array $path, $alias) {
+        $merge_into = $this->joins;
+        $path_last = count($path) - 1;
+        for ($i = 0; $i <= $path_last; $i++) {
+            $item = $path[$i];
+            $found_existing = false;
+            foreach ($merge_into as &$existing_component) {
+                if ($existing_component['component'] == $item) {
+                    $merge_into = &$existing_component['nexts'];
+                    $found_existing = true;
+                }
+            }
+            if ( ! $found_existing) {
+                $new_item = array(
+                    'component' => $item,
+                    'nexts' => new ArrayObject
+                );
+                if ($i == $path_last) {
+                    $new_item['alias'] = $alias;
+                }
+                $merge_into []= $new_item;
+                $merge_into = &$new_item['nexts'];
+            }
+        }
     }
 
     public function where() {

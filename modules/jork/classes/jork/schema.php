@@ -3,6 +3,8 @@
 
 class JORK_Schema {
 
+    public $class;
+
     public $table;
 
     public $columns;
