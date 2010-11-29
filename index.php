@@ -36,7 +36,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 
 //-- environment setup -----------------------------------------
 
-Kohana::$environment = $_ENV['CYCLONEPHP_ENV];
+Kohana::$environment = getenv('CYCLONEPHP_ENV');
 
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
