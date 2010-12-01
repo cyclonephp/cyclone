@@ -7,8 +7,12 @@
 
 	<target name="test" description="running phpunit tests">
 		<includepath classpath="${includepath}"/>
-		<exec command="phpunit --bootstrap=index.php tools/unittest/tests.php" 
+		<exec command="phpunit --bootstrap=index.php tools/unittest/tests.php --log-junit testresult.xml"
 			checkreturn="true" dir="${project.basedir}" logoutput = "true"/>
+
+        <delete dir="phpunit-report"/>
+        <mkdir dir="phpunit-report"/>
+        <phpunitreport infile="testresult.xml" todir="phpunit-report"/>
 	</target>
 	
 	<target name="check_dir">
@@ -74,6 +78,6 @@
     </target>
 	
 	<target name="lint" depends="phplint,jslint"/>
-	
+
 	
 </project>
