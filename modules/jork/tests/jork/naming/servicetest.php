@@ -23,6 +23,7 @@ class JORK_Naming_ServiceTest extends Kohana_Unittest_TestCase {
         $service->set_alias('Model_Post', 'post');
         $service->set_alias('Model_Post', 'post2');
         $this->assertEquals('t_posts_0', $service->table_alias('post', 't_posts'));
-        $this->assertEquals('t_posts_1', $service->table_alias('post', 't_posts'));
+        $this->assertEquals('t_posts_0', $service->table_alias('post', 't_posts'));
+        $this->assertEquals('t_posts_1', $service->table_alias('post2', 't_posts'));
     }
 }

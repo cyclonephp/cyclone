@@ -8,6 +8,8 @@ class JORK_Naming_Service {
 
     private $_table_aliases = array();
 
+    private $_table_usage = array();
+
     /**
      * Stores name => JORK_Mapping_Schema pairs.
      * @var array
@@ -28,13 +30,6 @@ class JORK_Naming_Service {
      */
     public function set_alias($entity_class, $alias) {
         $this->_entity_aliases[$alias] = $this->get_schema($entity_class);
-    }
-
-    public function add_root_entity_class($entity_class, $alias = '') {
-        if ('' == $alias) {
-            $this->set_implicit_root($entity_class);
-            return;
-        }
     }
 
     public function set_implicit_root($class) {
@@ -118,16 +113,19 @@ class JORK_Naming_Service {
         }
     }
 
-    public function table_alias($entity_class, $table_name) {
-        if ( ! array_key_exists($entity_class, $this->_table_aliases)) {
-            $this->_table_aliases[$entity_class] = array();
+    public function table_alias($prop_chain, $table_name) {
+        if ( ! array_key_exists($prop_chain, $this->_table_aliases)) {
+            $this->_table_aliases[$prop_chain] = array();
         }
-        if ( ! array_key_exists($table_name, $this->_table_aliases[$entity_class])) {
-            $this->_table_aliases[$entity_class][$table_name] = $table_name . '_'
-                . count($this->_table_aliases[$entity_class][$table_name]);
+        if ( ! array_key_exists($table_name, $this->_table_aliases[$prop_chain])) {
+            if ( !array_key_exists($table_name, $this->_table_usage)) {
+                $this->_table_usage[$table_name] = 0;
+            }
+            $this->_table_aliases[$prop_chain][$table_name] = $table_name . '_'
+                    . ($this->_table_usage[$table_name]++);
         }
         
-        $this->_table_aliases[$entity_class][$table_name];
+        return $this->_table_aliases[$prop_chain][$table_name];
     }
 
     
