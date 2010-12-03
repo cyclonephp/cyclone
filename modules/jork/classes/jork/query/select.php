@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Query_Builder_Select {
+class JORK_Query_Select {
 
     /**
      * holds the select list of the query. 
@@ -111,7 +111,7 @@ class JORK_Query_Builder_Select {
      */
     public function with() {
         foreach (func_get_args() as $arg) {
-            if ($arg instanceof JORK_Query_Builder_Select) {
+            if ($arg instanceof JORK_Query_Select) {
                 $this->with_list []= $arg;
                 continue;
             }

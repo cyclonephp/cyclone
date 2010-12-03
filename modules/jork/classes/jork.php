@@ -21,7 +21,7 @@ class JORK {
      * @return JORK_Query_Select
      */
     public static function from($entity) {
-        $query = new JORK_Query_Builder_Select;
+        $query = new JORK_Query_Select;
         list($enity_class, $alias) = JORK_Alias_Factory::entitydef_segments($entity);
         $query->entity = array(
             'entity_class' => $enity_class,
