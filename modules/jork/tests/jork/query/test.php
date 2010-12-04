@@ -11,15 +11,15 @@ class JORK_Query_Test extends Kohana_Unittest_TestCase {
         $query->select('user{id,name} u', 'user', 'user{id,name}');
         $this->assertEquals($query->select_list, array(
             array(
-                'prop_chain' => 'user',
+                'prop_chain' => JORK_Query_PropChain::from_string('user'),
                 'projection' => array('id', 'name'),
                 'alias' => 'u'
             ),
             array(
-                'prop_chain' => 'user'
+                'prop_chain' => JORK_Query_PropChain::from_string('user')
             ),
             array(
-                'prop_chain' => 'user',
+                'prop_chain' => JORK_Query_PropChain::from_string('user'),
                 'projection' => array('id', 'name')
             )
         ));
@@ -47,10 +47,10 @@ class JORK_Query_Test extends Kohana_Unittest_TestCase {
         $query->with('post.author', 'post.author auth', $subquery);
         $this->assertEquals($query->with_list, new ArrayObject(array(
             array(
-                'prop_chain' => 'post.author'
+                'prop_chain' => JORK_Query_PropChain::from_string('post.author')
             ),
             array(
-                'prop_chain' => 'post.author',
+                'prop_chain' => JORK_Query_PropChain::from_string('post.author'),
                 'alias' => 'auth'
             ),
             $subquery

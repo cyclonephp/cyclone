@@ -58,9 +58,31 @@ class JORK_Mapper_Select {
         
     }
 
-    protected function map_select() {
+    protected function map_with() {
         
     }
 
+    protected function map_select() {
+        if ($this->_has_implicit_root) {
+            //empty select list with implicit root entity
+            $root_schema = JORK_Model_Abstract::schema_by_class($this->_jork_query->from_list[0]['class']);
+            $tbl_alias = $this->_naming_service->table_alias($root_schema->class, $root_schema->table);
+            if (empty($this->_jork_query->select_list)) {
+                foreach ($root_schema->columns as $col_name => $col_def) {
+                    $this->_db_query->columns []= $tbl_alias.'.'
+                            .(array_key_exists('db_column', $col_def) ? $col_def['db_column'] : $col_name);
+                }
+            } else {
+                $this->add_select_items();
+            }
+        }
+    }
+
+    protected function add_select_items() {
+        foreach ($this->_jork_query->select_list as $select_item) {
+            $prop_chain = $select_item['prop_chain']->as_array();
+            
+        }
+    }
 
 }
