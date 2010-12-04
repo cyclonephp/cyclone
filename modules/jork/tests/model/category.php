@@ -14,6 +14,7 @@ class Model_Category extends JORK_Model_Abstract {
             ),
             'name' => array(
                 'type' => 'string',
+                'db_column' => 'c_name',
                 'constraints' => array(
                     'max_length' => 64,
                     'min_length' => 3,

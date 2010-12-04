@@ -2,32 +2,19 @@
 
 class JORK_Naming_Service {
 
-    /**
-     *
-     * @var JORK_Naming_Service
-     */
-    private static $instance;
-
-    /**
-     *
-     * @return JORK_Naming_Service
-     */
-    public static function inst() {
-        if (null == self::$instance) {
-            self::$instance = new JORK_Naming_Service;
-        }
-        return self::$instance;
+    public function  __construct() {
+        
     }
 
-    private function  __construct() {
-        //empty private constructor
-    }
+    private $_table_aliases = array();
+
+    private $_table_usage = array();
 
     /**
      * Stores name => JORK_Mapping_Schema pairs.
      * @var array
      */
-    private $_aliases = array();
+    private $_entity_aliases = array();
 
     /**
      * @var JORK_Mapping_Schema
@@ -42,11 +29,11 @@ class JORK_Naming_Service {
      * @param string $alias
      */
     public function set_alias($entity_class, $alias) {
-        $this->_aliases[$alias] = $this->get_schema($entity_class);
+        $this->_entity_aliases[$alias] = $this->get_schema($entity_class);
     }
 
     public function set_implicit_root($class) {
-        $this->_implicit_root_schema = JORK_Model_Abstract::schema_by_class($class);
+        $this->_entity_aliases[$class] = $this->_implicit_root_schema = JORK_Model_Abstract::schema_by_class($class);
     }
 
     /**
@@ -55,10 +42,10 @@ class JORK_Naming_Service {
      * @return JORK_Mapping_Schema or string
      */
     public function get_schema($name) {
-        if ( ! array_key_exists($name, $this->_aliases)) {
+        if ( ! array_key_exists($name, $this->_entity_aliases)) {
             $this->search_schema($name);
         }
-        return $this->_aliases[$name];
+        return $this->_entity_aliases[$name];
     }
 
     /**
@@ -72,18 +59,18 @@ class JORK_Naming_Service {
         $segments = explode('.', $name);
         if (1 == count($segments)) {
             if (NULL == $this->_implicit_root_schema) {
-                $this->_aliases[$name] = JORK_Model_Abstract::schema_by_class($name);
+                $this->_entity_aliases[$name] = JORK_Model_Abstract::schema_by_class($name);
                 return;
             } else {
                 foreach ($this->_implicit_root_schema->columns as $col_name => $col_def) {
                     if ($name == $col_name) {
-                        $this->_aliases[$name] = $col_def['type'];
+                        $this->_entity_aliases[$name] = $col_def['type'];
                         return;
                     }
                 }
                 foreach ($this->_implicit_root_schema->components as $cmp_name => $cmp_def) {
                     if ($name == $cmp_name) {
-                        $this->_aliases[$name] = JORK_Model_Abstract::schema_by_class($col_def['class']);
+                        $this->_entity_aliases[$name] = JORK_Model_Abstract::schema_by_class($col_def['class']);
                         return;
                     }
                 }
@@ -91,9 +78,9 @@ class JORK_Naming_Service {
         } else {
             $walked_segments = array();
             if (NULL == $this->_implicit_root_schema) {
-                if ( ! array_key_exists($segments[0], $this->_aliases))
+                if ( ! array_key_exists($segments[0], $this->_entity_aliases))
                     throw new JORK_Exception('invalid identifier: '.$name);
-                $root_schema = $this->_aliases[$segments[0]]; //explicit root entity class
+                $root_schema = $this->_entity_aliases[$segments[0]]; //explicit root entity class
                 $walked_segments []= array_shift($segments);
             } else {
                 $root_schema = $this->_implicit_root_schema;
@@ -107,13 +94,13 @@ class JORK_Naming_Service {
                 foreach ($current_schema->components as $cmp_name => $cmp_def) {
                     if ($cmp_name == $seg) {
                         $current_schema = JORK_Model_Abstract::schema_by_class($cmp_def['class']);
-                        $this->_aliases[implode('.', $walked_segments)] = $current_schema;
+                        $this->_entity_aliases[implode('.', $walked_segments)] = $current_schema;
                         $found = TRUE; break;
                     }
                 }
                 foreach ($current_schema->columns as $col_name => $col_def) {
                     if ($col_name == $seg) {
-                        $this->_aliases[implode('.', $walked_segments)] = $col_def['type'];
+                        $this->_entity_aliases[implode('.', $walked_segments)] = $col_def['type'];
                         //the schema in the next iteration will be NULL if column
                         // (atomic property) found
                         $current_schema = NULL;
@@ -124,8 +111,21 @@ class JORK_Naming_Service {
                     throw new JORK_Exception('invalid identifier: '.$name);
             }
         }
+    }
 
-
+    public function table_alias($prop_chain, $table_name) {
+        if ( ! array_key_exists($prop_chain, $this->_table_aliases)) {
+            $this->_table_aliases[$prop_chain] = array();
+        }
+        if ( ! array_key_exists($table_name, $this->_table_aliases[$prop_chain])) {
+            if ( !array_key_exists($table_name, $this->_table_usage)) {
+                $this->_table_usage[$table_name] = 0;
+            }
+            $this->_table_aliases[$prop_chain][$table_name] = $table_name . '_'
+                    . ($this->_table_usage[$table_name]++);
+        }
+        
+        return $this->_table_aliases[$prop_chain][$table_name];
     }
 
     

@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Query_Builder_Select {
+class JORK_Query_Select {
 
     /**
      * holds the select list of the query. 
@@ -69,7 +69,7 @@ class JORK_Query_Builder_Select {
             if (empty($matches))
                 throw new JORK_Syntax_Exception('invalid select list item: '.$arg);
             $select_item = array(
-                'prop_chain' => $matches['prop_chain'],
+                'prop_chain' => JORK_Query_PropChain::from_string($matches['prop_chain']),
             );
             if (array_key_exists('projection', $matches)) {
                 $select_item['projection'] = explode(',', $matches['projection']);
@@ -111,7 +111,7 @@ class JORK_Query_Builder_Select {
      */
     public function with() {
         foreach (func_get_args() as $arg) {
-            if ($arg instanceof JORK_Query_Builder_Select) {
+            if ($arg instanceof JORK_Query_Select) {
                 $this->with_list []= $arg;
                 continue;
             }
@@ -119,7 +119,7 @@ class JORK_Query_Builder_Select {
             if (empty($matches))
                 throw new JORK_Syntax_Exception ('invalid with list item: '.$arg);
             $item = array(
-                'prop_chain' => $matches['prop_chain']
+                'prop_chain' => JORK_Query_PropChain::from_string($matches['prop_chain'])
             );
             if (array_key_exists('alias', $matches)) {
                 $item['alias'] = $matches['alias'];

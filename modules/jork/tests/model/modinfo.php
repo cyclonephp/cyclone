@@ -4,7 +4,7 @@
 class Model_ModInfo extends JORK_Model_Embeddable {
 
     public function append_schema(JORK_Mapping_Schema $schema) {
-        $schema->columns []= array(
+        $schema->columns += array(
             'created_at' => array(
                 'type' => 'datetime',
                 'constraints' => array(
