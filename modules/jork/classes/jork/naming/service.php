@@ -33,7 +33,7 @@ class JORK_Naming_Service {
     }
 
     public function set_implicit_root($class) {
-        $this->_implicit_root_schema = JORK_Model_Abstract::schema_by_class($class);
+        $this->_entity_aliases[$class] = $this->_implicit_root_schema = JORK_Model_Abstract::schema_by_class($class);
     }
 
     /**
