@@ -32,4 +32,11 @@ class JORK_Naming_ServiceTest extends Kohana_Unittest_TestCase {
         $this->assertEquals('t_posts_0', $service->table_alias('post', 't_posts'));
         $this->assertEquals('t_posts_1', $service->table_alias('post2', 't_posts'));
     }
+
+    public function testImplRoot() {
+        $srv = new JORK_Naming_Service;
+        $srv->set_implicit_root('Model_User');
+        $this->assertEquals($srv->get_schema(NULL)
+                , JORK_Model_Abstract::schema_by_class('Model_User'));
+    }
 }

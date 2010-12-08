@@ -33,7 +33,9 @@ class JORK_Naming_Service {
     }
 
     public function set_implicit_root($class) {
-        $this->_entity_aliases[$class] = $this->_implicit_root_schema = JORK_Model_Abstract::schema_by_class($class);
+        $this->_entity_aliases[NULL] =
+        $this->_entity_aliases[$class] =
+        $this->_implicit_root_schema = JORK_Model_Abstract::schema_by_class($class);
     }
 
     /**
@@ -70,7 +72,7 @@ class JORK_Naming_Service {
                 }
                 foreach ($this->_implicit_root_schema->components as $cmp_name => $cmp_def) {
                     if ($name == $cmp_name) {
-                        $this->_entity_aliases[$name] = JORK_Model_Abstract::schema_by_class($col_def['class']);
+                        $this->_entity_aliases[$name] = JORK_Model_Abstract::schema_by_class($cmp_def['class']);
                         return;
                     }
                 }

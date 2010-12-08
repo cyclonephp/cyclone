@@ -5,15 +5,35 @@
  */
 class JORK_Mapper_Select {
 
+    /**
+     * @var JORK_Query_Select
+     */
     protected $_jork_query;
 
+    /**
+     * @var DB_Query_Select
+     */
     protected $_db_query;
 
+    /**
+     * @var array
+     */
     protected $_mappers;
 
+    /**
+     * @var JORK_Naming_Service
+     */
     protected $_naming_service;
 
+    /**
+     * @var boolean
+     */
     protected $_has_implicit_root;
+
+    /**
+     * @var JORK_Mapping_Schema
+     */
+    protected $_implicit_root;
 
     public function  __construct(JORK_Query_Select $jork_query) {
         $this->_jork_query = $jork_query;
@@ -25,6 +45,10 @@ class JORK_Mapper_Select {
 
         $this->_has_implicit_root = count($this->_jork_query->from_list) == 1
                 &&  ! array_key_exists('alias', $this->_jork_query->from_list[0]);
+
+        if ($this->_has_implicit_root) {
+            $this->_implicit_root = JORK_Model_Abstract::schema_by_class($this->_jork_query->from_list[0]['class']);
+        }
 
         $this->map_from();
 
@@ -65,10 +89,10 @@ class JORK_Mapper_Select {
     protected function map_select() {
         if ($this->_has_implicit_root) {
             //empty select list with implicit root entity
-            $root_schema = JORK_Model_Abstract::schema_by_class($this->_jork_query->from_list[0]['class']);
-            $tbl_alias = $this->_naming_service->table_alias($root_schema->class, $root_schema->table);
+            $tbl_alias = $this->_naming_service->table_alias($this->_implicit_root->class
+                    , $this->_implicit_root->table);
             if (empty($this->_jork_query->select_list)) {
-                foreach ($root_schema->columns as $col_name => $col_def) {
+                foreach ($this->_implicit_root->columns as $col_name => $col_def) {
                     $this->_db_query->columns []= $tbl_alias.'.'
                             .(array_key_exists('db_column', $col_def) ? $col_def['db_column'] : $col_name);
                 }
@@ -86,6 +110,7 @@ class JORK_Mapper_Select {
             foreach ($prop_chain as $prop) {
                 
             }
+            echo "\n".$select_item['prop_chain']->as_string()."\n";
             $schema = $this->_naming_service->get_schema($select_item['prop_chain']->as_string());
             if (array_key_exists('type', $schema)) { //atomic property
                 if ($this->_has_implicit_root) {
@@ -94,7 +119,10 @@ class JORK_Mapper_Select {
                     $this->_db_query->columns []= $tbl_alias.'.'
                             .(array_key_exists('db_column', $schema) ? $schema['db_column'] : $last_item);
                 }
-            }
+            } elseif (array_key_exists('class', $schema)) {
+                
+            } else
+                throw new JORK_Schema_Exception("missing key 'class' in {$select_item['prop_chain']}");
         }
     }
 
