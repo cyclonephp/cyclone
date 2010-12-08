@@ -34,21 +34,10 @@ class JORK_Mapper_Entity {
      */
     protected $_next_mappers = array();
 
-    public function  __construct(JORK_Query_Select $jork_select
-            , JORK_Naming_Service $naming_service
-            , DB_Query_Select $db_query) {
-        $schema = JORK_Model_Abstract::schema_by_class($jork_select->entity['entity_class']);
-        $this->_naming_service = $naming_service;
-        $this->_db_query = $db_query;
-
-        $this->_entity_schema = $schema;
-        $this->_entity_alias = $jork_select->entity['alias'];
-        $this->_table = $this->_naming_service->for_table($schema->table);
+    public function  __construct(JORK_Mapper_Select $mapper
+            , $select_item = NULL) {
         
-        $this->_db_query->tables = array(
-            array($schema->table, $this->_table)
-        );
-        $this->create_next_mappers($jork_select->joins);
+        $this->create_next_mappers();
     }
 
     /**
