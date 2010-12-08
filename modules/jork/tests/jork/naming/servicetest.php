@@ -15,7 +15,13 @@ class JORK_Naming_ServiceTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($schema, JORK_Model_Abstract::schema_by_class('Model_Topic'));
 
         $schema = $service->get_schema('post.topic.name');
-        $this->assertEquals($schema, 'string');
+        $this->assertEquals($schema, array(
+            'type' => 'string',
+            'constraints' => array(
+                'max_length' => 64,
+                'not null' => true
+            )
+        ));
     }
 
     public function testTableAlias() {

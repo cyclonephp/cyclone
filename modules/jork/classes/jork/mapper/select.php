@@ -81,7 +81,20 @@ class JORK_Mapper_Select {
     protected function add_select_items() {
         foreach ($this->_jork_query->select_list as $select_item) {
             $prop_chain = $select_item['prop_chain']->as_array();
-            
+            $full_chain = $prop_chain;
+            $last_item = array_pop($prop_chain);
+            foreach ($prop_chain as $prop) {
+                
+            }
+            $schema = $this->_naming_service->get_schema($select_item['prop_chain']->as_string());
+            if (array_key_exists('type', $schema)) { //atomic property
+                if ($this->_has_implicit_root) {
+                    $root_schema = JORK_Model_Abstract::schema_by_class($this->_jork_query->from_list[0]['class']);
+                    $tbl_alias = $this->_naming_service->table_alias($root_schema->class, $root_schema->table);
+                    $this->_db_query->columns []= $tbl_alias.'.'
+                            .(array_key_exists('db_column', $schema) ? $schema['db_column'] : $last_item);
+                }
+            }
         }
     }
 
