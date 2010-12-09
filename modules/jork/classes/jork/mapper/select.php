@@ -101,44 +101,28 @@ class JORK_Mapper_Select {
                 $this->_mappers[NULL]->merge_prop_chain($with_item['prop_chain']->as_array());
             } else {
                 $prop_chain = $with_item->as_array();
-                $root_entity = $prop_chain[0];
+                $root_entity = array_shift($prop_chain);
                 if ( ! array_key_exists($root_entity, $this->_mappers))
                     throw new JORK_Syntax_Exception('invalid root entity in WITH clause: '.$root_entity);
 
-                array_shift($prop_chain);
                 $this->_mappers[$root_entity]->merge_prop_chain($prop_chain);
             }
         }
     }
 
     protected function map_select() {
-        if ($this->_has_implicit_root) {
-            $this->_mappers[$this->_implicit_root->class] = 
-                    new JORK_Mapper_Entity($this);
-        } else {
-            if ($this->_jork_query->select_list != NULL) {
-                foreach ($this->_jork_query->select_list as $select_item) {
-                    $entity_mapper = new JORK_Mapper_Entity($this, $select_item);
-                    if (array_key_exists('alias', $select_item)) {
-                        $key = $select_item['alias'];
-                    } else {
-                        $key = $select_item['prop_chain']->as_string();
-                    }
-                    $this->_mappers[$key] = $entity_mapper;
-                }
-            } else {
-                foreach ($this->_jork_query->from_list as $from_item) {
-                    if ( !array_key_exists('alias', $from_item))
-                        throw new JORK_Syntax_Exception('if the query hasn\'t got an
-                            implicit root entity, then all explicit root entities must
-                            have an alias name');
-                    //mapper should only be addedif it wasn't added previously
-                    // eg. by a with clause mapping
-                    if ( !array_key_exists($from_item['alias'], $this->_mappers)) {
-                        $this->_mappers[$from_item['alias']]
-                            = new JORK_Mapper_Entity($this, $from_item['alias']);
-                    }
-                }
+        if (empty($this->_jork_query->select_list)) {
+            foreach ($this->_mappers as $mapper) {
+                $mapper->select_all_atomics();
+            }
+            return;
+        }
+        foreach ($this->_jork_query->select_list as $select_item) {
+            $walked_segments = array();
+            $prop_chain = $select_item['prop_chain']->as_array();
+            $last_item = array_pop($prop_chain);
+            if (empty($prop_chain)) {
+                
             }
         }
     }

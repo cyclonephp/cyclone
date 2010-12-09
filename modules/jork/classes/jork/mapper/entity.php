@@ -24,8 +24,16 @@ class JORK_Mapper_Entity {
      */
     protected $_db_query;
 
+    /**
+     * @var JORK_Query_Select
+     */
     protected $_jork_query;
 
+    /**
+     * The naming service to be used and passed on to the next mappers
+     *
+     * @var JORK_Naming_Service
+     */
     protected $_naming_srv;
 
     /**
@@ -65,7 +73,21 @@ class JORK_Mapper_Entity {
         }
     }
 
+    /**
+     * Here we don't take care about the property projections.
+     * These must be merged one-by-ona at JORK_Mapper_Select->map_select()
+     *
+     * @param array $prop_chain the array representation of the property chain
+     */
     public function merge_prop_chain(array $prop_chain) {
         
+    }
+
+    /**
+     * Puts all atomic properties into the db query select list.
+     * Called if the select list is empty.
+     */
+    public function select_all_atomics() {
+
     }
 }

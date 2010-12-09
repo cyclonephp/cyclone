@@ -17,5 +17,17 @@ class JORK_Mapping_Schema {
                 return $name;
         }
     }
+
+    public function get_property_schema($name) {
+        foreach ($this->columns as $k => $v) {
+            if ($k == $name)
+                return $v;
+        }
+        foreach ($this->components as $k => $v) {
+            if ($k == $name)
+                return $v;
+        }
+        throw new JORK_Schema_Exception("property '$name' of {$this->class} does not exist");
+    }
     
 }
