@@ -23,7 +23,7 @@ class JORK_Mapper_Select {
     /**
      * @var JORK_Naming_Service
      */
-    protected $_naming_service;
+    protected $_naming_srv;
 
     /**
      * @var boolean
@@ -38,16 +38,16 @@ class JORK_Mapper_Select {
     public function  __construct(JORK_Query_Select $jork_query) {
         $this->_jork_query = $jork_query;
         $this->_db_query = new DB_Query_Select;
-        $this->_naming_service = new JORK_Naming_Service;
+        $this->_naming_srv = new JORK_Naming_Service;
     }
 
     public function map() {
-
-        $this->_has_implicit_root = count($this->_jork_query->from_list) == 1
-                &&  ! array_key_exists('alias', $this->_jork_query->from_list[0]);
-
-        if ($this->_has_implicit_root) {
-            $this->_implicit_root = JORK_Model_Abstract::schema_by_class($this->_jork_query->from_list[0]['class']);
+        if (count($this->_jork_query->from_list) == 1
+                &&  ! array_key_exists('alias', $this->_jork_query->from_list[0])) {
+            $this->_has_implicit_root = TRUE;
+            $impl_root_class = $this->_jork_query->from_list[0]['class'];
+            $this->_implicit_root = JORK_Model_Abstract::schema_by_class($impl_root_class);
+            $this->_naming_srv->set_implicit_root($impl_root_class);
         }
 
         $this->map_from();
@@ -61,19 +61,29 @@ class JORK_Mapper_Select {
         return array($this->_db_query, $this->_mappers);
     }
 
+    protected function create_entity_mapper($select_item) {
+        return new JORK_Mapper_Entity($this->_naming_srv
+                , $this->_jork_query
+                , $this->_db_query
+                , $select_item);
+    }
+
     protected function map_from() {
         if ($this->_has_implicit_root) {
-            $from_item = $this->_jork_query->from_list[0];
-            $this->_naming_service->set_implicit_root($this->_jork_query->from_list[0]['class']);
-            $schema = $this->_naming_service->get_schema($from_item['class']);
-            $this->_db_query->tables []= array($schema->table
-                    , $this->_naming_service->table_alias($from_item['class'], $schema->table));
+            $this->_mappers[NULL] = $this->_mappers[$this->_implicit_root->class]
+                    = $this->create_entity_mapper(NULL);
         } else {
             foreach ($this->_jork_query->from_list as $from_item) {
-                $this->_naming_service->set_alias($from_item['class'], $from_item['alias']);
-                $schema = $this->_naming_service->get_schema($from_item['alias']);
-                $this->_db_query->tables []= array($schema->table
-                    , $this->_naming_service->table_alias($from_item['alias'], $schema->table));
+                //fail early
+                if ( ! array_key_exists('alias', $from_item))
+                        throw new JORK_Syntax_Exception('if the query hasn\'t got an
+                            implicit root entity, then all explicit root entities must
+                            have an alias name');
+
+                $this->_naming_srv->set_alias($from_item['class'], $from_item['alias']);
+                $this->_mappers[$from_item['alias']] =
+                        $this->create_entity_mapper($from_item['alias']);
+
             }
         }
     }
@@ -83,7 +93,22 @@ class JORK_Mapper_Select {
     }
 
     protected function map_with() {
-        
+        foreach ($this->_jork_query->with_list as $with_item) {
+            if (array_key_exists('alias', $with_item)) {
+                $this->_naming_srv->set_alias($with_item['prop_chain'], $with_item['alias']);
+            }
+            if ($this->_has_implicit_root) {
+                $this->_mappers[NULL]->merge_prop_chain($with_item['prop_chain']->as_array());
+            } else {
+                $prop_chain = $with_item->as_array();
+                $root_entity = $prop_chain[0];
+                if ( ! array_key_exists($root_entity, $this->_mappers))
+                    throw new JORK_Syntax_Exception('invalid root entity in WITH clause: '.$root_entity);
+
+                array_shift($prop_chain);
+                $this->_mappers[$root_entity]->merge_prop_chain($prop_chain);
+            }
+        }
     }
 
     protected function map_select() {

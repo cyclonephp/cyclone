@@ -3,21 +3,10 @@
 class JORK_Mapper_Entity {
 
     /**
-     * @var JORK_Alias_Factory the alias factory to be used all over the query
-     * mapping process
-     */
-    protected $_naming_service;
-
-    /**
-     * @var DB_Query_Select the database query to be built
-     */
-    protected  $_db_query;
-
-    /**
      * @var string the name of the table (alias) where to fetch the entity
      * properties from (used as a property name prefix)
      */
-    protected $_table;
+    protected $_table_alias;
 
     /**
      * @var JORK_Schema
@@ -30,31 +19,53 @@ class JORK_Mapper_Entity {
     protected $_entity_alias;
 
     /**
-     * @var the next mappers to be executed on the same row
+     *
+     * @var DB_Query_Select
      */
-    protected $_next_mappers = array();
+    protected $_db_query;
 
-    public function  __construct(JORK_Mapper_Select $mapper
-            , $select_item = NULL) {
-        
-        $this->create_next_mappers();
-    }
+    protected $_jork_query;
+
+    protected $_naming_srv;
 
     /**
-     * Creates the appropriate mapper objects for the next properties
-     * in the selected property chain.
-     * 
-     * @param array $joins the next joins
-     * @see JORK_Mapper_Entity::__construct()
-     * @see JORK_Mapper_Component::__construct()
+     * the next mappers to be executed on the same row
+     *
+     * @var array<JORK_Mapper_Component>
      */
-    protected function create_next_mappers($joins) {
-        foreach ($joins as $join) {
-            $this->_next_mappers []= JORK_Mapper_Component::factory($this
-                , $join
-                , $this->_naming_service
-                , $this->_db_query
-            );
+    protected $_next_mappers = array();
+    
+
+    public function  __construct(JORK_Naming_Service $naming_srv
+            , JORK_Query_Select $jork_query
+            , DB_Query_Select $db_query
+            , $select_item = NULL) {
+        $this->_naming_srv = $naming_srv;
+        $this->_jork_query = $jork_query;
+        $this->_db_query = $db_query;
+
+        $this->_entity_alias = $select_item;
+
+        $this->_entity_schema = $this->_naming_srv->get_schema($this->_entity_alias);
+
+        $this->add_tables();
+    }
+
+    protected function add_tables() {
+        $this->_table_alias = $this->_naming_srv->table_alias($this->_entity_alias
+                , $this->_entity_schema->table);
+        $this->_db_query->tables []= array($this->_entity_schema->table, $this->_table_alias);
+        foreach ($this->_entity_schema->columns as $col_name => $col_def) {
+            $this->_db_query->columns []= $this->_table_alias.'.'
+                    .(array_key_exists('db_column', $col_def) ? $col_def['db_column']
+                        : $col_name);
+            if (array_key_exists('table', $col_def)) { //we have got a secondary table
+                //it must not be joined at this point, but TODO
+            }
         }
+    }
+
+    public function merge_prop_chain(array $prop_chain) {
+        
     }
 }
