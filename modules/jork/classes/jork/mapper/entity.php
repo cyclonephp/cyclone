@@ -84,20 +84,36 @@ class JORK_Mapper_Entity {
 
         if ( !array_key_exists($tbl_name, $this->_table_aliases)) {
             $tbl_alias = $this->_table_aliases[$tbl_name]
-                = $this->_naming_srv->table_alias($unknown, $tbl_name);
+                = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
             $this->_db_query->tables []= array($tbl_name, $tbl_alias);
         } else {
             $tbl_alias = $this->_table_aliases[$tbl_name];
         }
-        $this->_db_query->columns []= $tbl_alias.'.'.
-                (array_key_exists('db_dolumn', $prop_schema)
-                    ? $prop_schema['db_column']
-                    : $prop_name);
+        $col_name = array_key_exists('db_column', $prop_schema) 
+                ? $prop_schema['db_column']
+                : $prop_name;
+        
+        $this->_db_query->columns []= $tbl_alias.'.'.$col_name;
         
     }
 
-    protected function create_component_mapper() {
-        
+    /**
+     *
+     * @param string $prop_name
+     * @param array $prop_schema
+     * @return JORK_Mapper_Entity
+     */
+    protected function get_component_mapper($prop_name, $prop_schema) {
+        if (array_key_exists($prop_name, $this->_next_mappers))
+            return $this->_next_mappers[$prop_name];
+
+        $select_item = $this->_entity_alias == '' ? $prop_name
+                : $this->_entity_alias.'.'.$prop_name;
+
+        return $this->_next_mappers[$prop_name] = new JORK_Mapper_Entity($this->_naming_srv
+                , $this->_jork_query
+                , $this->_db_query
+                , $select_item);
     }
 
     /**
@@ -107,16 +123,21 @@ class JORK_Mapper_Entity {
      * @param array $prop_chain the array representation of the property chain
      * @throws JORK_Schema_Exception
      */
-    public function merge_prop_chain($walked_segments, array $prop_chain) {
+    public function merge_prop_chain(array $prop_chain) {
         $root_prop = array_shift($prop_chain);
+        $schema = $this->_entity_schema->get_property_schema($root_prop);
         if ( ! empty($prop_chain)) {
-
+            if (array_key_exists('type', $schema))
+                throw new JORK_Syntax_Exception('only the last item of a property
+                    chain can be an atomic property');
+            $next_mapper = $this->get_component_mapper($root_prop, $schema);
+            $next_mapper->merge_prop_chain($prop_chain);
         } else {
-            $schema = $this->_entity_schema->get_property_schema($root_prop);
             if (array_key_exists('type', $schema)) {
                 $this->add_atomic_property($root_prop, $schema);
             } else {
-                
+                $next_mapper = $this->get_component_mapper($root_prop, $schema);
+                $next_mapper->select_all_atomics();
             }
         }
     }
