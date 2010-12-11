@@ -52,9 +52,60 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $jork_query->select('topics')->from('Model_Category');
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->columns, array(
-            't_categories_0.id', 't_topics_0.id'
+        //print_r($db_query->columns);
+        $this->assertEquals($db_query->tables, array(
+            array('t_topics', 't_topics_0')
         ));
+    }
+
+    public function testSelectManyToOne() {
+        $jork_query = new JORK_Query_Select;
+        $jork_query->select('topic', 'topic.creator')->from('Model_Topic topic');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        //print_r($db_query->tables);
+        $this->assertEquals($db_query->tables, array(
+            array('t_topics', 't_topics_0')
+        ));
+        //print_r($db_query->joins);
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_users', 't_users_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_topics_0.creator_fk', '=', 't_users_0.id')
+                )
+            )
+        ));
+    }
+
+    public function testSelectManyToOne2() {
+        $jork_query = new JORK_Query_Select;
+        $jork_query->select('post', 'post.topic.creator')
+                ->from('Model_Post post');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->tables, array(
+            array('t_posts', 't_posts_0')
+        ));
+        print_r($db_query->joins);
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_topics', 't_topics_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_posts_0.topic_fk', '=', 't_topics_0.id')
+                )
+            ),
+            array(
+                'table' => array('t_users', 't_users_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_topics_0.creator_fk', '=', 't_users_0.id')
+                )
+            )
+        ));
+
     }
 
     

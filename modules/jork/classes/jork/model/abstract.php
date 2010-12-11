@@ -33,6 +33,10 @@ abstract class JORK_Model_Abstract {
         return self::$_instances[get_class($this)]->_schema;
     }
 
+    /**
+     * @param string $class
+     * @return JORK_Mapping_Schema
+     */
     public static function schema_by_class($class) {
         if ( ! array_key_exists($class, self::$_instances)) {
             self::_inst($class);

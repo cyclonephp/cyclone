@@ -11,44 +11,25 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
      */
     protected $_parent_mapper;
 
-    /**
-     * @var string the component of the parent entity where the new entity must
-     * be put
-     */
-    protected $_component;
+    protected $_comp_name;
 
-    public function map_row($row_data, JORK_Model_Abstract $parent_entity) {
-        //TODO implement
-    }
+    private $_is_joined = FALSE;
 
-    public function  __construct(JORK_Mapper_Entity $parent_mapper
-            , $join_def
-            , JORK_Alias_Factory $alias_factory
-            , DB_Query_Select $db_query) {
-        $this->_alias_factory = $alias_factory;
-        $this->_db_query = $db_query;
-        $this->_entity_schema = JORK::schema(
-            $parent_mapper->_entity_schema->components[$join_def['component']]['class']
-        );
+    public function  __construct(JORK_Mapper_Entity $parent_mapper, $comp_name, $select_item) {
+        parent::__construct($parent_mapper->_naming_srv
+                , $parent_mapper->_jork_query
+                , $parent_mapper->_db_query
+                , $select_item);
         $this->_parent_mapper = $parent_mapper;
-        $this->_component = $join_def['component'];
-        $this->_table = $this->_alias_factory->for_table($this->_entity_schema->table);
-
-        if (array_key_exists('mapped_by', $this->_parent_mapper->_entity_schema->components[$this->_component])) {
-            //TODO reverse mapping
-        } else {
-            $this->component2join();
-        }
-
-        $this->create_next_mappers($join_def['nexts']);
+        $this->_comp_name = $comp_name;
     }
+
+   
 
     
     public static function factory(JORK_Mapper_Entity $parent_mapper
-            , $join_def
-            , JORK_Alias_Factory $alias_factory
-            , DB_Query_Select $db_query) {
-        $comp_def = $parent_mapper->_entity_schema->components[$join_def['component']];
+            , $comp_name, $select_item) {
+        $comp_def = $parent_mapper->_entity_schema->components[$comp_name];
 
         $impls = array(
             JORK::ONE_TO_ONE => 'JORK_Mapper_Component_OneToOne',
@@ -62,13 +43,27 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
         $class = $impls[$comp_def['type']];
 
-        return new $class($parent_mapper
-            , $join_def
-            , $alias_factory
-            , $db_query
-        );
+        return new $class($parent_mapper, $comp_name, $select_item);
     }
 
-    protected abstract function component2join();
+    protected abstract function comp2join();
+
+    protected abstract function comp2join_reverse();
+
+    protected function  add_table($tbl_name) {
+        if ( ! $this->_is_joined) {
+            $this->_is_joined = true;
+            if (empty($this->_db_query->tables)) {
+                parent::add_table($tbl_name);
+                return;
+            }
+            if (array_key_exists('mapped_by',
+                    $this->_parent_mapper->_entity_schema->components[$this->_comp_name])) {
+                $this->comp2join_reverse();
+            } else {
+                $this->comp2join();
+            }
+        }
+    }
 
 }

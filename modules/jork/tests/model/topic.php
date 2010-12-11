@@ -16,12 +16,6 @@ class Model_Topic extends JORK_Model_Abstract {
                     'max_length' => 64,
                     'not null' => true
                 )
-            ),
-            'created_by' => array(
-				'type' => 'int',
-                'constraints' => array(
-                    'not null' => true
-                )
             )
         );
         $this->_schema->components = array(
@@ -33,11 +27,6 @@ class Model_Topic extends JORK_Model_Abstract {
                     'join_column' => 'topic_fk',
                     'inverse_join_column' => 'category_fk'
                 )
-            ),
-            'creator' => array(
-				'class' => 'Model_User',
-				'type' => JORK::MANY_TO_ONE,
-				'join_column' => 'created_by'
             ),
             'posts' => array(
 				'class' => 'Model_Post',

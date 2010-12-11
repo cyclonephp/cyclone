@@ -125,7 +125,11 @@ class JORK_Mapper_Select {
                 if ( ! array_key_exists($root_entity, $this->_mappers))
                     throw new JORK_Syntax_Exception('invalid property chain in select clause:'
                             .$select_item['prop_chain']->as_string());
-                $this->_mappers[$root_entity]->merge_prop_chain($prop_chain);
+                if (empty($prop_chain)) {
+                    $this->_mappers[$root_entity]->select_all_atomics();
+                } else {
+                    $this->_mappers[$root_entity]->merge_prop_chain($prop_chain);
+                }
             }
             if (array_key_exists('projection', $select_item)) {
                 $this->add_projections($select_item['prop_chain'], $select_item['projection']);
