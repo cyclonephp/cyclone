@@ -41,7 +41,35 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
     }
 
     protected function  comp2join_reverse() {
-        ;
+        $local_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
+        
+        $remote_class = $local_schema['class'];
+        
+        $remote_schema = JORK_Model_Abstract::schema_by_class($remote_class);
+
+        $remote_comp_def = $remote_schema->components[$local_schema['mapped_by']];
+
+        $remote_join_col_def = $remote_schema->columns[$remote_comp_def['join_column']];
+
+        $remote_join_table = array_key_exists('table', $remote_join_col_def)
+                ? $remote_join_col_def['table']
+                : $remote_schema->table;
+
+        $remote_table_alias = $this->_naming_srv->table_alias($this->_entity_alias, $remote_join_table);
+
+        $this->_db_query->joins []= array(
+            'table' => array($remote_join_table, $remote_table_alias),
+            'type' => 'LEFT',
+            'conditions' => array(
+                array($this->_naming_srv->table_alias($this->_parent_mapper->_entity_alias
+                        , $this->_parent_mapper->_entity_schema->table)
+                        .'.'
+                        .$this->_parent_mapper->_entity_schema->primary_key()
+                , '='
+                ,$remote_table_alias.'.'.$remote_comp_def['join_column'])
+            )
+        );
+        
     }
 
 }

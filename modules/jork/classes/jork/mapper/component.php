@@ -38,14 +38,24 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
             JORK::MANY_TO_MANY => 'JORK_Mapper_Component_ManyToMany'
         );
 
-        if ( ! array_key_exists($comp_def['type'], $impls))
-            throw new JORK_Exception("unknown component type: {$comp_def['type']}");
+        if (array_key_exists('mapped_by', $comp_def)) {
+            $remote_schema = JORK_Model_Abstract::schema_by_class($comp_def['class']);
 
-        $class = $impls[$comp_def['type']];
+            $remote_comp_def = $remote_schema->get_property_schema($comp_def['mapped_by']);
 
-        return new $class($parent_mapper, $comp_name, $select_item);
+            $class = $impls[$remote_comp_def['type']];
+
+            return new $class($parent_mapper, $comp_name, $select_item);
+
+        } else {
+            if ( ! array_key_exists($comp_def['type'], $impls))
+                throw new JORK_Exception("unknown component type: {$comp_def['type']}");
+            $class = $impls[$comp_def['type']];
+
+            return new $class($parent_mapper, $comp_name, $select_item);
+        }
+
     }
-
     protected abstract function comp2join();
 
     protected abstract function comp2join_reverse();
