@@ -55,6 +55,7 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
             $this->_is_joined = true;
             if (empty($this->_db_query->tables)) {
                 parent::add_table($tbl_name);
+                //$this->_parent_mapper->add_table($tbl_name);
                 return;
             }
             if (array_key_exists('mapped_by',

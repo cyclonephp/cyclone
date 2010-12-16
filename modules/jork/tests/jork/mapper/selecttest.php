@@ -88,9 +88,9 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
         ));
-        print_r($db_query->joins);
+        //print_r($db_query->joins);
         $this->assertEquals($db_query->joins, array(
-            array(
+             array(
                 'table' => array('t_topics', 't_topics_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
@@ -104,6 +104,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                     array('t_topics_0.creator_fk', '=', 't_users_0.id')
                 )
             )
+           
         ));
 
     }

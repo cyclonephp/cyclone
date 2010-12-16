@@ -128,8 +128,8 @@ class JORK_Mapper_Entity {
                 throw new JORK_Syntax_Exception('only the last item of a property
                     chain can be an atomic property');
             $next_mapper = $this->get_component_mapper($root_prop, $schema);
-            $next_mapper->merge_prop_chain($prop_chain);
             $next_mapper->select_all_atomics();
+            $next_mapper->merge_prop_chain($prop_chain);
         } else {
             if (array_key_exists('class', $schema)) {
                 $next_mapper = $this->get_component_mapper($root_prop, $schema);
