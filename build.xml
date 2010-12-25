@@ -7,12 +7,13 @@
 
 	<target name="test" description="running phpunit tests">
 		<includepath classpath="${includepath}"/>
-		<exec command="phpunit --bootstrap=index.php --log-junit testresult.xml tools/unittest/tests.php"
+		<delete dir="phpunit-report/coverage"/>
+		<mkdir dir="phpunit-report/coverage"/>
+		<exec command="phpunit --bootstrap=index.php --coverage-html phpunit-report/coverage --log-junit testresult.xml tools/unittest/tests.php"
 			checkreturn="true" dir="${project.basedir}" logoutput = "true"/>
-
-        <delete dir="phpunit-report"/>
-        <mkdir dir="phpunit-report"/>
+        
         <phpunitreport infile="testresult.xml" todir="phpunit-report"/>
+        <delete file="testresult.xml"/>
 	</target>
 	
 	<target name="check_dir">
