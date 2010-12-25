@@ -7,7 +7,7 @@
 
 	<target name="test" description="running phpunit tests">
 		<includepath classpath="${includepath}"/>
-		<exec command="phpunit --bootstrap=index.php tools/unittest/tests.php --log-junit testresult.xml"
+		<exec command="phpunit --bootstrap=index.php --log-junit testresult.xml tools/unittest/tests.php"
 			checkreturn="true" dir="${project.basedir}" logoutput = "true"/>
 
         <delete dir="phpunit-report"/>
