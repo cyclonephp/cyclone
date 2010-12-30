@@ -62,14 +62,8 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
     protected function parent_to_from() {
         $comp_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
-        
         $join_col = $comp_schema['join_column'];
-        $join_col_schema = $this->_parent_mapper->_entity_schema->columns[$join_col];
-        if (array_key_exists('table', $join_col_schema)) {
-            $tbl_name = $join_col_schema['table'];
-        } else {
-            $tbl_name = $this->_parent_mapper->_entity_schema->table;
-        }
+        $tbl_name = $this->_parent_mapper->_entity_schema->table_name_for_column($join_col);
         $this->_parent_mapper->add_table($tbl_name);
     }
 

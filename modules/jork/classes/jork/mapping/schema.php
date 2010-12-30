@@ -29,5 +29,11 @@ class JORK_Mapping_Schema {
         }
         throw new JORK_Schema_Exception("property '$name' of {$this->class} does not exist");
     }
+
+    public function table_name_for_column($col_name) {
+        return array_key_exists('table', $this->columns[$col_name])
+                ? $this->columns[$col_name]
+                : $this->table;
+    }
     
 }
