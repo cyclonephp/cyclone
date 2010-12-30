@@ -136,5 +136,24 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         
     }
 
+    public function testSelectOneToMany() {
+        $jork_query = new JORK_Query_Select;
+        $jork_query->select('posts')->from('Model_User');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->tables, array(
+            array('t_users', 't_users_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_posts', 't_posts_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_users_0.id', '=', 't_posts_0.user_fk')
+                )
+            )
+        ));
+    }
+
     
 }

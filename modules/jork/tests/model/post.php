@@ -20,6 +20,12 @@ class Model_Post extends JORK_Model_Abstract {
                 'constraints' => array(
                     'not null' => true
                 )
+            ),
+            'user_fk' => array(
+                'type' => 'int',
+                'constraints' => array(
+                    'not null' => true
+                )
             )
         );
         $this->_schema->components = array(
