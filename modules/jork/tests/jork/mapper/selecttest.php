@@ -49,13 +49,22 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
     public function testSelectPropChain() {
         $jork_query = new JORK_Query_Select;
-        $jork_query->select('topics')->from('Model_Category');
+        $jork_query->select('topic')->from('Model_Post');
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
         //print_r($db_query->columns);
         $this->assertEquals($db_query->tables, array(
-            array('t_topics', 't_topics_0')
+            array('t_posts', 't_posts_0')
         ));
+        /*$this->assertEquals($db_query->joins, array(
+            array(
+                'type' => 'LEFT',
+                'table' => array('t_topics', 't_topics_0'),
+                'conditions' => array(
+                    array('t_categories_0.id', )
+                )
+            )
+        ));*/
     }
 
     public function testSelectManyToOne() {

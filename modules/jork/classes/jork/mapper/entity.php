@@ -8,7 +8,7 @@ class JORK_Mapper_Entity {
     protected $_table_aliases = array();
 
     /**
-     * @var JORK_Schema
+     * @var JORK_Mapping_Schema
      */
     protected $_entity_schema;
 
