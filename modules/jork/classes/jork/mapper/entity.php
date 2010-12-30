@@ -72,6 +72,16 @@ class JORK_Mapper_Entity {
         return $tbl_alias;
     }
 
+    /**
+     *
+     * @param string $tbl_name
+     * @return string
+     * @see JORK_Naming_Service::table_alias($tbl_name)
+     */
+    protected function table_alias($tbl_name) {
+        return $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
+    }
+
 
     /**
      * Adds an atomic property join to the db query
