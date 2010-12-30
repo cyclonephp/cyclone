@@ -58,6 +58,10 @@ class Model_User extends JORK_Model_Abstract {
                 'class' => 'Model_Post',
                 'type' => JORK::ONE_TO_MANY,
                 'join_column' => 'user_fk'
+            ),
+            'moderated_category' => array(
+                'class' => 'Model_Category',
+                'mapped_by' => 'moderator'
             )
         );
     }

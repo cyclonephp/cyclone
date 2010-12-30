@@ -67,6 +67,11 @@ class JORK_Mapper_Component_OneToMany extends JORK_Mapper_Component {
         );
     }
 
+    /**
+     * If the FROM clause of the DB query is empty then adds the table
+     * of the parent entity (the one which is required for the join / contains
+     * the join column) to the FROM clause of the DB query.
+     */
     protected function  parent_to_from() {
         $comp_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
         $join_col = array_key_exists('inverse_join_column', $comp_schema)

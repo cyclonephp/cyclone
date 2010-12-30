@@ -32,7 +32,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->columns, array(
-            't_categories_0.id', 't_categories_0.c_name'
+            't_categories_0.id', 't_categories_0.c_name', 't_categories_0.moderator_fk'
             , 't_categories_0.created_at', 't_categories_0.creator_fk'
             , 't_categories_0.modified_at', 't_categories_0.modifier_fk'
         ));
@@ -173,6 +173,29 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
             )
         ));
 
+    }
+
+    public function testOneToOne() {
+        $jork_query = new JORK_Query_Select;
+        $jork_query->select('moderator')->from('Model_Category');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->tables, array(
+            array('t_categories', 't_categories_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_users', 't_users_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_categories_0.moderator_fk', '=', 't_users_0.id')
+                )
+            )
+        ));
+    }
+
+    public function testOneToOneReverse() {
+        
     }
 
     
