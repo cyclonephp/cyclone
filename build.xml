@@ -6,15 +6,23 @@
 	<property file="./build.properties"/>
 
 	<target name="test" description="running phpunit tests">
-		<includepath classpath="${includepath}"/>
+
+        <includepath classpath="${includepath}"/>
+		<exec command="phpunit --bootstrap=index.php tools/unittest/tests.php"
+			checkreturn="true" dir="${project.basedir}" logoutput = "true"/>
+        
+	</target>
+
+    <target name="coverage">
+        <includepath classpath="${includepath}"/>
 		<delete dir="phpunit-report/coverage"/>
 		<mkdir dir="phpunit-report/coverage"/>
 		<exec command="phpunit --bootstrap=index.php --coverage-html phpunit-report/coverage --log-junit testresult.xml tools/unittest/tests.php"
 			checkreturn="true" dir="${project.basedir}" logoutput = "true"/>
-        
+
         <phpunitreport infile="testresult.xml" todir="phpunit-report"/>
         <delete file="testresult.xml"/>
-	</target>
+    </target>
 	
 	<target name="check_dir">
 		<php function="is_dir" returnProperty="is_dir">
