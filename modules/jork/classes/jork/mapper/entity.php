@@ -8,7 +8,7 @@ class JORK_Mapper_Entity {
     protected $_table_aliases = array();
 
     /**
-     * @var JORK_Schema
+     * @var JORK_Mapping_Schema
      */
     protected $_entity_schema;
 
@@ -70,6 +70,16 @@ class JORK_Mapper_Entity {
                 = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
         $this->_db_query->tables []= array($tbl_name, $tbl_alias);
         return $tbl_alias;
+    }
+
+    /**
+     *
+     * @param string $tbl_name
+     * @return string
+     * @see JORK_Naming_Service::table_alias($tbl_name)
+     */
+    protected function table_alias($tbl_name) {
+        return $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
     }
 
 
