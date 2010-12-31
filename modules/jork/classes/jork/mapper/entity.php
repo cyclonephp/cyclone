@@ -152,9 +152,13 @@ class JORK_Mapper_Entity {
      * @param array $prop_schema
      * @return JORK_Mapper_Entity
      */
-    protected function get_component_mapper($prop_name, $prop_schema) {
+    protected function get_component_mapper($prop_name, $prop_schema = NULL) {
         if (array_key_exists($prop_name, $this->_next_mappers))
             return $this->_next_mappers[$prop_name];
+
+        if (NULL == $prop_schema) {
+            $prop_schema = $this->_entity_schema->components[$prop_name];
+        }
 
         $select_item = $this->_entity_alias == '' ? $prop_name
                 : $this->_entity_alias.'.'.$prop_name;
@@ -197,6 +201,30 @@ class JORK_Mapper_Entity {
     public function select_all_atomics() {
         foreach ($this->_entity_schema->columns as $prop_name => $prop_schema) {
             $this->add_atomic_property($prop_name, $prop_schema);
+        }
+    }
+
+    public function resolve_prop_chain($prop_chain) {
+        $root_prop = array_shift($prop_chain);
+        if (empty($prop_chain)) { //we are there
+            if ( ! array_key_exists($root_prop, $this->_entity_schema->columns)) {
+                if (array_key_exists($root_prop, $this->_entity_schema->components))
+                    throw new JORK_Exception('property "'.$root_prop.'" is not an atomic property of class'
+                            .'"'.$this->_entity_schema->class.'"');
+                throw new JORK_Exception('property "'.$root_prop.'" of class "'
+                        .$this->_entity_schema->class.'" does not exist');
+            }
+            $col_schema = $this->_entity_schema->columns[$root_prop];
+            $table = array_key_exists('table', $col_schema)
+                    ? $col_schema['table']
+                    : $this->_entity_schema->table;
+            $this->add_table($table);
+            return $this->_table_aliases[$table].'.'.$root_prop;
+        } else { //going on with the next component mapper
+            if ( ! array_key_exists($root_prop, $this->_entity_schema->components))
+                throw new JORK_Exception('class '.$this->_entity_schema->class
+                        .' has no component '.$root_prop);
+            return $this->get_component_mapper($root_prop)->resolve_prop_chain($prop_chain);
         }
     }
 }

@@ -66,6 +66,7 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
     protected function is_primary_join_table($tbl_name) {
         static $primary_join_tables;
+        //TODO it's just a mock return value (which works in most cases...)
         return $tbl_name == $this->_entity_schema->table;
         if (NULL == $primary_join_tables) {
             $primary_join_tables = array();
