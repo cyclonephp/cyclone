@@ -67,8 +67,13 @@ class JORK_Mapper_Entity {
      */
     protected function add_table($tbl_name) {
         if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
-            $tbl_alias = $this->_table_aliases[$tbl_name] = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
-            $this->_db_query->tables []= array($tbl_name, $tbl_alias);
+            if ( ! array_key_exists($this->_entity_schema->table, $this->_table_aliases)) {
+                $tbl_alias = $this->_table_aliases[$tbl_name] = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
+                $this->_db_query->tables []= array($tbl_name, $tbl_alias);
+            }
+            if ($tbl_name != $this->_entity_schema->table) {
+                $this->join_secondary_table($tbl_name);
+            }
         }
         return $this->_table_aliases[$tbl_name];
     }
@@ -100,15 +105,45 @@ class JORK_Mapper_Entity {
 
         if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
             $tbl_alias = $this->add_table($tbl_name);
-        } else {
+        }// else {
             $tbl_alias = $this->_table_aliases[$tbl_name];
-        }
+        //}
         $col_name = array_key_exists('db_column', $prop_schema) 
                 ? $prop_schema['db_column']
                 : $prop_name;
         
         $this->_db_query->columns []= $tbl_alias.'.'.$col_name;
         
+    }
+
+    protected function join_secondary_table($tbl_name) {
+        if ( ! is_array($this->_entity_schema->secondary_tables)
+                || ! array_key_exists($tbl_name, $this->_entity_schema->secondary_tables)) 
+            throw new JORK_Schema_Exception ('class '.$this->_entity_schema->class
+                    .' has no secondary table "'.$tbl_name.'"');
+        if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
+            $this->add_table($this->_entity_schema->table);
+        }
+        $table_schema = $this->_entity_schema->secondary_tables[$tbl_name];
+
+
+        $inverse_join_col = array_key_exists('inverse_join_column', $table_schema)
+                ? $table_schema['inverse_join_column']
+                : $this->_entity_schema->primary_key();
+
+        $tbl_alias = $this->table_alias($tbl_name);
+        
+        $this->_db_query->joins []= array(
+            'table' => array($tbl_name, $tbl_alias),
+            'type' => 'LEFT',
+            'conditions' => array(
+                array(
+                    $this->table_alias($this->_entity_schema->table).'.'.$inverse_join_col
+                    , '='
+                    , $tbl_alias.'.'.$table_schema['join_column']
+                )
+            )
+        );
     }
 
     /**

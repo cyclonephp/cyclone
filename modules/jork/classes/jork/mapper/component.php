@@ -90,6 +90,8 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
                     $this->comp2join();
                 }
             }
+        } else {
+            parent::add_table($tbl_name);
         }
     }
 
