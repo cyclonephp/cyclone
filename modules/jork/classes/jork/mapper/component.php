@@ -64,13 +64,6 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
     protected abstract function comp2join_reverse();
 
-    protected function parent_to_from() {
-        $comp_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
-        $join_col = $comp_schema['join_column'];
-        $tbl_name = $this->_parent_mapper->_entity_schema->table_name_for_column($join_col);
-        $this->_parent_mapper->add_table($tbl_name);
-    }
-
     protected function is_primary_join_table($tbl_name) {
         static $primary_join_tables;
         return $tbl_name == $this->_entity_schema->table;

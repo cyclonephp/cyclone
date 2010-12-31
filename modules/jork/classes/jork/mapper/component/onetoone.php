@@ -3,8 +3,8 @@
 class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
 
     protected function comp2join() {
-        $comp_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
-        
+        $comp_schema = $this->_comp_schema;
+
         $local_join_col = $comp_schema['join_column'];
         $local_table = $this->_parent_mapper->_entity_schema->table_name_for_column($local_join_col);
         $this->_parent_mapper->add_table($local_table);
@@ -32,7 +32,39 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
     }
 
     protected function  comp2join_reverse() {
-        
+        $remote_schema = JORK_Model_Abstract::schema_by_class($this->_comp_schema['class']);
+        $comp_schema = $remote_schema->components[$this->_comp_schema['mapped_by']];
+
+        $parent_join_col = array_key_exists('inverse_join_column', $comp_schema)
+                ? $comp_schema['inverse_join_column']
+                : $this->_entity_schema->primary_key();
+        $parent_join_col_schema = $remote_schema->columns[$parent_join_col];
+        $parent_table = array_key_exists('table', $parent_join_col_schema)
+                ? $parent_join_col_schema['table']
+                : $this->_parent_mapper->_entity_schema->table;
+        $this->_parent_mapper->add_table($parent_table);
+
+        $local_join_col = $comp_schema['join_column'];
+
+        $local_join_col_schema = $this->_entity_schema->columns[$local_join_col];
+        $local_table = array_key_exists('table', $local_join_col_schema)
+                ? $local_join_col['table']
+                : $this->_entity_schema->table;
+        $local_table_alias = $this->table_alias($local_table);
+
+        $this->_db_query->joins []= array(
+            'table' => array($local_table, $local_table_alias),
+            'type' => 'LEFT',
+            'conditions' => array(
+                array(
+                    $this->_parent_mapper->table_alias($parent_table)
+                    .'.'.$parent_join_col
+                    , '='
+                    , $local_table_alias.'.'.$local_join_col
+                )
+            )
+        );
+
     }
 
 }
