@@ -7,6 +7,7 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
         
         $local_join_col = $comp_schema['join_column'];
         $local_table = $this->_parent_mapper->_entity_schema->table_name_for_column($local_join_col);
+        $this->_parent_mapper->add_table($local_table);
         $local_table_alias = $this->_parent_mapper->table_alias($local_table);
 
         $remote_join_col = array_key_exists('inverse_join_column', $comp_schema)
@@ -14,7 +15,7 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
                 : $this->_entity_schema->primary_key();
 
         $remote_table = $this->_entity_schema->table_name_for_column($remote_join_col);
-        $remote_table_alias = $this->_naming_srv->table_alias($this->_entity_alias, $remote_table);
+        $remote_table_alias = $this->table_alias($remote_table);
 
         $this->_db_query->joins []= array(
             'table' => array($remote_table, $remote_table_alias),

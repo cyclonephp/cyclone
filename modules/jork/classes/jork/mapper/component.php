@@ -13,7 +13,9 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
     protected $_comp_name;
 
-    private $_is_joined = FALSE;
+    protected $_comp_schema;
+
+    protected $_is_reverse;
 
     public function  __construct(JORK_Mapper_Entity $parent_mapper, $comp_name, $select_item) {
         parent::__construct($parent_mapper->_naming_srv
@@ -22,6 +24,8 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
                 , $select_item);
         $this->_parent_mapper = $parent_mapper;
         $this->_comp_name = $comp_name;
+        $this->_comp_schema = $parent_mapper->_entity_schema->components[$comp_name];
+        $this->_is_reverse = array_key_exists('mapped_by', $this->_comp_schema);
     }
 
    
@@ -67,17 +71,31 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
         $this->_parent_mapper->add_table($tbl_name);
     }
 
-    protected function  add_table($tbl_name) {
-        if ( ! $this->_is_joined) {
-            $this->_is_joined = true;
-            if (empty($this->_db_query->tables)) {
-                $this->parent_to_from();
+    protected function is_primary_join_table($tbl_name) {
+        static $primary_join_tables;
+        return $tbl_name == $this->_entity_schema->table;
+        if (NULL == $primary_join_tables) {
+            $primary_join_tables = array();
+            if (array_key_exists('join_column', $this->_comp_schema)) {
+                $join_col_schema = $this->_parent_mapper->_entity_schema->columns[$this->_comp_schema['join_column']];
+                $primary_join_tables []= array_key_exists('table', $join_col_schema)
+                        ? $join_col_schema['table']
+                        : $this->_entity_schema->table;
+            } else { //TODO composite foreign key
+
             }
-            if (array_key_exists('mapped_by',
-                    $this->_parent_mapper->_entity_schema->components[$this->_comp_name])) {
-                $this->comp2join_reverse();
-            } else {
-                $this->comp2join();
+        }
+        return in_array($tbl_name, $primary_join_tables);
+    }
+
+    protected function  add_table($tbl_name) {
+        if ($this->is_primary_join_table($tbl_name)) {
+            if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
+                if ($this->_is_reverse) {
+                    $this->comp2join_reverse();
+                } else {
+                    $this->comp2join();
+                }
             }
         }
     }

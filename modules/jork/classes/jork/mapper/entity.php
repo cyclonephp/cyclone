@@ -66,10 +66,11 @@ class JORK_Mapper_Entity {
      * @return string the generated alias
      */
     protected function add_table($tbl_name) {
-        $tbl_alias = $this->_table_aliases[$tbl_name]
-                = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
-        $this->_db_query->tables []= array($tbl_name, $tbl_alias);
-        return $tbl_alias;
+        if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
+            $tbl_alias = $this->_table_aliases[$tbl_name] = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
+            $this->_db_query->tables []= array($tbl_name, $tbl_alias);
+        }
+        return $this->_table_aliases[$tbl_name];
     }
 
     /**
@@ -79,7 +80,11 @@ class JORK_Mapper_Entity {
      * @see JORK_Naming_Service::table_alias($tbl_name)
      */
     protected function table_alias($tbl_name) {
-        return $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
+        if ( !array_key_exists($tbl_name, $this->_table_aliases)) {
+            $this->_table_aliases[$tbl_name] = $this->_naming_srv
+                    ->table_alias($this->_entity_alias, $tbl_name);
+        }
+        return $this->_table_aliases[$tbl_name];
     }
 
 
@@ -93,7 +98,7 @@ class JORK_Mapper_Entity {
                 ? $prop_schema['table']
                 : $this->_entity_schema->table;
 
-        if ( !array_key_exists($tbl_name, $this->_table_aliases)) {
+        if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
             $tbl_alias = $this->add_table($tbl_name);
         } else {
             $tbl_alias = $this->_table_aliases[$tbl_name];
@@ -125,12 +130,12 @@ class JORK_Mapper_Entity {
 
     /**
      * Here we don't take care about the property projections.
-     * These must be merged one-by-ona at JORK_Mapper_Select->map_select()
+     * These must be merged one-by-one at JORK_Mapper_Select->map_select()
      *
      * @param array $prop_chain the array representation of the property chain
      * @throws JORK_Schema_Exception
      */
-    public function merge_prop_chain(array $prop_chain) {
+    public function merge_prop_chain(array $prop_chain, $is_select = FALSE, $is_only = FALSE) {
         $root_prop = array_shift($prop_chain);
         $schema = $this->_entity_schema->get_property_schema($root_prop);
         if ( ! empty($prop_chain)) {

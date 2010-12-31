@@ -14,6 +14,8 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
                 ? $join_col_schema['table']
                 : $this->_parent_mapper->_entity_schema->table;
 
+        $this->_parent_mapper->add_table($join_table);
+
         $join_table_alias = $this->_naming_srv->table_alias($this->_parent_mapper->_entity_alias, $join_table);
 
         $remote_join_col = array_key_exists('inverse_join_column', $comp_schema)
@@ -26,7 +28,7 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
                 ? $remote_join_col_schema['table']
                 : $remote_schema->table;
 
-        $remote_join_table_alias = $this->_naming_srv->table_alias($this->_entity_alias, $remote_join_table);
+        $remote_join_table_alias = $this->table_alias($remote_join_table);
 
         $this->_db_query->joins []= array(
             'table' => array($remote_join_table, $remote_join_table_alias),
@@ -55,7 +57,7 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
                 ? $remote_join_col_def['table']
                 : $remote_schema->table;
 
-        $remote_table_alias = $this->_naming_srv->table_alias($this->_entity_alias, $remote_join_table);
+        $remote_table_alias = $this->table_alias($remote_join_table);
 
         $this->_db_query->joins []= array(
             'table' => array($remote_join_table, $remote_table_alias),

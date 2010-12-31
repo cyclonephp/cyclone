@@ -18,6 +18,7 @@ class JORK_Mapper_Component_OneToMany extends JORK_Mapper_Component {
                 ? $comp_schema['inverse_join_column']
                 : $parent_ent_schema->primary_key();
         $remote_join_table = $parent_ent_schema->table_name_for_column($remote_join_col);
+        $this->_parent_mapper->add_table($remote_join_table);
         $remote_join_table_alias = $this->_parent_mapper->table_alias($remote_join_table);
 
 
@@ -47,10 +48,9 @@ class JORK_Mapper_Component_OneToMany extends JORK_Mapper_Component {
         $local_join_table = $this->_entity_schema->table_name_for_column($local_join_col);
         $local_join_table_alias = $this->table_alias($local_join_table);
 
-
-
         $remote_join_col = $comp_schema['join_column'];
         $remote_join_table = $parent_ent_schema->table_name_for_column($remote_join_col);
+        $this->_parent_mapper->add_table($remote_join_table);
         $remote_join_table_alias = $this->_parent_mapper->table_alias($remote_join_table);
 
 
@@ -65,20 +65,6 @@ class JORK_Mapper_Component_OneToMany extends JORK_Mapper_Component {
                         .$local_join_col)
             )
         );
-    }
-
-    /**
-     * If the FROM clause of the DB query is empty then adds the table
-     * of the parent entity (the one which is required for the join / contains
-     * the join column) to the FROM clause of the DB query.
-     */
-    protected function  parent_to_from() {
-        $comp_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
-        $join_col = array_key_exists('inverse_join_column', $comp_schema)
-                ? $comp_schema['inverse_join_column']
-                : $this->_parent_mapper->_entity_schema->primary_key();
-        $tbl_name = $this->_parent_mapper->_entity_schema->table_name_for_column($join_col);
-        $this->_parent_mapper->add_table($tbl_name);
     }
 
 }
