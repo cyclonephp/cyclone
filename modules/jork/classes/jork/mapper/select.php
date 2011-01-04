@@ -112,7 +112,6 @@ class JORK_Mapper_Select {
     protected function map_db_expression($expr) {
         $pattern = '/\{([^\}]*)\}/';
         preg_match_all($pattern, $expr, $matches);
-        print_r($matches);
         $resolved_expr_all = $expr;
         foreach ($matches[0] as $idx => $match) {
             $prop_chain = JORK_Query_PropChain::from_string($matches[1][$idx]);
@@ -126,7 +125,7 @@ class JORK_Mapper_Select {
             }
             $resolved_expr_all = str_replace($match, $resolved_expr, $resolved_expr_all);
         }
-        echo "$resolved_expr_all\n";
+        $this->_mappers[$expr] = new JORK_Mapper_Expression($resolved_expr_all);
     }
 
     protected function map_select() {

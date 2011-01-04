@@ -53,12 +53,16 @@ class JORK_Mapper_Entity implements JORK_Mapper_Result {
 
     public function map_row(&$db_row) {
         $entity = new $this->_entity_schema->class;
+        $atomics = array();
+        $components = array();
         foreach ($this->_result_atomics as $prop_name => $col_name) {
-            $entity->$prop_name = $db_row[$col_name];
+            $atomics[$prop_name] = $db_row[$col_name];
         }
+        $entity->populate_atomics($atomics);
         foreach ($this->_next_mappers as $prop_name => $mapper) {
-            $entity->$prop_name = $mapper->map(&$db_row);
+            $components[$prop_name] = $mapper->map(&$db_row);
         }
+        $entity->populate_components($components);
         return $entity;
     }
     

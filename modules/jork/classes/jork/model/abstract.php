@@ -42,7 +42,7 @@ abstract class JORK_Model_Abstract {
      * 
      * @return JORK_Mapping_Schema
      */
-    protected function schema() {
+    public function schema() {
         if ( ! array_key_exists(get_class($this), self::$_instances)) {
             self::_inst(get_class($this));
         }
@@ -56,6 +56,19 @@ abstract class JORK_Model_Abstract {
     protected $_components = array();
 
     protected $_persistent = FALSE;
+
+    public function populate_atomics($atomics) {
+        
+    }
+
+    public function populate_components($components) {
+        foreach ($components as $k => $v) {
+            $this->_components[$k] = array(
+                'value' => $v,
+                'persistent' => TRUE
+            );
+        }
+    }
 
     public function  __get($key) {
         static $schema = NULL;

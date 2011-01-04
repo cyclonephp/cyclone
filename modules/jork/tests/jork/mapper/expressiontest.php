@@ -14,4 +14,24 @@ class JORK_Mapper_ExpressionTest extends Kohana_Unittest_TestCase {
         $jork_query->select(DB::expr('{user.posts}'));
         $mapper->map();
     }
+
+    /**
+     * @expectedException JORK_Exception
+     */
+    public function testMapRow() {
+        $expr = new JORK_Mapper_Expression('hello');
+        $row = array('hello' => 'world');
+        $result = $expr->map_row($row);
+        $this->assertEquals('world', $result);
+
+        $expr = new JORK_Mapper_Expression('hello alias');
+        $row = array('alias' => 'world');
+        $result = $expr->map_row($row);
+        $this->assertEquals('world', $result);
+
+        $expr = new JORK_Mapper_Expression('hello alias');
+        $row = array('should' => 'fail');
+        $expr->map_row($row);
+    }
+
 }
