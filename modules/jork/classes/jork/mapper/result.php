@@ -16,6 +16,6 @@ interface JORK_Mapper_Result {
      *
      * @param array $row a row of the database query result
      */
-    public function map_row($row);
+    public function map_row(&$row);
     
 }

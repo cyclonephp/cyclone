@@ -26,13 +26,6 @@ abstract class JORK_Model_Abstract {
         return self::$_instances[$classname];
     }
 
-    protected function schema() {
-        if ( ! array_key_exists(get_class($this), self::$_instances)) {
-            self::_inst(get_class($this));
-        }
-        return self::$_instances[get_class($this)]->_schema;
-    }
-
     /**
      * @param string $class
      * @return JORK_Mapping_Schema
@@ -42,6 +35,74 @@ abstract class JORK_Model_Abstract {
             self::_inst($class);
         }
         return self::$_instances[$class]->_schema;
+    }
+
+    /**
+     * Gets the mapping schema of the current entity.
+     * 
+     * @return JORK_Mapping_Schema
+     */
+    protected function schema() {
+        if ( ! array_key_exists(get_class($this), self::$_instances)) {
+            self::_inst(get_class($this));
+        }
+        return self::$_instances[get_class($this)]->_schema;
+    }
+
+    protected $_schema;
+
+    protected $_atomics = array();
+
+    protected $_components = array();
+
+    protected $_persistent = FALSE;
+
+    public function  __get($key) {
+        static $schema = NULL;
+        if (NULL == $schema) {
+            $schema = $this->schema();
+        }
+        if (array_key_exists($key, $schema->columns)) {
+            return array_key_exists($key, $this->_atomics)
+                    ? $this->_atomics[$key]
+                    : NULL;
+        }
+        if (array_key_exists($key, $schema->components)) {
+            return array_key_exists($key, $this->_components)
+                    ? $this->_components[$key]['value']
+                    : NULL;
+        }
+        throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
+    }
+
+    public function __set($key, $val) {
+        echo "calling $key => $val\n";
+        static $schema = NULL;
+        if (NULL == $schema) {
+            $schema = $this->schema();
+        }
+        if (array_key_exists($key, $schema->columns)) {
+            if ( ! array_key_exists($key, $this->_atomics)) {
+                $this->_atomics[$key] = array(
+                    'value' => $val
+                );
+            } else {
+                $this->_atomics[$key]['value'] = $val;
+            }
+            $this->_persistent = FALSE;
+        } elseif (array_key_exists($key, $schema->components)) {
+            if ( ! array_key_exists($key, $this->_components)) {
+                $this->_components[$key] = array(
+                    'value' => $val,
+                    'persistent' => FALSE
+                );
+            } else {
+                $this->_components[$key]['value'] = $val;
+                $this->_components[$key]['persistent'] = FALSE;
+            }
+            $this->_persistent = FALSE;
+        } else
+            throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
 
 }
