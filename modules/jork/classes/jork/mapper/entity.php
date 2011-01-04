@@ -36,6 +36,15 @@ class JORK_Mapper_Entity implements JORK_Mapper_Result {
     protected $_naming_srv;
 
     /**
+     * Stores key-value pairs where the key is a column name in the expected
+     * database query result and the value is the name of the atomic property
+     * that should be populated with the column value.
+     *
+     * @var array
+     */
+    protected $_result_atomics = array();
+
+    /**
      * the next mappers to be executed on the same row
      *
      * @var array<JORK_Mapper_Component>
@@ -105,15 +114,16 @@ class JORK_Mapper_Entity implements JORK_Mapper_Result {
 
         if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
             $tbl_alias = $this->add_table($tbl_name);
-        }// else {
-            $tbl_alias = $this->_table_aliases[$tbl_name];
-        //}
+        }
+        $tbl_alias = $this->_table_aliases[$tbl_name];
+        
         $col_name = array_key_exists('db_column', $prop_schema) 
                 ? $prop_schema['db_column']
                 : $prop_name;
-        
-        $this->_db_query->columns []= $tbl_alias.'.'.$col_name;
-        
+
+        $full_column = $tbl_alias.'.'.$col_name;
+        $this->_db_query->columns []= $full_column;
+        $this->_result_atomics[$full_column] = $prop_name;
     }
 
     protected function join_secondary_table($tbl_name) {

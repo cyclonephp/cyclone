@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * This class is reponsible for mapping custom database expressions of
+ * the JORK query.
+ */
 class JORK_Mapper_Expression implements JORK_Mapper_Result {
 
     private $_db_expr;
