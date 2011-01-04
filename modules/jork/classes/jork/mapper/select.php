@@ -16,7 +16,7 @@ class JORK_Mapper_Select {
     protected $_db_query;
 
     /**
-     * @var array
+     * @var array<JORK_Mapper_Result>
      */
     protected $_mappers;
 
