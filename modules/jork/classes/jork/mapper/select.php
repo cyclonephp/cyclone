@@ -97,16 +97,36 @@ class JORK_Mapper_Select {
                 $this->_naming_srv->set_alias($with_item['prop_chain'], $with_item['alias']);
             }
             if ($this->_has_implicit_root) {
-                $this->_mappers[NULL]->merge_prop_chain($with_item['prop_chain']->as_array());
+                $this->_mappers[NULL]->merge_prop_chain($with_item['prop_chain']->as_array(), TRUE, TRUE);
             } else {
                 $prop_chain = $with_item->as_array();
                 $root_entity = array_shift($prop_chain);
                 if ( ! array_key_exists($root_entity, $this->_mappers))
                     throw new JORK_Syntax_Exception('invalid root entity in WITH clause: '.$root_entity);
 
-                $this->_mappers[$root_entity]->merge_prop_chain($prop_chain);
+                $this->_mappers[$root_entity]->merge_prop_chain($prop_chain, TRUE, TRUE);
             }
         }
+    }
+
+    protected function map_db_expression($expr) {
+        $pattern = '/\{([^\}]*)\}/';
+        preg_match_all($pattern, $expr, $matches);
+        print_r($matches);
+        $resolved_expr_all = $expr;
+        foreach ($matches[0] as $idx => $match) {
+            $prop_chain = JORK_Query_PropChain::from_string($matches[1][$idx]);
+            $prop_chain_arr = $prop_chain->as_array();
+            if ($this->_has_implicit_root) {
+                $resolved_expr = $this->_mappers[NULL]->resolve_prop_chain($prop_chain_arr);
+            } else {
+                $root_prop = array_shift($prop_chain_arr);
+                $resolved_expr = $this->_mappers[$root_prop]
+                        ->resolve_prop_chain($prop_chain_arr);
+            }
+            $resolved_expr_all = str_replace($match, $resolved_expr, $resolved_expr_all);
+        }
+        echo "$resolved_expr_all\n";
     }
 
     protected function map_select() {
@@ -117,9 +137,13 @@ class JORK_Mapper_Select {
             return;
         }
         foreach ($this->_jork_query->select_list as $select_item) {
+            if (array_key_exists('expr', $select_item)) { //database expression
+                $this->map_db_expression($select_item['expr']);
+                continue;
+            }
             $prop_chain = $select_item['prop_chain']->as_array();
             if ($this->_has_implicit_root) {
-                $this->_mappers[NULL]->merge_prop_chain($prop_chain);
+                $this->_mappers[NULL]->merge_prop_chain($prop_chain, TRUE);
             } else {
                 $root_entity = array_shift($prop_chain);
                 if ( ! array_key_exists($root_entity, $this->_mappers))
@@ -128,7 +152,7 @@ class JORK_Mapper_Select {
                 if (empty($prop_chain)) {
                     $this->_mappers[$root_entity]->select_all_atomics();
                 } else {
-                    $this->_mappers[$root_entity]->merge_prop_chain($prop_chain);
+                    $this->_mappers[$root_entity]->merge_prop_chain($prop_chain, TRUE);
                 }
             }
             if (array_key_exists('projection', $select_item)) {

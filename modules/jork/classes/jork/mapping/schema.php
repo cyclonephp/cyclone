@@ -7,6 +7,8 @@ class JORK_Mapping_Schema {
 
     public $table;
 
+    public $secondary_tables;
+
     public $columns;
 
     public $components;

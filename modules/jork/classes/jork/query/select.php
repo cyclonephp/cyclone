@@ -65,6 +65,12 @@ class JORK_Query_Select {
     public function select() {
         static $pattern = '/^(?<prop_chain>[a-zA-z\.]+)(\{(?<projection>[a-z,]+)\})?( +(?<alias>[a-zA-Z_]+))?$/';
         foreach (func_get_args() as $arg) {
+            if ($arg instanceof DB_Expression) {
+                $this->select_list []= array(
+                    'expr' => $arg->str
+                );
+                continue;
+            }
             preg_match($pattern, $arg, $matches);
             if (empty($matches))
                 throw new JORK_Syntax_Exception('invalid select list item: '.$arg);

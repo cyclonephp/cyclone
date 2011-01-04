@@ -66,10 +66,16 @@ class JORK_Mapper_Entity {
      * @return string the generated alias
      */
     protected function add_table($tbl_name) {
-        $tbl_alias = $this->_table_aliases[$tbl_name]
-                = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
-        $this->_db_query->tables []= array($tbl_name, $tbl_alias);
-        return $tbl_alias;
+        if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
+            if ( ! array_key_exists($this->_entity_schema->table, $this->_table_aliases)) {
+                $tbl_alias = $this->_table_aliases[$tbl_name] = $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
+                $this->_db_query->tables []= array($tbl_name, $tbl_alias);
+            }
+            if ($tbl_name != $this->_entity_schema->table) {
+                $this->join_secondary_table($tbl_name);
+            }
+        }
+        return $this->_table_aliases[$tbl_name];
     }
 
     /**
@@ -79,7 +85,11 @@ class JORK_Mapper_Entity {
      * @see JORK_Naming_Service::table_alias($tbl_name)
      */
     protected function table_alias($tbl_name) {
-        return $this->_naming_srv->table_alias($this->_entity_alias, $tbl_name);
+        if ( !array_key_exists($tbl_name, $this->_table_aliases)) {
+            $this->_table_aliases[$tbl_name] = $this->_naming_srv
+                    ->table_alias($this->_entity_alias, $tbl_name);
+        }
+        return $this->_table_aliases[$tbl_name];
     }
 
 
@@ -93,11 +103,11 @@ class JORK_Mapper_Entity {
                 ? $prop_schema['table']
                 : $this->_entity_schema->table;
 
-        if ( !array_key_exists($tbl_name, $this->_table_aliases)) {
+        if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
             $tbl_alias = $this->add_table($tbl_name);
-        } else {
+        }// else {
             $tbl_alias = $this->_table_aliases[$tbl_name];
-        }
+        //}
         $col_name = array_key_exists('db_column', $prop_schema) 
                 ? $prop_schema['db_column']
                 : $prop_name;
@@ -106,15 +116,49 @@ class JORK_Mapper_Entity {
         
     }
 
+    protected function join_secondary_table($tbl_name) {
+        if ( ! is_array($this->_entity_schema->secondary_tables)
+                || ! array_key_exists($tbl_name, $this->_entity_schema->secondary_tables)) 
+            throw new JORK_Schema_Exception ('class '.$this->_entity_schema->class
+                    .' has no secondary table "'.$tbl_name.'"');
+        if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
+            $this->add_table($this->_entity_schema->table);
+        }
+        $table_schema = $this->_entity_schema->secondary_tables[$tbl_name];
+
+
+        $inverse_join_col = array_key_exists('inverse_join_column', $table_schema)
+                ? $table_schema['inverse_join_column']
+                : $this->_entity_schema->primary_key();
+
+        $tbl_alias = $this->table_alias($tbl_name);
+        
+        $this->_db_query->joins []= array(
+            'table' => array($tbl_name, $tbl_alias),
+            'type' => 'LEFT',
+            'conditions' => array(
+                array(
+                    $this->table_alias($this->_entity_schema->table).'.'.$inverse_join_col
+                    , '='
+                    , $tbl_alias.'.'.$table_schema['join_column']
+                )
+            )
+        );
+    }
+
     /**
      *
      * @param string $prop_name
      * @param array $prop_schema
      * @return JORK_Mapper_Entity
      */
-    protected function get_component_mapper($prop_name, $prop_schema) {
+    protected function get_component_mapper($prop_name, $prop_schema = NULL) {
         if (array_key_exists($prop_name, $this->_next_mappers))
             return $this->_next_mappers[$prop_name];
+
+        if (NULL == $prop_schema) {
+            $prop_schema = $this->_entity_schema->components[$prop_name];
+        }
 
         $select_item = $this->_entity_alias == '' ? $prop_name
                 : $this->_entity_alias.'.'.$prop_name;
@@ -125,12 +169,12 @@ class JORK_Mapper_Entity {
 
     /**
      * Here we don't take care about the property projections.
-     * These must be merged one-by-ona at JORK_Mapper_Select->map_select()
+     * These must be merged one-by-one at JORK_Mapper_Select->map_select()
      *
      * @param array $prop_chain the array representation of the property chain
      * @throws JORK_Schema_Exception
      */
-    public function merge_prop_chain(array $prop_chain) {
+    public function merge_prop_chain(array $prop_chain, $is_select = FALSE, $is_only = FALSE) {
         $root_prop = array_shift($prop_chain);
         $schema = $this->_entity_schema->get_property_schema($root_prop);
         if ( ! empty($prop_chain)) {
@@ -157,6 +201,30 @@ class JORK_Mapper_Entity {
     public function select_all_atomics() {
         foreach ($this->_entity_schema->columns as $prop_name => $prop_schema) {
             $this->add_atomic_property($prop_name, $prop_schema);
+        }
+    }
+
+    public function resolve_prop_chain($prop_chain) {
+        $root_prop = array_shift($prop_chain);
+        if (empty($prop_chain)) { //we are there
+            if ( ! array_key_exists($root_prop, $this->_entity_schema->columns)) {
+                if (array_key_exists($root_prop, $this->_entity_schema->components))
+                    throw new JORK_Exception('property "'.$root_prop.'" is not an atomic property of class'
+                            .'"'.$this->_entity_schema->class.'"');
+                throw new JORK_Exception('property "'.$root_prop.'" of class "'
+                        .$this->_entity_schema->class.'" does not exist');
+            }
+            $col_schema = $this->_entity_schema->columns[$root_prop];
+            $table = array_key_exists('table', $col_schema)
+                    ? $col_schema['table']
+                    : $this->_entity_schema->table;
+            $this->add_table($table);
+            return $this->_table_aliases[$table].'.'.$root_prop;
+        } else { //going on with the next component mapper
+            if ( ! array_key_exists($root_prop, $this->_entity_schema->components))
+                throw new JORK_Exception('class '.$this->_entity_schema->class
+                        .' has no component '.$root_prop);
+            return $this->get_component_mapper($root_prop)->resolve_prop_chain($prop_chain);
         }
     }
 }

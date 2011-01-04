@@ -10,7 +10,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0'),
-            array('user_contact_info', 'user_contact_info_0'),
+            //array('user_contact_info', 'user_contact_info_0'),
             array('t_topics', 't_topics_0')
         ));
     }
@@ -20,9 +20,14 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $jork_query->from('Model_User');
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->columns, array(
+            't_users_0.id', 't_users_0.name', 't_users_0.password'
+            , 't_users_0.created_at', 'user_contact_info_0.email'
+            , 'user_contact_info_0.phone_num'
+        ));
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0'),
-            array('user_contact_info', 'user_contact_info_0')
+            //array('user_contact_info', 'user_contact_info_0')
         ));
     }
 
@@ -32,7 +37,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->columns, array(
-            't_categories_0.id', 't_categories_0.c_name'
+            't_categories_0.id', 't_categories_0.c_name', 't_categories_0.moderator_fk'
             , 't_categories_0.created_at', 't_categories_0.creator_fk'
             , 't_categories_0.modified_at', 't_categories_0.modifier_fk'
         ));
@@ -52,19 +57,23 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $jork_query->select('topic')->from('Model_Post');
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
-        //print_r($db_query->columns);
+        $this->assertEquals($db_query->columns, array(
+            't_topics_0.id', 't_topics_0.name', 't_topics_0.created_at'
+            , 't_topics_0.creator_fk', 't_topics_0.modified_at'
+            , 't_topics_0.modifier_fk'
+        ));
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
         ));
-        /*$this->assertEquals($db_query->joins, array(
+        $this->assertEquals($db_query->joins, array(
             array(
-                'type' => 'LEFT',
                 'table' => array('t_topics', 't_topics_0'),
+                'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_categories_0.id', )
+                    array('t_posts_0.topic_fk', '=', 't_topics_0.id')
                 )
             )
-        ));*/
+        ));
     }
 
     public function testSelectManyToOne() {
@@ -83,6 +92,13 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'type' => 'LEFT',
                 'conditions' => array(
                     array('t_topics_0.creator_fk', '=', 't_users_0.id')
+                )
+            ),
+            array(
+                'table' => array('user_contact_info', 'user_contact_info_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_users_0.id', '=', 'user_contact_info_0.user_fk')
                 )
             )
         ));
@@ -111,6 +127,13 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'type' => 'LEFT',
                 'conditions' => array(
                     array('t_topics_0.creator_fk', '=', 't_users_0.id')
+                )
+            ),
+            array(
+                'table' => array('user_contact_info', 'user_contact_info_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_users_0.id', '=', 'user_contact_info_0.user_fk')
                 )
             )
            
@@ -170,9 +193,61 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'conditions' => array(
                     array('t_posts_0.user_fk', '=', 't_users_0.id')
                 )
+            ),
+            array(
+                'table' => array('user_contact_info', 'user_contact_info_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_users_0.id', '=', 'user_contact_info_0.user_fk')
+                )
             )
         ));
 
+    }
+
+    public function testOneToOne() {
+        $jork_query = new JORK_Query_Select;
+        $jork_query->select('moderator')->from('Model_Category');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->tables, array(
+            array('t_categories', 't_categories_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_users', 't_users_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_categories_0.moderator_fk', '=', 't_users_0.id')
+                )
+            ),
+            array(
+                'table' => array('user_contact_info', 'user_contact_info_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_users_0.id', '=', 'user_contact_info_0.user_fk')
+                )
+            )
+        ));
+    }
+
+    public function testOneToOneReverse() {
+        $jork_query = new JORK_Query_Select;
+        $jork_query->select('moderated_category')->from('Model_User');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->tables, array(
+            array('t_users', 't_users_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_categories', 't_categories_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    array('t_users_0.id', '=', 't_categories_0.moderator_fk')
+                )
+            )
+        ));
     }
 
     

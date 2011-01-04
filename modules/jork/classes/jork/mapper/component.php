@@ -13,7 +13,9 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
     protected $_comp_name;
 
-    private $_is_joined = FALSE;
+    protected $_comp_schema;
+
+    protected $_is_reverse;
 
     public function  __construct(JORK_Mapper_Entity $parent_mapper, $comp_name, $select_item) {
         parent::__construct($parent_mapper->_naming_srv
@@ -22,6 +24,8 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
                 , $select_item);
         $this->_parent_mapper = $parent_mapper;
         $this->_comp_name = $comp_name;
+        $this->_comp_schema = $parent_mapper->_entity_schema->components[$comp_name];
+        $this->_is_reverse = array_key_exists('mapped_by', $this->_comp_schema);
     }
 
    
@@ -60,25 +64,35 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
     protected abstract function comp2join_reverse();
 
-    protected function parent_to_from() {
-        $comp_schema = $this->_parent_mapper->_entity_schema->components[$this->_comp_name];
-        $join_col = $comp_schema['join_column'];
-        $tbl_name = $this->_parent_mapper->_entity_schema->table_name_for_column($join_col);
-        $this->_parent_mapper->add_table($tbl_name);
+    protected function is_primary_join_table($tbl_name) {
+        static $primary_join_tables;
+        //TODO it's just a mock return value (which works in most cases...)
+        return $tbl_name == $this->_entity_schema->table;
+        if (NULL == $primary_join_tables) {
+            $primary_join_tables = array();
+            if (array_key_exists('join_column', $this->_comp_schema)) {
+                $join_col_schema = $this->_parent_mapper->_entity_schema->columns[$this->_comp_schema['join_column']];
+                $primary_join_tables []= array_key_exists('table', $join_col_schema)
+                        ? $join_col_schema['table']
+                        : $this->_entity_schema->table;
+            } else { //TODO composite foreign key
+
+            }
+        }
+        return in_array($tbl_name, $primary_join_tables);
     }
 
     protected function  add_table($tbl_name) {
-        if ( ! $this->_is_joined) {
-            $this->_is_joined = true;
-            if (empty($this->_db_query->tables)) {
-                $this->parent_to_from();
+        if ($this->is_primary_join_table($tbl_name)) {
+            if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
+                if ($this->_is_reverse) {
+                    $this->comp2join_reverse();
+                } else {
+                    $this->comp2join();
+                }
             }
-            if (array_key_exists('mapped_by',
-                    $this->_parent_mapper->_entity_schema->components[$this->_comp_name])) {
-                $this->comp2join_reverse();
-            } else {
-                $this->comp2join();
-            }
+        } else {
+            parent::add_table($tbl_name);
         }
     }
 

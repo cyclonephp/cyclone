@@ -20,6 +20,9 @@ class Model_Category extends JORK_Model_Abstract {
                     'min_length' => 3,
                     'not null' => true
                 )
+            ),
+            'moderator_fk' => array(
+                'type' => 'int'
             )
         );
         $this->_schema->components = array(
@@ -27,6 +30,11 @@ class Model_Category extends JORK_Model_Abstract {
                 'class' => 'Model_Topic',
                 'type' => JORK::MANY_TO_MANY,
                 'mapped_by' => 'categories'
+            ),
+            'moderator' => array(
+                'class' => 'Model_User',
+                'type' => JORK::ONE_TO_ONE,
+                'join_column' => 'moderator_fk',
             ),
             'modinfo' => 'Model_ModInfo'
         );
