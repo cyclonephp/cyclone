@@ -216,7 +216,10 @@ class JORK_Query_Select {
     }
 
     public function exec($adapter = 'default') {
-        JORK::adapter($adapter)->exec_select($this);
+        $mapper = new JORK_Mapper_Select($this);
+        list($db_query, $mappers) = $mapper->map();
+        $db_result = DB::inst($adapter)->exec_select($db_query);
+        return new JORK_Result_Iterator($db_result, $mappers);
     }
 
     
