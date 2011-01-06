@@ -89,6 +89,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                 && $db_row[$this->_result_primary_key_column]
                     == $this->_previous_result_entity->pk()) { //surely the same instance
                 $entity = $this->_previous_result_entity;
+
         } else { //atomics should only be loaded when we found a new entity
             //with a new primary key
             $entity = new $this->_entity_schema->class;
@@ -241,9 +242,9 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                         && 'JORK_Mapper_Component_ManyToOne' == $next_mapper_class)
                 || ( ! $next_mapper->_is_reverse 
                         && 'JORK_Mapper_Component_OneToMany' == $next_mapper_class)) {
-            $this->_next_to_many_mappers []= $next_mapper;
+            $this->_next_to_many_mappers[$prop_name] = $next_mapper;
         } else {
-            $this->_next_to_one_mappers []= $next_mapper;
+            $this->_next_to_one_mappers[$prop_name] = $next_mapper;
         }
 
         return $next_mapper;
