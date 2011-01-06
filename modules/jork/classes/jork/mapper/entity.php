@@ -52,22 +52,55 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     protected $_result_primary_key_column;
 
     /**
-     * the next mappers to be executed on the same row
+     * The next mappers to be executed on the same row. All items should also in
+     * $_next_to_one_mappers or $_next_to_many_mappers.
      *
      * @var array<JORK_Mapper_Component>
      */
     protected $_next_mappers = array();
 
+    /**
+     * The mappers that should fetch only one component. Subset of
+     * $_next_mappers.
+     *
+     * @var array<JORK_Mapper_Component>
+     */
+    protected $_next_to_one_mappers = array();
+
+    /**
+     * The mappers that should fetch a collection of components. Subset of
+     * $_next_mappers.
+     *
+     * @var array<JORK_Mapper_Component>
+     */
+    protected $_next_to_many_mappers = array();
+
+    /**
+     * The instance that was queried from the previous database result row.
+     * It's used to determine if a new instance should be created or not
+     *
+     * @var JORK_Model_Abstract
+     * @see map_row()
+     */
     protected $_previous_result_entity;
 
     public function map_row(&$db_row) {
-        $entity = new $this->_entity_schema->class;
-        $atomics = array();
-        $components = array();
-        foreach ($this->_result_atomics as $prop_name => $col_name) {
-            $atomics[$prop_name] = $db_row[$col_name];
+        if ($this->_previous_result_entity != NULL
+                && $db_row[$this->_result_primary_key_column]
+                    == $this->_previous_result_entity->pk()) { //surely the same instance
+                $entity = $this->_previous_result_entity;
+        } else { //atomics should only be loaded when we found a new entity
+            //with a new primary key
+            $entity = new $this->_entity_schema->class;
+            $atomics = array();
+            foreach ($this->_result_atomics as $prop_name => $col_name) {
+                $atomics[$prop_name] = $db_row[$col_name];
+            }
+            $entity->populate_atomics($atomics);
         }
-        $entity->populate_atomics($atomics);
+        
+        $components = array();
+        
         foreach ($this->_next_mappers as $prop_name => $mapper) {
             $components[$prop_name] = $mapper->map(&$db_row);
         }
@@ -198,8 +231,12 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $select_item = $this->_entity_alias == '' ? $prop_name
                 : $this->_entity_alias.'.'.$prop_name;
 
-        return $this->_next_mappers[$prop_name] =
+        $next_mapper = $this->_next_mappers[$prop_name] =
                 JORK_Mapper_Component::factory($this, $prop_name, $select_item);
+
+        
+
+        return $next_mapper;
     }
 
     /**
