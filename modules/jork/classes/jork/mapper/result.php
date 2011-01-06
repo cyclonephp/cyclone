@@ -44,6 +44,8 @@ class JORK_Mapper_Result {
                     $obj_result []= $entity;
                 }
             }
+        } else {
+            
         }
     }
 }

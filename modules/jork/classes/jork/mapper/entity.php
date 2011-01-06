@@ -85,9 +85,9 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     protected $_previous_result_entity;
 
     public function map_row(&$db_row) {
+        $pk = $db_row[$this->_result_primary_key_column];
         if ($this->_previous_result_entity != NULL
-                && $db_row[$this->_result_primary_key_column]
-                    == $this->_previous_result_entity->pk()) { //same instance
+                && $pk == $this->_previous_result_entity->pk()) { //same instance
             $is_new_entity = false;
             $entity = $this->_previous_result_entity;
             foreach ($this->_next_to_one_mappers as $prop_name => $one_mapper) {
@@ -95,17 +95,21 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
             }
         } else { //new entity found
             $is_new_entity = true;
-            $entity = new $this->_entity_schema->class;
-            //atomics should only be loaded when we found a new entity
-            //with a new primary key
-            $atomics = array();
-            foreach ($this->_result_atomics as $col_name => $prop_name) {
-                $atomics[$prop_name] = $db_row[$col_name];
+            $instance_pool = JORK_InstancePool::inst($this->_entity_schema->class);
+            $entity = $instance_pool->get_by_pk($pk);
+            if (NULL === $entity) {
+                $entity = new $this->_entity_schema->class;
+                //atomics should only be loaded when we found a new entity
+                //with a new primary key
+                $atomics = array();
+                foreach ($this->_result_atomics as $col_name => $prop_name) {
+                    $atomics[$prop_name] = $db_row[$col_name];
+                }
+                $entity->populate_atomics($atomics);
+                $instance_pool->add($entity);
             }
-            $entity->populate_atomics($atomics);
 
-            $entity->init_component_collections(array_keys(
-                    $this->_next_to_many_mappers));
+            $entity->init_component_collections(&$this->_next_to_many_mappers);
             
             $to_one_comps = array();
             foreach ($this->_next_to_one_mappers as $prop_name => $one_mapper) {
@@ -113,7 +117,6 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                 $to_one_comps[$prop_name] = $comp;
             }
             $entity->set_components($to_one_comps);
-            JORK_InstancePool::inst($this->_entity_schema->class)->add($entity);
             $this->_previous_result_entity = $entity;
         }
         

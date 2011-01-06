@@ -31,9 +31,15 @@ class JORK_InstancePool {
     }
 
     public function get_by_pk($primary_key) {
-        return array_key_exists($primary_key, $this->_instances)
+        return array_key_exists($primary_key, $this->_pool)
                 ? $this->_pool[$primary_key]
                 : NULL;
+    }
+
+    public function for_pk($primary_key) {
+        return array_key_exists($primary_key, $this->_pool)
+                ? $this->_pool[$primary_key]
+                : ($this->_pool[$primary_key] = new $this->_class);
     }
 
     public function add(JORK_Model_Abstract $instance) {

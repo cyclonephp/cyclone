@@ -67,9 +67,11 @@ abstract class JORK_Model_Abstract {
                 : NULL;
     }
 
-    public function init_component_collections($prop_names) {
-        foreach ($prop_names as $prop) {
-            $this->_components[$prop] = new ArrayObject;
+    public function init_component_collections(&$prop_names) {
+        foreach (array_diff_key($prop_names, $this->_components) as $prop) {
+            if ( ! array_key_exists($prop, $this->_components)) {
+                $this->_components[$prop] = new ArrayObject;
+            }
         }
     }
 
