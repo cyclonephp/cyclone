@@ -57,8 +57,15 @@ abstract class JORK_Model_Abstract {
 
     protected $_persistent = FALSE;
 
+    public function pk() {
+        $pk = $this->schema()->primary_key();
+        return array_key_exists($pk, $this->_atomics)
+                ? $this->_atomics[$pk]
+                : NULL;
+    }
+
     public function populate_atomics($atomics) {
-        
+        $this->_atomics = $atomics;
     }
 
     public function populate_components($components) {
