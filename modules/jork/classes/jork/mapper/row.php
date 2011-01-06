@@ -9,7 +9,7 @@
  * @see JORK_Mapper_Expression
  */
 
-interface JORK_Mapper_Result {
+interface JORK_Mapper_Row {
 
     /**
      * Creates the object query result item

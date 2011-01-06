@@ -1,6 +1,6 @@
 <?php
 
-class JORK_Mapper_Entity implements JORK_Mapper_Result {
+class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
     /**
      * @var array

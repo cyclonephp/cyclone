@@ -4,7 +4,7 @@
  * This class is reponsible for mapping custom database expressions of
  * the JORK query.
  */
-class JORK_Mapper_Expression implements JORK_Mapper_Result {
+class JORK_Mapper_Expression implements JORK_Mapper_Row {
 
     private $_db_expr;
 
