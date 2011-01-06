@@ -149,6 +149,10 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         }
     }
 
+    public function testExecCustom() {
+        DB::inst()->exec_custom('create table tmp (id int)');
+    }
+
     public function testAsArray() {
         $names = array('user1', 'user2');
         $result = DB::select()->from('user')->exec()->index_by('name')->rows('stdClass')->as_array();

@@ -128,7 +128,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function exec_custom($sql) {
-        $this->mysqli->query($sql);
+        $this->mysqli->multi_query($sql);
     }
 
     public function  autocommit($autocommit) {
