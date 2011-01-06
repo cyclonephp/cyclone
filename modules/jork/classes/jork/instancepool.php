@@ -40,6 +40,15 @@ class JORK_InstancePool {
         $this->_instances[$instance->pk()] = $instance;
     }
 
+    /**
+     * Gets the instance from the instance pool if there is one with the
+     * primary key of $instance, or if not found then puts it into the pool
+     * and returns the parameter instance.
+     *
+     * @param JORK_Model_Abstract $instance
+     * @return array 1th item the instance with the primary key of $instance
+     *  , 2nd item is FALSE if the instance already existed, otherwise TRUE.
+     */
     public function add_or_get(JORK_Model_Abstract $instance) {
         $pk = $instance->pk();
         if (array_key_exists($pk, $this->_instances)) {

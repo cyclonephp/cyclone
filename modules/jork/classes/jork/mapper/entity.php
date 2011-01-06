@@ -45,11 +45,20 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     protected $_result_atomics = array();
 
     /**
+     * The alias of the primary key in the database query result.
+     *
+     * @var string
+     */
+    protected $_result_primary_key_column;
+
+    /**
      * the next mappers to be executed on the same row
      *
      * @var array<JORK_Mapper_Component>
      */
     protected $_next_mappers = array();
+
+    protected $_previous_result_entity;
 
     public function map_row(&$db_row) {
         $entity = new $this->_entity_schema->class;
@@ -117,8 +126,9 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
      * Adds an atomic property join to the db query
      *
      * @param string $property
+     * @return the full column name (with table alias)
      */
-    protected  function add_atomic_property($prop_name, &$prop_schema) {
+    protected function add_atomic_property($prop_name, &$prop_schema) {
         $tbl_name = array_key_exists('table', $prop_schema)
                 ? $prop_schema['table']
                 : $this->_entity_schema->table;
@@ -135,6 +145,10 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $full_column = $tbl_alias.'.'.$col_name;
         $this->_db_query->columns []= $full_column;
         $this->_result_atomics[$full_column] = $prop_name;
+
+        if ($prop_name == $this->_entity_schema->primary_key()) {
+            $this->_result_primary_key_column = $full_column;
+        }
     }
 
     protected function join_secondary_table($tbl_name) {
@@ -212,6 +226,11 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
             } else {
                 $this->add_atomic_property($root_prop, $schema);
             }
+        }
+        //The primary key column should _always_ be selected
+        if (NULL === $this->_result_primary_key_column) {
+            $pk = $this->_entity_schema->primary_key();
+            $this->add_atomic_property($pk, $this->_entity_schema->columns[$pk]);
         }
     }
 
