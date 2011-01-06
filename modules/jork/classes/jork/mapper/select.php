@@ -28,7 +28,7 @@ class JORK_Mapper_Select {
     /**
      * @var boolean
      */
-    protected $_has_implicit_root;
+    public $has_implicit_root;
 
     /**
      * @var JORK_Mapping_Schema
@@ -44,7 +44,7 @@ class JORK_Mapper_Select {
     public function map() {
         if (count($this->_jork_query->from_list) == 1
                 &&  ! array_key_exists('alias', $this->_jork_query->from_list[0])) {
-            $this->_has_implicit_root = TRUE;
+            $this->has_implicit_root = TRUE;
             $impl_root_class = $this->_jork_query->from_list[0]['class'];
             $this->_implicit_root = JORK_Model_Abstract::schema_by_class($impl_root_class);
             $this->_naming_srv->set_implicit_root($impl_root_class);
@@ -69,7 +69,7 @@ class JORK_Mapper_Select {
     }
 
     protected function map_from() {
-        if ($this->_has_implicit_root) {
+        if ($this->has_implicit_root) {
             $this->_mappers[NULL] = $this->create_entity_mapper(NULL);
         } else {
             foreach ($this->_jork_query->from_list as $from_item) {
@@ -96,7 +96,7 @@ class JORK_Mapper_Select {
             if (array_key_exists('alias', $with_item)) {
                 $this->_naming_srv->set_alias($with_item['prop_chain'], $with_item['alias']);
             }
-            if ($this->_has_implicit_root) {
+            if ($this->has_implicit_root) {
                 $this->_mappers[NULL]->merge_prop_chain($with_item['prop_chain']->as_array(), TRUE, TRUE);
             } else {
                 $prop_chain = $with_item->as_array();
@@ -116,7 +116,7 @@ class JORK_Mapper_Select {
         foreach ($matches[0] as $idx => $match) {
             $prop_chain = JORK_Query_PropChain::from_string($matches[1][$idx]);
             $prop_chain_arr = $prop_chain->as_array();
-            if ($this->_has_implicit_root) {
+            if ($this->has_implicit_root) {
                 $resolved_expr = $this->_mappers[NULL]->resolve_prop_chain($prop_chain_arr);
             } else {
                 $root_prop = array_shift($prop_chain_arr);
@@ -141,7 +141,7 @@ class JORK_Mapper_Select {
                 continue;
             }
             $prop_chain = $select_item['prop_chain']->as_array();
-            if ($this->_has_implicit_root) {
+            if ($this->has_implicit_root) {
                 $this->_mappers[NULL]->merge_prop_chain($prop_chain, TRUE);
             } else {
                 $root_entity = array_shift($prop_chain);
