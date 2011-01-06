@@ -30,7 +30,15 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 
    
 
-    
+    /**
+     * Factory method for creating the required component mapper for the component.
+     *
+     * @param JORK_Mapper_Entity $parent_mapper
+     * @param string $comp_name
+     * @param string $select_item
+     * @return JORK_Mapper_Component
+     * @see JORK_Mapper_Entity::get_component_mapper()
+     */
     public static function factory(JORK_Mapper_Entity $parent_mapper
             , $comp_name, $select_item) {
         $comp_def = $parent_mapper->_entity_schema->components[$comp_name];

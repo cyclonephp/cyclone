@@ -234,7 +234,17 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $next_mapper = $this->_next_mappers[$prop_name] =
                 JORK_Mapper_Component::factory($this, $prop_name, $select_item);
 
-        
+        $next_mapper_class = get_class($next_mapper);
+
+        if ('JORK_Mapper_Component_ManyToMany' == $next_mapper_class
+                || ($next_mapper->_is_reverse 
+                        && 'JORK_Mapper_Component_ManyToOne' == $next_mapper_class)
+                || ( ! $next_mapper->_is_reverse 
+                        && 'JORK_Mapper_Component_OneToMany' == $next_mapper_class)) {
+            $this->_next_to_many_mappers []= $next_mapper;
+        } else {
+            $this->_next_to_one_mappers []= $next_mapper;
+        }
 
         return $next_mapper;
     }
