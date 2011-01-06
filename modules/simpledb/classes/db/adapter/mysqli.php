@@ -9,7 +9,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
      */
     protected $mysqli;
 
-    protected function connect() {
+    public function connect() {
         $conn = $this->config['connection'];
         $this->mysqli = @new mysqli($conn['host'], $conn['username'],
                 $conn['password'], $conn['database']
@@ -128,7 +128,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function exec_custom($sql) {
-        $this->mysqli->multi_query($sql);
+        return $this->mysqli->multi_query($sql);
     }
 
     public function  autocommit($autocommit) {

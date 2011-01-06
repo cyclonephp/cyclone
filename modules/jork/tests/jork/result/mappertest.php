@@ -5,9 +5,9 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
         $sql = file_get_contents(MODPATH.'jork/tests/testdata.sql');
-        echo $sql;
         DB::inst('jork_test')->exec_custom($sql);
-        //DB::inst('jork_test')->commit();
+        DB::inst('jork_test')->disconnect();
+        DB::inst('jork_test')->connect();
         DB::select()->from('t_posts')->exec('jork_test');
     }
 
