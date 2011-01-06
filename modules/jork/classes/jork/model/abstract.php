@@ -57,6 +57,9 @@ abstract class JORK_Model_Abstract {
 
     protected $_persistent = FALSE;
 
+    /**
+     * @return mixed the primary key of the entity
+     */
     public function pk() {
         $pk = $this->schema()->primary_key();
         return array_key_exists($pk, $this->_atomics)
@@ -64,16 +67,28 @@ abstract class JORK_Model_Abstract {
                 : NULL;
     }
 
+    public function init_component_collections($prop_names) {
+        foreach ($prop_names as $prop) {
+            $this->_components[$prop] = new ArrayObject;
+        }
+    }
+
     public function populate_atomics($atomics) {
         $this->_atomics = $atomics;
     }
 
-    public function populate_components($components) {
+    public function set_components($components) {
         foreach ($components as $k => $v) {
             $this->_components[$k] = array(
                 'value' => $v,
                 'persistent' => TRUE
             );
+        }
+    }
+
+    public function add_to_component_collections($components) {
+        foreach ($components as $prop_name => $new_comp) {
+            $this->_components[$prop_name][$new_comp->pk()]= $new_comp;
         }
     }
 

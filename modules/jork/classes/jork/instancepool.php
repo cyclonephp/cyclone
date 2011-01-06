@@ -24,7 +24,7 @@ class JORK_InstancePool {
      */
     private $_class;
 
-    private $_instances = array();
+    private $_pool = array();
 
     private function  __construct($class) {
         $this->_class = $class;
@@ -32,12 +32,12 @@ class JORK_InstancePool {
 
     public function get_by_pk($primary_key) {
         return array_key_exists($primary_key, $this->_instances)
-                ? $this->_instances[$primary_key]
+                ? $this->_pool[$primary_key]
                 : NULL;
     }
 
     public function add(JORK_Model_Abstract $instance) {
-        $this->_instances[$instance->pk()] = $instance;
+        $this->_pool[$instance->pk()] = $instance;
     }
 
     /**
@@ -51,10 +51,10 @@ class JORK_InstancePool {
      */
     public function add_or_get(JORK_Model_Abstract $instance) {
         $pk = $instance->pk();
-        if (array_key_exists($pk, $this->_instances)) {
-            return array($this->_instances[$pk], FALSE);
+        if (array_key_exists($pk, $this->_pool)) {
+            return array($this->_pool[$pk], FALSE);
         }
-        $this->_instances[$pk] = $instance;
+        $this->_pool[$pk] = $instance;
         return array($instance, TRUE);
     }
 

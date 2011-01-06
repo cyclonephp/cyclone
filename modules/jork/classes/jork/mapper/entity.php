@@ -87,26 +87,45 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     public function map_row(&$db_row) {
         if ($this->_previous_result_entity != NULL
                 && $db_row[$this->_result_primary_key_column]
-                    == $this->_previous_result_entity->pk()) { //surely the same instance
-                $entity = $this->_previous_result_entity;
-
-        } else { //atomics should only be loaded when we found a new entity
-            //with a new primary key
+                    == $this->_previous_result_entity->pk()) { //same instance
+            $is_new_entity = false;
+            $entity = $this->_previous_result_entity;
+            foreach ($this->_next_to_one_mappers as $prop_name => $one_mapper) {
+                $one_mapper->map_row($db_row);
+            }
+        } else { //new entity found
+            $is_new_entity = true;
             $entity = new $this->_entity_schema->class;
+            //atomics should only be loaded when we found a new entity
+            //with a new primary key
             $atomics = array();
-            foreach ($this->_result_atomics as $prop_name => $col_name) {
+            foreach ($this->_result_atomics as $col_name => $prop_name) {
                 $atomics[$prop_name] = $db_row[$col_name];
             }
             $entity->populate_atomics($atomics);
+
+            $entity->init_component_collections(array_keys(
+                    $this->_next_to_many_mappers));
+            
+            $to_one_comps = array();
+            foreach ($this->_next_to_one_mappers as $prop_name => $one_mapper) {
+                list($comp, $is_new_comp) = $one_mapper->map_row($db_row);
+                $to_one_comps[$prop_name] = $comp;
+            }
+            $entity->set_components($to_one_comps);
+            JORK_InstancePool::inst($this->_entity_schema->class)->add($entity);
+            $this->_previous_result_entity = $entity;
         }
         
-        $components = array();
-        
-        foreach ($this->_next_mappers as $prop_name => $mapper) {
-            $components[$prop_name] = $mapper->map(&$db_row);
+        $to_many_comps = array();
+        foreach ($this->_next_to_many_mappers as $prop_name => $mapper) {
+            list($comp, $is_new_entity) = $mapper->map_row(&$db_row);
+            if ($is_new_entity) {
+                $to_many_comps[$prop_name] = $comp;
+            }
         }
-        $entity->populate_components($components);
-        return $entity;
+        $entity->add_to_component_collections($to_many_comps);
+        return array($entity, $is_new_entity);
     }
     
 
