@@ -23,10 +23,10 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
         list($db_query, $mappers) = $mapper->map();
 
         $resultset = array(
-            array('t_topics_0.id' => '1', 't_topics_0.name' => 'hello'
-                , 't_topics_0.created_at' => '2011-01-05', 't_topics_0.creator_fk' => 1, 't_topics_0.modified_at' => '2011-01-05', 't_topics_0.modifier_fk' => 1 )
-            , array('t_topics_0.id' => '1', 't_topics_0.name' => 'hello'
-                , 't_topics_0.created_at' => '2011-01-05', 't_topics_0.creator_fk' => 1, 't_topics_0.modified_at' => '2011-01-05', 't_topics_0.modifier_fk' => 1 )
+            array('t_topics_0_id' => '1', 't_topics_0_name' => 'hello'
+                , 't_topics_0_created_at' => '2011-01-05', 't_topics_0_creator_fk' => 1, 't_topics_0_modified_at' => '2011-01-05', 't_topics_0_modifier_fk' => 1 )
+            , array('t_topics_0_id' => '1', 't_topics_0_name' => 'hello'
+                , 't_topics_0_created_at' => '2011-01-05', 't_topics_0_creator_fk' => 1, 't_topics_0_modified_at' => '2011-01-05', 't_topics_0_modifier_fk' => 1 )
         );
         foreach ($resultset as $idx => $row) {
             $topic = $mappers[NULL]->map_row($resultset[0]);
@@ -39,6 +39,6 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
     }
 
     public function testFirstFromDB() {
-        $result = JORK::inst();
+        $result = JORK::from('Model_User')->exec('jork_test');
     }
 }

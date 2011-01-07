@@ -199,11 +199,12 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                 : $prop_name;
 
         $full_column = $tbl_alias.'.'.$col_name;
-        $this->_db_query->columns []= $full_column;
-        $this->_result_atomics[$full_column] = $prop_name;
+        $full_alias = $tbl_alias.'_'.$col_name;
+        $this->_db_query->columns []= array($full_column, $full_alias);
+        $this->_result_atomics[$full_alias] = $prop_name;
 
         if ($prop_name == $this->_entity_schema->primary_key()) {
-            $this->_result_primary_key_column = $full_column;
+            $this->_result_primary_key_column = $full_alias;
         }
     }
 
@@ -228,7 +229,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
             'table' => array($tbl_name, $tbl_alias),
             'type' => 'LEFT',
             'conditions' => array(
-                array(
+                new DB_Expression_Binary(
                     $this->table_alias($this->_entity_schema->table).'.'.$inverse_join_col
                     , '='
                     , $tbl_alias.'.'.$table_schema['join_column']
