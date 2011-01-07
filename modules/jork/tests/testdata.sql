@@ -1,5 +1,5 @@
 USE jork_test;
-
+/*
 drop table if exists t_posts;
 drop table if exists t_topics;
 drop table if exists t_categories;
@@ -7,7 +7,7 @@ drop table if exists t_users;
 drop table if exists user_contact_info;
 drop table if exists categories_topics;
 /**/
-create table t_posts(
+create table if not exists t_posts(
     id int primary key auto_increment,
     name text,
     topic_fk int not null,
@@ -18,7 +18,7 @@ create table t_posts(
     modifier_fk int
 );
 
-create table t_topics (
+create table if not exists t_topics (
     id int primary key auto_increment,
     name text,
     created_at datetime not null,
@@ -27,7 +27,7 @@ create table t_topics (
     modifier_fk int
 );
 
-create table t_categories (
+create table if not exists t_categories (
     id int primary key auto_increment,
     name text,
     moderator_fk int,
@@ -37,25 +37,36 @@ create table t_categories (
     modifier_fk int
 );
 
-create table t_users (
+create table if not exists t_users (
     id int primary key auto_increment,
     name varchar(64),
     password varchar(32),
     created_at datetime not null
 );
 
-create table user_contact_info (
+create table if not exists user_contact_info (
     user_fk int not null,
     email varchar(128),
     phone_num text
 );
 
-create table categories_topics(
+create table if not exists categories_topics(
     topic_fk int not null,
     category_fk int not null,
     primary key (topic_fk, category_fk)
 );
 
+truncate table t_posts;
+
+truncate table t_topics;
+
+truncate table t_categories;
+
+truncate table t_users;
+
+truncate table user_contact_info;
+
+truncate table categories_topics;
 
 /**/
 insert into t_users values
