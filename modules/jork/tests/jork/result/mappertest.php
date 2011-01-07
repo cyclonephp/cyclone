@@ -37,4 +37,8 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
             $this->assertEquals($topic[0]->name, 'hello');
         }
     }
+
+    public function testFirstFromDB() {
+        $result = JORK::inst();
+    }
 }

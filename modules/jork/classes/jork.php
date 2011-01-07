@@ -13,6 +13,9 @@ class JORK {
 
     private static $_instance;
 
+    /**
+     * @return JORK
+     */
     public static function inst() {
         if (null === self::$_instance) {
             self::$_instance = new JORK;
@@ -25,13 +28,23 @@ class JORK {
     }
 
     /**
-     *
-     * @param JORK_Query_Select $jork_query
-     * @return JORK_Executor_Select
+     * @return JORK_Query_Select
      */
-    public function map_select(JORK_Query_Select $jork_query) {
-        
+    public static function select() {
+        $query = new JORK_Query_Select;
+        $args = func_get_args();
+        $query->select_array($args);
+        return $query;
     }
 
+    /**
+     * @return JORK_Query_Select
+     */
+    public static function from() {
+        $query = new JORK_Query_Select;
+        $args = func_get_args();
+        $query->from_array($args);
+        return $query;
+    }
 
 }

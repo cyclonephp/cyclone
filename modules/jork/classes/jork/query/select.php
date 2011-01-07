@@ -63,8 +63,21 @@ class JORK_Query_Select {
      * @return JORK_Query_Builder_Select
      */
     public function select() {
+        $args = func_get_args();
+        return $this->select_array($args);
+    }
+
+    /**
+     * Builder method for the select clause of the query
+     *
+     * @var array<string> args
+     * @return JORK_Query_Builder_Select
+     *
+     * @see JORK::select()
+     */
+    public function select_array($args) {
         static $pattern = '/^(?<prop_chain>[a-zA-z\.]+)(\{(?<projection>[a-z,]+)\})?( +(?<alias>[a-zA-Z_]+))?$/';
-        foreach (func_get_args() as $arg) {
+        foreach ($args as $arg) {
             if ($arg instanceof DB_Expression) {
                 $this->select_list []= array(
                     'expr' => $arg->str
@@ -96,7 +109,12 @@ class JORK_Query_Select {
      * @return JORK_Query_Builder_Select
      */
     public function from() {
-        foreach (func_get_args() as $arg) {
+        $args = func_get_args();
+        return $this->from_array($args);
+    }
+
+    public function from_array($args) {
+        foreach ($args as $arg) {
             preg_match('/^(?<class>[a-zA-Z_0-9]+)( +(?<alias>[a-zA-Z_0-9]+))?$/', $arg, $matches);
             if (empty($matches))
                 throw new JORK_Syntax_Exception ('invalid from list item: '.$arg);
