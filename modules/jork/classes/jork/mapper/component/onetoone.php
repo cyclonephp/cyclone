@@ -21,7 +21,7 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
             'table' => array($remote_table, $remote_table_alias),
             'type' => 'LEFT',
             'conditions' => array(
-                array(
+                new DB_Expression_Binary(
                     $local_table_alias.'.'.$local_join_col
                     , '='
                     , $remote_table_alias.'.'.$remote_join_col
@@ -56,7 +56,7 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
             'table' => array($local_table, $local_table_alias),
             'type' => 'LEFT',
             'conditions' => array(
-                array(
+                new DB_Expression_Binary(
                     $this->_parent_mapper->table_alias($parent_table)
                     .'.'.$parent_join_col
                     , '='

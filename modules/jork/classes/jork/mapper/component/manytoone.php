@@ -34,7 +34,7 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
             'table' => array($remote_join_table, $remote_join_table_alias),
             'type' => 'LEFT',
             'conditions' => array(
-                array($join_table_alias.'.'.$join_col, '='
+                new DB_Expression_Binary($join_table_alias.'.'.$join_col, '='
                     , $remote_join_table_alias.'.'.$remote_join_col)
             )
         );
@@ -63,7 +63,7 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
             'table' => array($remote_join_table, $remote_table_alias),
             'type' => 'LEFT',
             'conditions' => array(
-                array($this->_naming_srv->table_alias($this->_parent_mapper->_entity_alias
+                new DB_Expression_Binary($this->_naming_srv->table_alias($this->_parent_mapper->_entity_alias
                         , $this->_parent_mapper->_entity_schema->table)
                         .'.'
                         .$this->_parent_mapper->_entity_schema->primary_key()

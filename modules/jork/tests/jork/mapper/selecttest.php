@@ -80,7 +80,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_topics', 't_topics_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_posts_0.topic_fk', '=', 't_topics_0.id')
+                    new DB_Expression_Binary('t_posts_0.topic_fk', '=', 't_topics_0.id')
                 )
             )
         ));
@@ -101,7 +101,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_users', 't_users_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_topics_0.creator_fk', '=', 't_users_0.id')
+                    new DB_Expression_Binary('t_topics_0.creator_fk', '=', 't_users_0.id')
                 )
             ),
             array(
@@ -129,14 +129,14 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_topics', 't_topics_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_posts_0.topic_fk', '=', 't_topics_0.id')
+                    new DB_Expression_Binary('t_posts_0.topic_fk', '=', 't_topics_0.id')
                 )
             ),
             array(
                 'table' => array('t_users', 't_users_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_topics_0.creator_fk', '=', 't_users_0.id')
+                    new DB_Expression_Binary('t_topics_0.creator_fk', '=', 't_users_0.id')
                 )
             ),
             array(
@@ -163,7 +163,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
             'table' => array('t_posts', 't_posts_0'),
             'type' => 'LEFT',
             'conditions' => array(
-                array('t_topics_0.id', '=', 't_posts_0.topic_fk')
+                new DB_Expression_Binary('t_topics_0.id', '=', 't_posts_0.topic_fk')
             )
         )));
         
@@ -182,7 +182,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_posts', 't_posts_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_users_0.id', '=', 't_posts_0.user_fk')
+                    new DB_Expression_Binary('t_users_0.id', '=', 't_posts_0.user_fk')
                 )
             )
         ));
@@ -201,7 +201,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_users', 't_users_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_posts_0.user_fk', '=', 't_users_0.id')
+                    new DB_Expression_Binary('t_posts_0.user_fk', '=', 't_users_0.id')
                 )
             ),
             array(
@@ -228,7 +228,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_users', 't_users_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_categories_0.moderator_fk', '=', 't_users_0.id')
+                    new DB_Expression_Binary('t_categories_0.moderator_fk', '=', 't_users_0.id')
                 )
             ),
             array(
@@ -254,7 +254,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'table' => array('t_categories', 't_categories_0'),
                 'type' => 'LEFT',
                 'conditions' => array(
-                    array('t_users_0.id', '=', 't_categories_0.moderator_fk')
+                    new DB_Expression_Binary('t_users_0.id', '=', 't_categories_0.moderator_fk')
                 )
             )
         ));

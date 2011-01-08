@@ -50,6 +50,6 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
     }
 
     public function testManyCompJoin() {
-        //$result = JORK::from('Model_User')->with('posts')->exec('jork_test');
+        $result = JORK::from('Model_User')->with('posts')->exec('jork_test');
     }
 }
