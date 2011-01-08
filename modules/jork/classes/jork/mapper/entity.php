@@ -86,8 +86,8 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
     public function map_row(&$db_row) {
         $pk = $db_row[$this->_result_primary_key_column];
-        /*if (NULL === $pk)
-            return array(NULL, FALSE);*/
+        if (NULL === $pk)
+            return array(NULL, FALSE);
         if ($this->_previous_result_entity != NULL
                 && $pk == $this->_previous_result_entity->pk()) { //same instance
             $is_new_entity = false;
@@ -124,8 +124,8 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         
         $to_many_comps = array();
         foreach ($this->_next_to_many_mappers as $prop_name => $mapper) {
-            list($comp, $is_new_entity) = $mapper->map_row(&$db_row);
-            if ($is_new_entity) {
+            list($comp, $is_new_component) = $mapper->map_row(&$db_row);
+            if ($is_new_component) {
                 $to_many_comps[$prop_name] = $comp;
             }
         }
@@ -210,7 +210,6 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $this->_result_atomics[$full_alias] = $prop_name;
 
         if ($prop_name == $this->_entity_schema->primary_key()) {
-            echo "adding primary key $full_alias in mapper of {$this->_entity_schema->class} \n";
             $this->_result_primary_key_column = $full_alias;
         }
     }

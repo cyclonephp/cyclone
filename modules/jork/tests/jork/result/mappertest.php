@@ -80,13 +80,11 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
         $idx = 1;
         foreach ($result as $topic) {
             $this->assertTrue($topic instanceof Model_Topic);
-            echo "-----$idx-----".$topic->id.PHP_EOL;
-            //$this->assertEquals($idx, $topic->id);
+            $this->assertEquals($idx, $topic->id);
             ++$idx;
         }
-        echo "WWWWWWWWWWWWWWWW!!!".$result[$topic_idx]->id."\n";
-        //$this->assertEquals($topic_idx, $result[$topic_idx]->id);
-        //$this->assertEquals($post_count, count($result[$topic_idx]->posts));
+        $this->assertEquals($topic_idx + 1, $result[$topic_idx]->id);
+        $this->assertEquals($post_count, count($result[$topic_idx]->posts));
     }
 
     public function providerOuterJoinEmptyRowSkip() {

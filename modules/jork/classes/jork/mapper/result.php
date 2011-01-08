@@ -38,7 +38,6 @@ class JORK_Mapper_Result {
     public function map() {
         $obj_result = array();
         if ($this->_has_implicit_root) {
-            echo "database rows: ".count($this->_db_result).PHP_EOL;
             foreach ($this->_db_result as $row) {
                 list($entity, $is_new) = $this->_mappers[NULL]->map_row($row);
                 if ($is_new) {
