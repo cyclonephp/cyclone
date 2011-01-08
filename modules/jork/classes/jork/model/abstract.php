@@ -110,11 +110,7 @@ abstract class JORK_Model_Abstract {
     }
 
     public function __set($key, $val) {
-        echo "calling $key => $val\n";
-        static $schema = NULL;
-        if (NULL == $schema) {
-            $schema = $this->schema();
-        }
+        $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
             if ( ! array_key_exists($key, $this->_atomics)) {
                 $this->_atomics[$key] = array(
