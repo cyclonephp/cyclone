@@ -70,7 +70,7 @@ abstract class JORK_Model_Abstract {
     public function init_component_collections(&$prop_names) {
         foreach (array_diff_key($prop_names, $this->_components) as $prop => $dummy) {
             if ( ! array_key_exists($prop, $this->_components)) {
-                $this->_components[$prop] = new ArrayObject;
+                $this->_components[$prop] = array('value' => new ArrayObject);
             }
         }
     }
@@ -90,15 +90,12 @@ abstract class JORK_Model_Abstract {
 
     public function add_to_component_collections($components) {
         foreach ($components as $prop_name => $new_comp) {
-            $this->_components[$prop_name][$new_comp->pk()]= $new_comp;
+            $this->_components[$prop_name]['value'][$new_comp->pk()]= $new_comp;
         }
     }
 
     public function  __get($key) {
-        static $schema = NULL;
-        if (NULL == $schema) {
-            $schema = $this->schema();
-        }
+        $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
             return array_key_exists($key, $this->_atomics)
                     ? $this->_atomics[$key]
