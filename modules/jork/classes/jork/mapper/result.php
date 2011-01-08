@@ -47,5 +47,6 @@ class JORK_Mapper_Result {
         } else {
             
         }
+        return $obj_result;
     }
 }

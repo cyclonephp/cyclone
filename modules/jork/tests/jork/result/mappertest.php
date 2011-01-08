@@ -40,5 +40,16 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
 
     public function testFirstFromDB() {
         $result = JORK::from('Model_User')->exec('jork_test');
+        $this->assertEquals(4, count($result));
+        $idx = 1;
+        foreach ($result as $user) {
+            $this->assertEquals($user->id, $idx);
+            $this->assertEquals($user->name, "user$idx");
+            ++$idx;
+        }
+    }
+
+    public function testManyCompJoin() {
+        //$result = JORK::from('Model_User')->with('posts')->exec('jork_test');
     }
 }

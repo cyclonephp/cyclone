@@ -243,6 +243,7 @@ class JORK_Query_Select {
         
         $result_mapper = new JORK_Mapper_Result($db_result
                 , $mapper->has_implicit_root, $mappers);
+        //var_dump($result_mapper->map());
         return new JORK_Result_Iterator($result_mapper->map());
     }
 

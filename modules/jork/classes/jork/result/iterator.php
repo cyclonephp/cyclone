@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Result_Iterator implements Iterator {
+class JORK_Result_Iterator implements Iterator, Countable {
 
     /**
      * @var DB_Query_Result
@@ -46,6 +46,10 @@ class JORK_Result_Iterator implements Iterator {
 
     public function  key() {
         return $this->_idx;
+    }
+
+    public function count() {
+        return $this->_count;
     }
     
 }
