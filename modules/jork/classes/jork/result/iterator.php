@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Result_Iterator implements Iterator, Countable {
+class JORK_Result_Iterator implements Iterator, Countable, ArrayAccess {
 
     /**
      * @var DB_Query_Result
@@ -50,6 +50,22 @@ class JORK_Result_Iterator implements Iterator, Countable {
 
     public function count() {
         return $this->_count;
+    }
+
+    public function  offsetGet($offset) {
+        return $this->_result[$offset];
+    }
+
+    public function  offsetSet($offset, $value) {
+        $this->_result[$offset] = $value;
+    }
+
+    public function  offsetUnset($offset) {
+        unset($this->_result[$offset]);
+    }
+
+    public function  offsetExists($offset) {
+        return array_key_exists($offset, $this->_result);
     }
     
 }

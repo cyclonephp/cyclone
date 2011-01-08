@@ -69,4 +69,32 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
             ++$idx;
         }
     }
+
+
+    /**
+     * @dataProvider providerOuterJoinEmptyRowSkip
+     */
+    public function testOuterJoinEmptyRowSkip($topic_idx, $post_count) {
+        $result = JORK::from('Model_Topic')->with('posts')->exec('jork_test');
+        $this->assertEquals(4, count($result));
+        $idx = 1;
+        foreach ($result as $topic) {
+            $this->assertTrue($topic instanceof Model_Topic);
+            echo "-----$idx-----".$topic->id.PHP_EOL;
+            //$this->assertEquals($idx, $topic->id);
+            ++$idx;
+        }
+        echo "WWWWWWWWWWWWWWWW!!!".$result[$topic_idx]->id."\n";
+        //$this->assertEquals($topic_idx, $result[$topic_idx]->id);
+        //$this->assertEquals($post_count, count($result[$topic_idx]->posts));
+    }
+
+    public function providerOuterJoinEmptyRowSkip() {
+        return array(
+            array(0, 2),
+            array(1, 1),
+            array(2, 0),
+            array(3, 1)
+        );
+    }
 }
