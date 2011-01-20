@@ -244,19 +244,32 @@ class JORK_Mapper_Select {
             }
         }
         if ($is_binary) {
-            if (is_array($expr->left_operand) && $expr->operator == '='
-                    && is_array($expr->right_operand)) {
-                //TODO resolving object equality check to primary key equality checks
-                var_dump($expr);
-                if ($expr->left_operand['class'] != $expr->right_operand['class'])
-                    throw new JORK_Exception("unable to check equality of class '"
-                        .$expr->left_operand['class']."' with class '"
-                        .$expr->right_operand['class']."'");
-            } elseif (is_array($expr->left_operand) || is_array($expr->right_operand))
-                //only one operand was an array
-                throw new JORK_Exception();
+            $this->obj2condition($expr);
         }
         return $expr;
+    }
+
+    protected function obj2condition(DB_Expression_Binary $expr) {
+        if (is_array($expr->left_operand) && $expr->operator == '='
+                && is_array($expr->right_operand)) {
+            //TODO resolving object equality check to primary key equality checks
+            list($left_mapper, $left_ent_schema, $left_last_prop)
+                    = $expr->left_operand;
+            list($right_mapper, $right_ent_schema, $right_last_prop)
+                    = $expr->right_operand;
+            if ($left_ent_schema->components[$left_last_prop]['class']
+                    != $right_ent_schema->components[$right_last_prop]['class'])
+                throw new JORK_Exception("unable to check equality of class '"
+                        . $left_ent_schema->components[$left_last_prop]['class'] . "' with class '"
+                        . $right_ent_schema->components[$right_last_prop]['class'] . "'");
+            //holy shit... it's coming -.-
+            $left_mapper->merge_prop_chain(array($left_last_prop
+                , JORK_Model_Abstract::schema_by_class($left_ent_schema->components[$left_last_prop]['class'])->primary_key()));
+            $right_mapper->merge_prop_chain(array($right_last_prop
+                , JORK_Model_Abstract::schema_by_class($right_ent_schema->components[$right_last_prop]['class'])->primary_key()));
+        } elseif (is_array($expr->left_operand) || is_array($expr->right_operand))
+        //only one operand was an array
+            throw new JORK_Exception();
     }
 
     /**
