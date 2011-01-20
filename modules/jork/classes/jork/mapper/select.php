@@ -205,7 +205,8 @@ class JORK_Mapper_Select {
             } elseif ($expr instanceof DB_Expression_Unary) {
                 $prop_chain = explode('.', $expr->operand);
                 $root_prop = array_shift($prop_chain);
-                $this->_mappers[$root_prop]->resolve_prop_chain($prop_chain);
+                var_dump($root_prop);
+                $expr->operand = $this->_mappers[$root_prop]->resolve_prop_chain($prop_chain);
             }
         }
         return $expr;
