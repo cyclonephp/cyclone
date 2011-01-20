@@ -281,7 +281,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $mapper = new JORK_Mapper_Select($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->where_conditions, array(
-            new DB_Expression_Binary('t_posts_0.created_at', '>', '2010-11-11'),
+            new DB_Expression_Binary('t_posts_0.created_at', '>', DB::expr('2010-11-11')),
             new DB_Expression_Unary('exists', 't_users_0.name')
         ));
     }
