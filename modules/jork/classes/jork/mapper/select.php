@@ -111,6 +111,17 @@ class JORK_Mapper_Select {
         }
     }
 
+    /**
+     * Resolves a custom database expression passed as string.
+     *
+     * Picks property chains it founds in enclosing brackets, resolves the
+     * property chains to table names. If the last item is an atomic property
+     * then it puts the coresponding table column to the resolved expression,
+     * otherwise throws an exception
+     *
+     * @param <type> $expr
+     * @return string
+     */
     protected function map_db_expression($expr) {
         $pattern = '/\{([^\}]*)\}/';
         preg_match_all($pattern, $expr, $matches);
@@ -124,12 +135,21 @@ class JORK_Mapper_Select {
                 $root_prop = array_shift($prop_chain_arr);
                 $resolved_expr = $this->_mappers[$root_prop]
                         ->resolve_prop_chain($prop_chain_arr);
+                if (is_array($resolved_expr))
+                    throw new JORK_Exception('invalid property chain in database expression \''.$expr.'\'');
             }
             $resolved_expr_all = str_replace($match, $resolved_expr, $resolved_expr_all);
         }
         return $resolved_expr_all;
     }
 
+    /**
+     * Maps the SELECT clause of the jork query to the db query.
+     *
+     * @see JORK_Mapper_Select::$_jork_query
+     * @see JORK_Mapper_Select::$_db_query
+     * @return void
+     */
     protected function map_select() {
         if (empty($this->_jork_query->select_list)) {
             foreach ($this->_mappers as $mapper) {
@@ -167,10 +187,19 @@ class JORK_Mapper_Select {
         
     }
 
+    /**
+     * Resolves any kind of database expressions, takes operands as property
+     * chains, replaces them with the corresponding table aliases and column names
+     * and merges the property chains.
+     *
+     * @param DB_Expression $expr
+     * @return DB_Expression
+     */
     protected function resolve_db_expr(DB_Expression $expr) {
-        
+        $is_binary = FALSE;
         if ($this->has_implicit_root) {
             if ($expr instanceof DB_Expression_Binary) {
+                $is_binary = TRUE;
                 if ($expr->left_operand instanceof DB_Expression) {
                     $expr->left_operand = $this->resolve_db_expr($expr->left_operand);
                 } else {
@@ -191,6 +220,7 @@ class JORK_Mapper_Select {
             }
         } else {
             if ($expr instanceof DB_Expression_Binary) {
+                $is_binary = TRUE;
                 if ($expr->left_operand instanceof DB_Expression) {
                     $expr->left_operand = $this->resolve_db_expr($expr->left_operand);
                 } else {
@@ -213,9 +243,29 @@ class JORK_Mapper_Select {
                 $expr->str = $this->map_db_expression($expr->str);
             }
         }
+        if ($is_binary) {
+            if (is_array($expr->left_operand) && $expr->operator == '='
+                    && is_array($expr->right_operand)) {
+                //TODO resolving object equality check to primary key equality checks
+                var_dump($expr);
+                if ($expr->left_operand['class'] != $expr->right_operand['class'])
+                    throw new JORK_Exception("unable to check equality of class '"
+                        .$expr->left_operand['class']."' with class '"
+                        .$expr->right_operand['class']."'");
+            } elseif (is_array($expr->left_operand) || is_array($expr->right_operand))
+                //only one operand was an array
+                throw new JORK_Exception();
+        }
         return $expr;
     }
 
+    /**
+     * Maps the where clause of the jork query
+     *
+     * @see JORK_Mapper_Select::$_jork_query
+     * @see JORK_Mapper_Select::$_db_query
+     * @see JORK_Mapper_Select::resolve_db_expr()
+     */
     protected function map_where() {
         foreach ($this->_jork_query->where_conditions as $cond) {
             $this->_db_query->where_conditions []= $this->resolve_db_expr($cond);

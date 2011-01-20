@@ -325,9 +325,9 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $root_prop = array_shift($prop_chain);
         if (empty($prop_chain)) { //we are there
             if ( ! array_key_exists($root_prop, $this->_entity_schema->columns)) {
-                if (array_key_exists($root_prop, $this->_entity_schema->components))
-                    throw new JORK_Exception('property "'.$root_prop.'" is not an atomic property of class'
-                            .'"'.$this->_entity_schema->class.'"');
+                if (array_key_exists($root_prop, $this->_entity_schema->components)) {
+                    return $this->_entity_schema->components[$root_prop];
+                }
                 throw new JORK_Exception('property "'.$root_prop.'" of class "'
                         .$this->_entity_schema->class.'" does not exist');
             }
