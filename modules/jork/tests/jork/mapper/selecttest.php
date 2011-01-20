@@ -3,6 +3,7 @@
 
 class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
+
     public function testFrom() {
         $jork_query = new JORK_Query_Select;
         $jork_query->from('Model_User user', 'Model_Topic topic');
