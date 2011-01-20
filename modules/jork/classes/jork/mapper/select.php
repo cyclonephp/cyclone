@@ -127,7 +127,7 @@ class JORK_Mapper_Select {
             }
             $resolved_expr_all = str_replace($match, $resolved_expr, $resolved_expr_all);
         }
-        $this->_mappers[$expr] = new JORK_Mapper_Expression($resolved_expr_all);
+        return $resolved_expr_all;
     }
 
     protected function map_select() {
@@ -139,7 +139,8 @@ class JORK_Mapper_Select {
         }
         foreach ($this->_jork_query->select_list as $select_item) {
             if (array_key_exists('expr', $select_item)) { //database expression
-                $this->map_db_expression($select_item['expr']);
+                $resolved = $this->map_db_expression($select_item['expr']);
+                $this->_mappers[$select_item['expr']] = new JORK_Mapper_Expression($resolved);
                 continue;
             }
             $prop_chain = $select_item['prop_chain']->as_array();
@@ -185,6 +186,8 @@ class JORK_Mapper_Select {
                 }
             } elseif ($expr instanceof DB_Expression_Unary) {
                 $expr->operand = $this->_mappers[NULL]->resolve_prop_chain(explode('.', $expr->operand));
+            } elseif ($expr instanceof DB_Expression_Custom) {
+                $expr->str = $this->map_db_expression($expr->str);
             }
         } else {
             if ($expr instanceof DB_Expression_Binary) {
@@ -205,8 +208,9 @@ class JORK_Mapper_Select {
             } elseif ($expr instanceof DB_Expression_Unary) {
                 $prop_chain = explode('.', $expr->operand);
                 $root_prop = array_shift($prop_chain);
-                var_dump($root_prop);
                 $expr->operand = $this->_mappers[$root_prop]->resolve_prop_chain($prop_chain);
+            } elseif ($expr instanceof DB_Expression_Custom) {
+                $expr->str = $this->map_db_expression($expr->str);
             }
         }
         return $expr;
