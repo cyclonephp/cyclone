@@ -28,7 +28,7 @@ class JORK_Query_Select {
     /**
      * @var array
      */
-    public $where_conditions;
+    public $where_conditions = array();
 
     /**
      * @var array
@@ -206,7 +206,8 @@ class JORK_Query_Select {
 //    }
 
     public function where() {
-        $this->where_conditions []= func_get_args();
+        $args = func_get_args();
+        $this->where_conditions []= DB::create_expr($args);
         return $this;
     }
 

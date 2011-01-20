@@ -81,6 +81,6 @@ class JORK_Query_Test extends Kohana_Unittest_TestCase {
     public function testWhere() {
         $query = new JORK_Query_Select;
         $query->where(1, 2, 3);
-        $this->assertEquals($query->where_conditions, array(array(1, 2, 3)));
+        $this->assertEquals($query->where_conditions, array(new DB_Expression_Binary(1, 2, 3)));
     }
 }
