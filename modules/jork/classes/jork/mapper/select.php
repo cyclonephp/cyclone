@@ -58,6 +58,8 @@ class JORK_Mapper_Select {
 
         $this->map_select();
 
+        $this->map_where();
+
         return array($this->_db_query, $this->_mappers);
     }
 
@@ -162,6 +164,57 @@ class JORK_Mapper_Select {
 
     protected function add_projections(JORK_Query_PropChain $prop_chain, $projections) {
         
+    }
+
+    protected function resolve_db_expr(DB_Expression $expr) {
+        
+        if ($this->has_implicit_root) {
+            if ($expr instanceof DB_Expression_Binary) {
+                if ($expr->left_operand instanceof DB_Expression) {
+                    $expr->left_operand = $this->resolve_db_expr($expr->left_operand);
+                } else {
+                    $expr->left_operand = $this->_mappers[NULL]
+                        ->resolve_prop_chain(explode('.', $expr->left_operand));
+                }
+
+                if ($expr->right_operand instanceof DB_Expression) {
+                    $expr->right_operand = $this->resolve_db_expr($expr->right_operand);
+                } else {
+                    $expr->right_operand = $this->_mappers[NULL]
+                        ->resolve_prop_chain(explode('.', $expr->right_operand));
+                }
+            } elseif ($expr instanceof DB_Expression_Unary) {
+                $expr->operand = $this->_mappers[NULL]->resolve_prop_chain(explode('.', $expr->operand));
+            }
+        } else {
+            if ($expr instanceof DB_Expression_Binary) {
+                if ($expr->left_operand instanceof DB_Expression) {
+                    $expr->left_operand = $this->resolve_db_expr($expr->left_operand);
+                } else {
+                    $left_prop_chain = explode('.', $expr->left_operand);
+                    $left_root_prop = array_shift($left_prop_chain);
+                    $expr->left_operand = $this->_mappers[$left_root_prop]->resolve_prop_chain($left_prop_chain);
+                }
+                if ($expr->right_operand instanceof DB_Expression) {
+                    $expr->right_operand = $this->resolve_db_expr($expr->right_operand);
+                } else {
+                    $right_prop_chain = explode('.', $expr->right_operand);
+                    $right_root_prop = array_shift($right_prop_chain);
+                    $expr->right_operand = $this->_mappers[$right_root_prop]->resolve_prop_chain($right_prop_chain);
+                }
+            } elseif ($expr instanceof DB_Expression_Unary) {
+                $prop_chain = explode('.', $expr->operand);
+                $root_prop = array_shift($prop_chain);
+                $this->_mappers[$root_prop]->resolve_prop_chain($prop_chain);
+            }
+        }
+        return $expr;
+    }
+
+    protected function map_where() {
+        foreach ($this->_jork_query->where_conditions as $cond) {
+            $this->_db_query->where_conditions []= $this->resolve_db_expr($cond);
+        }
     }
 
 }
