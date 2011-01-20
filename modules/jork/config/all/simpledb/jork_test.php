@@ -6,6 +6,6 @@ return array(
         'password' => 'jork_test',
         'database' => 'jork_test',
         'host' => 'localhost',
-        'socket' => '/var/mysql/mysql.sock'
+        //'socket' => '/var/mysql/mysql.sock'
     )
 );

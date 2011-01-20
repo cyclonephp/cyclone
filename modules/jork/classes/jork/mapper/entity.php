@@ -111,7 +111,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                 $instance_pool->add($entity);
             }
 
-            $entity->init_component_collections(&$this->_next_to_many_mappers);
+            $entity->init_component_collections($this->_next_to_many_mappers);
             
             $to_one_comps = array();
             foreach ($this->_next_to_one_mappers as $prop_name => $one_mapper) {
@@ -124,7 +124,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         
         $to_many_comps = array();
         foreach ($this->_next_to_many_mappers as $prop_name => $mapper) {
-            list($comp, $is_new_component) = $mapper->map_row(&$db_row);
+            list($comp, $is_new_component) = $mapper->map_row($db_row);
             if ($is_new_component) {
                 $to_many_comps[$prop_name] = $comp;
             }

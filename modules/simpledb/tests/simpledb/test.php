@@ -162,7 +162,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         DB::inst()->exec_custom('drop table if exists t_posts; create table t_posts(id int);');
         DB::inst()->disconnect();
         DB::inst()->connect();
-        DB::select()->from('t_posts')->exec();
+        //DB::select()->from('t_posts')->exec();
     }
 
     public function testExecCustom() {

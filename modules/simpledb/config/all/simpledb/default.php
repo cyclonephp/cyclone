@@ -7,6 +7,6 @@ return array(
         'password' => 'simpledb',
         'database' => 'simpledb',
         'host' => 'localhost',
-        'socket' => '/var/mysql/mysql.sock'
+        //'socket' => '/var/mysql/mysql.sock'
     )
 );

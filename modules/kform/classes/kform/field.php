@@ -117,7 +117,7 @@ class KForm_Field {
         $callback = array('Validate', $validator);
         if (is_array($details)) {
             $params = Arr::get($details, 'params', array());
-            array_unshift(&$params, $this->value);
+            array_unshift($params, $this->value);
             if (array_key_exists('error', $details)) {
                 $error = $details['error'];
             }
