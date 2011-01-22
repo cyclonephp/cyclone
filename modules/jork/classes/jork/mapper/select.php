@@ -249,6 +249,14 @@ class JORK_Mapper_Select {
         return $expr;
     }
 
+    /**
+     * Maps a binary operator expression to a DB expression. Both operands
+     * should be the same class. The class/property names are replaced
+     * with the corresponding primary key columns.
+     * 
+     * @param DB_Expression_Binary $expr
+     * @throws JORK_Exception if the two operands are not the same class
+     */
     protected function obj2condition(DB_Expression_Binary $expr) {
         if (is_array($expr->left_operand) && $expr->operator == '='
                 && is_array($expr->right_operand)) {

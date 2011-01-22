@@ -96,9 +96,9 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
                )
            )
         ));
-//        $this->assertEquals($db_query->where_conditions, array(
-//            new DB_Expression_Binary('', '=', '')
-//        ));
+        $this->assertEquals($db_query->where_conditions, array(
+            new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
+        ));
     }
 
     /**
