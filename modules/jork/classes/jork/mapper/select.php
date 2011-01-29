@@ -60,6 +60,10 @@ class JORK_Mapper_Select {
 
         $this->map_where();
 
+        $this->map_group_by();
+
+        $this->map_order_by();
+
         return array($this->_db_query, $this->_mappers);
     }
 
@@ -309,6 +313,39 @@ class JORK_Mapper_Select {
     protected function map_where() {
         foreach ($this->_jork_query->where_conditions as $cond) {
             $this->_db_query->where_conditions []= $this->resolve_db_expr($cond);
+        }
+    }
+
+    protected function map_group_by() {
+        
+    }
+
+    protected function map_order_by() {
+        if ($this->_jork_query->order_by === NULL)
+            return;
+        
+        if ($this->has_implicit_root) {
+            foreach ($this->_jork_query->order_by as $ord) {
+                $col = $this->_mappers[NULL]->resolve_prop_chain(explode('.', $ord['column']));
+                if (is_array($col))
+                    throw new JORK_Exception($ord['column'].' is not an atomic property');
+                $this->_db_query->order_by []= array(
+                    'column' => $col,
+                    'direction' => $ord['direction']
+                );
+            }
+        } else {
+            foreach ($this->_jork_query->order_by as $ord) {
+                $col_arr = explode('.', $ord['column']);
+                $root_prop = array_shift($col_arr);
+                $col = $this->_mappers[$root_prop]->resolve_prop_chain($col_arr);
+                if (is_array($col))
+                    throw new JORK_Exception($ord['column'].' is not an atomic property');
+                $this->_db_query->order_by []= array(
+                    'column' => $col,
+                    'direction' => $ord['direction']
+                );
+            }
         }
     }
 

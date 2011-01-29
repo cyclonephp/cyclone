@@ -294,4 +294,17 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         ));
     }
 
+    public function testOrderBy() {
+        $jork_query = JORK::from('Model_Post post')->order_by('post.created_at');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->order_by, array(
+            array(
+                'column' => 't_posts_0.created_at',
+                'direction' => 'ASC'
+            )
+        ));
+        
+    }
+
 }
