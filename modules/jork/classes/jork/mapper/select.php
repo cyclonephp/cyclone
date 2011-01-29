@@ -184,7 +184,21 @@ class JORK_Mapper_Select {
     }
 
     protected function add_projections(JORK_Query_PropChain $prop_chain, $projections) {
-        
+        if ($this->has_implicit_root) {
+            list($mapper, , ) = $this->_mappers[NULL]->resolve_prop_chain($prop_chain->as_array());
+            foreach ($projections as $proj) {
+                $mapper->merge_prop_chain(explode('.', $proj));
+            }
+        } else {
+            $prop_chain_arr = $prop_chain->as_array();
+            $root_prop = array_shift($prop_chain_arr);
+            list($mapper, , $last_prop) = $this->_mappers[$root_prop]->resolve_prop_chain($prop_chain_arr);
+            foreach ($projections as $raw_projection) {
+                $proj = explode('.', $raw_projection);
+                array_unshift($proj, $last_prop);
+                $mapper->merge_prop_chain($proj);
+            }
+        }
     }
 
     /**

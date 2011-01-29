@@ -261,4 +261,37 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         ));
     }
 
+
+    public function testProjection() {
+        $jork_query = JORK::select('topic.creator{id,name,posts}')->from('Model_Topic topic');
+        $mapper = new JORK_Mapper_Select($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->tables, array(
+            array('t_topics', 't_topics_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('t_users', 't_users_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_topics_0.creator_fk', '=', 't_users_0.id')
+                )
+            ),
+            array(
+                'table' => array('user_contact_info', 'user_contact_info_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_users_0.id', '=', 'user_contact_info_0.user_fk')
+                )
+            ),
+            array(
+                'table' => array('t_posts', 't_posts_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_users_0.id', '=', 't_posts_0.user_fk')
+                )
+            )
+        ));
+    }
+
 }
