@@ -59,6 +59,9 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
         ));
+        $this->assertEquals($db_query->where_conditions, array(
+            new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
+        ));
         $this->assertEquals($db_query->joins, array(
            array(
                'table' => array('t_users', 't_users_0'),
@@ -95,9 +98,6 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
                    new DB_Expression_Binary('t_users_1.id', '=', 'user_contact_info_1.user_fk')
                )
            )
-        ));
-        $this->assertEquals($db_query->where_conditions, array(
-            new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
         ));
     }
 

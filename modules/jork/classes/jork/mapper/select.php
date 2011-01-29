@@ -271,10 +271,15 @@ class JORK_Mapper_Select {
                         . $left_ent_schema->components[$left_last_prop]['class'] . "' with class '"
                         . $right_ent_schema->components[$right_last_prop]['class'] . "'");
             //holy shit... it's coming -.-
-            $left_mapper->merge_prop_chain(array($left_last_prop
-                , JORK_Model_Abstract::schema_by_class($left_ent_schema->components[$left_last_prop]['class'])->primary_key()));
-            $right_mapper->merge_prop_chain(array($right_last_prop
-                , JORK_Model_Abstract::schema_by_class($right_ent_schema->components[$right_last_prop]['class'])->primary_key()));
+            $left_prop_chain = array($left_last_prop
+                , JORK_Model_Abstract::schema_by_class($left_ent_schema->components[$left_last_prop]['class'])->primary_key());
+            $left_mapper->merge_prop_chain($left_prop_chain);
+            $expr->left_operand = $left_mapper->resolve_prop_chain($left_prop_chain);
+
+            $right_prop_chain = array($right_last_prop
+                , JORK_Model_Abstract::schema_by_class($right_ent_schema->components[$right_last_prop]['class'])->primary_key());
+            $right_mapper->merge_prop_chain($right_prop_chain);
+            $expr->right_operand= $right_mapper->resolve_prop_chain($right_prop_chain);
         } elseif (is_array($expr->left_operand) || is_array($expr->right_operand))
         //only one operand was an array
             throw new JORK_Exception();
