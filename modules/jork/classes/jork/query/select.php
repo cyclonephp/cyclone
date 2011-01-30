@@ -235,7 +235,7 @@ class JORK_Query_Select {
     }
 
     public function exec($adapter = 'default') {
-        $mapper = new JORK_Mapper_Select($this);
+        $mapper = JORK_Mapper_Select::for_query($this);
         list($db_query, $mappers) = $mapper->map();
         if (Config::inst()->get('jork.show_sql')) {
             echo $db_query->compile($adapter).PHP_EOL;

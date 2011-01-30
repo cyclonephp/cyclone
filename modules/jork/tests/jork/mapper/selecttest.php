@@ -7,7 +7,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testFrom() {
         $jork_query = new JORK_Query_Select;
         $jork_query->from('Model_User user', 'Model_Topic topic');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0'),
@@ -19,7 +19,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testFromImplRoot() {
         $jork_query = new JORK_Query_Select;
         $jork_query->from('Model_User');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->columns, array(
             array('t_users_0.id', 't_users_0_id'), array('t_users_0.name', 't_users_0_name')
@@ -37,7 +37,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectImplRoot() {
         $jork_query = new JORK_Query_Select;
         $jork_query->from('Model_Category');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->columns, array(
             array('t_categories_0.id', 't_categories_0_id')
@@ -52,7 +52,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
             array('t_categories', 't_categories_0')
         ));
         $jork_query->select('id');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->columns, array(
             array('t_categories_0.id', 't_categories_0_id')
@@ -62,7 +62,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectPropChain() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('topic')->from('Model_Post');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->columns, array(
             array('t_topics_0.id', 't_topics_0_id')
@@ -90,7 +90,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectManyToOne() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('topic', 'topic.creator')->from('Model_Topic topic');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         //print_r($db_query->tables);
         $this->assertEquals($db_query->tables, array(
@@ -119,7 +119,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('post', 'post.topic.creator')
                 ->from('Model_Post post');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
@@ -155,7 +155,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectManyToOneReverse() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('t', 't.posts')->from('Model_Topic t');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_topics', 't_topics_0')
@@ -173,7 +173,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectOneToMany() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('posts')->from('Model_User');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0')
@@ -192,7 +192,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectOneToManyReverse() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('author')->from('Model_Post');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
@@ -219,7 +219,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testOneToOne() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('moderator')->from('Model_Category');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_categories', 't_categories_0')
@@ -245,7 +245,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testOneToOneReverse() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('moderated_category')->from('Model_User');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0')
@@ -264,7 +264,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
     public function testProjection() {
         $jork_query = JORK::select('topic.creator{id,name,posts}')->from('Model_Topic topic');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_topics', 't_topics_0')
@@ -296,7 +296,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
     public function testOrderBy() {
         $jork_query = JORK::from('Model_Post post')->order_by('post.created_at');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->order_by, array(
             array(
