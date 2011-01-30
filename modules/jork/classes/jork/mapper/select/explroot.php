@@ -163,8 +163,11 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         foreach ($this->_jork_query->group_by as $group_by_itm) {
             $prop_chain = explode('.', $group_by_itm);
             $root_prop = array_shift($prop_chain);
-            $this->_db_query->group_by []= $this->_mappers[$root_prop]
+            $col = $this->_mappers[$root_prop]
                     ->resolve_prop_chain($prop_chain);
+            if (is_array($col))
+                throw new JORK_Exception ($group_by_itm.' is not an atomic property');
+            $this->_db_query->group_by []= $col;
         }
     }
 
