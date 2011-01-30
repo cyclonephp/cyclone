@@ -91,7 +91,7 @@ abstract class JORK_Model_Abstract {
 
     public function add_to_component_collections($components) {
         foreach ($components as $prop_name => $new_comp) {
-            $this->_components[$prop_name]['value'][$new_comp->pk()]= $new_comp;
+            $this->_components[$prop_name]['value'][$new_comp->pk()] = $new_comp;
         }
     }
 

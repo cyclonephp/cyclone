@@ -82,6 +82,14 @@ abstract class JORK_Model_Collection extends ArrayObject {
      */
     protected $_storage = array();
 
+    /**
+     * Stores the entities deleted from the collection, and performs the
+     * required database operations when persisting.
+     *
+     * @var array
+     */
+    protected $_deleted = array();
+
     public function  __construct($owner, $comp_name, $comp_schema) {
         $this->_owner = $owner;
         $this->_comp_name = $comp_name;
@@ -95,6 +103,8 @@ abstract class JORK_Model_Collection extends ArrayObject {
     protected abstract function _do_append($value);
 
     public function  offsetGet($key) {
+        if ( ! array_key_exists($key, $this->_storage))
+            throw new JORK_Exception("undefined index $key in component collection '{$this->_comp_name}'");
         return $this->_storage[$key]['value'];
     }
 
@@ -109,15 +119,15 @@ abstract class JORK_Model_Collection extends ArrayObject {
         return array_key_exists($key, $this->_storage);
     }
 
-    public function delete($value) {
-        $this->_do_unset($value);
-    }
-
     public function  offsetUnset($key) {
-        $this->_do_unset($key);
+        $this->delete_by_pk($key);
     }
 
-    protected abstract function _do_unset($key);
+    public abstract function delete_by_pk($key);
+
+    public function delete($value) {
+        $this->delete_by_pk($value->pk());
+    }
 
     public function  count() {
         return count($this->_storage);

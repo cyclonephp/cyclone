@@ -3,15 +3,6 @@
 
 class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
 
-    /**
-     * Stores the entities deleted from the collection, and performs the
-     * required database operations when persisting.
-     *
-     * @var array
-     */
-    private $_deleted = array();
-
-
     public function  __construct($owner, $comp_name, $comp_schema) {
         parent::__construct($owner, $comp_name, $comp_schema);
         $this->_join_column = $comp_schema['join_column'];
@@ -28,8 +19,9 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
         $value->{$this->_join_column} = $this->_owner->{$this->_inverse_join_column};
     }
 
-    protected function  _do_unset($value) {
-        unset($this->_storage[$value->pk()]);
-        $this->_deleted[$value->pk()] = $value;
+    public function  delete_by_pk($pk) {
+        $this->_deleted[$pk] = $this->_storage[$pk];
+        $this->_deleted[$pk]['value']->{$this->_join_column} = NULL;
+        unset($this->_storage[$pk]);
     }
 }

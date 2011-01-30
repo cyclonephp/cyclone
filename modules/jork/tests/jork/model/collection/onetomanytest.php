@@ -12,14 +12,14 @@ class JORK_Model_Collection_OneToManyTest extends Kohana_Unittest_TestCase {
         $this->assertEquals(1, count($user->posts));
     }
 
-    public function testUnset() {
+    public function testDelete() {
         $user = new Model_User;
         $user->id = 15;
         $post = new Model_Post;
         $post->id = 12;
         $user->posts->append($post);
 
-        $user->posts->delete($post);
+        unset($user->posts[12]);
         $this->assertEquals(0, count($user->posts));
     }
 }
