@@ -24,17 +24,7 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         }
     }
 
-    /**
-     * Resolves a custom database expression passed as string.
-     *
-     * Picks property chains it founds in enclosing brackets, resolves the
-     * property chains to table names. If the last item is an atomic property
-     * then it puts the coresponding table column to the resolved expression,
-     * otherwise throws an exception
-     *
-     * @param <type> $expr
-     * @return string
-     */
+    
     protected function map_db_expression($expr) {
         $pattern = '/\{([^\}]*)\}/';
         preg_match_all($pattern, $expr, $matches);
@@ -48,13 +38,6 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         return $resolved_expr_all;
     }
 
-    /**
-     * Maps the SELECT clause of the jork query to the db query.
-     *
-     * @see JORK_Mapper_Select::$_jork_query
-     * @see JORK_Mapper_Select::$_db_query
-     * @return void
-     */
     protected function map_select() {
         if (empty($this->_jork_query->select_list)) {
             foreach ($this->_mappers as $mapper) {
@@ -83,14 +66,6 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         }
     }
 
-    /**
-     * Resolves any kind of database expressions, takes operands as property
-     * chains, replaces them with the corresponding table aliases and column names
-     * and merges the property chains.
-     *
-     * @param DB_Expression $expr
-     * @return DB_Expression
-     */
     protected function resolve_db_expr(DB_Expression $expr) {
         if ($expr instanceof DB_Expression_Binary) {
             $is_binary = TRUE;

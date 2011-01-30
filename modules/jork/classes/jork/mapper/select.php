@@ -84,12 +84,39 @@ abstract class JORK_Mapper_Select {
 
     protected abstract function map_with();
 
+    /**
+     * Resolves a custom database expression passed as string.
+     *
+     * Picks property chains it founds in enclosing brackets, resolves the
+     * property chains to table names. If the last item is an atomic property
+     * then it puts the coresponding table column to the resolved expression,
+     * otherwise throws an exception
+     *
+     * @param <type> $expr
+     * @return string
+     */
     protected abstract function map_db_expression($expr);
 
+    /**
+     * Maps the SELECT clause of the jork query to the db query.
+     *
+     * @see JORK_Mapper_Select::$_jork_query
+     * @see JORK_Mapper_Select::$_db_query
+     * @return void
+     */
     protected abstract function map_select();
 
     protected abstract function add_projections(JORK_Query_PropChain $prop_chain, $projections);
 
+
+    /**
+     * Resolves any kind of database expressions, takes operands as property
+     * chains, replaces them with the corresponding table aliases and column names
+     * and merges the property chains.
+     *
+     * @param DB_Expression $expr
+     * @return DB_Expression
+     */
     protected abstract function resolve_db_expr(DB_Expression $expr);
     
 
