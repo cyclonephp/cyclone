@@ -176,6 +176,32 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         ));
     }
 
+    public function testManyToMany() {
+        $jork_query = JORK::from('Model_Topic')->with('categories');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        var_dump($db_query);
+        $this->assertEquals($db_query->tables, array(
+            array('t_topics', 't_topics_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('categories_topics', 'categories_topics_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_topics_0.id', '=', 'categories_topics_0.topic_fk')
+                )
+            ),
+            array(
+                'table' => array('t_categories', 't_categories_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('categories_topics_0.category_fk', '=', 't_categories_0.id')
+                )
+            )
+        ));
+    }
+
 
 
     public function testForQuery() {
