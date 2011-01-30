@@ -156,11 +156,18 @@ abstract class JORK_Model_Abstract {
             if (array_key_exists($key, $this->_components))
                 // return if the component value is already initialized
                 return $this->_components[$key]['value'];
-            // otherwise check if it's a to-many relation and initialize an
-            // empty component collection
-            $this->_components[$key] = array(
-                'value' => JORK_Model_Collection::for_component($this, $key)
-            );
+            if ($schema->is_to_many_component($key)) {
+                // it's a to-many relation and initialize an
+                // empty component collection
+                $this->_components[$key] = array(
+                    'value' => JORK_Model_Collection::for_component($this, $key)
+                );
+            } else {
+                $this->_components[$key] = array(
+                    'persistent' => TRUE, // default NULL must not be persisted
+                    'value' => NULL
+                );
+            }
             return $this->_components[$key]['value'];
                    
         }

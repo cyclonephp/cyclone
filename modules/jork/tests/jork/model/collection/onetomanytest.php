@@ -10,6 +10,7 @@ class JORK_Model_Collection_OneToManyTest extends Kohana_Unittest_TestCase {
         $user->posts->append($post);
         $this->assertEquals(15, $post->user_fk);
         $this->assertEquals(1, count($user->posts));
+        //$this->assertEquals($user, $post->author);
     }
 
     public function testDelete() {

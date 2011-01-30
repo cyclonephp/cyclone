@@ -108,6 +108,14 @@ abstract class JORK_Model_Collection extends ArrayObject {
         return $this->_storage[$key]['value'];
     }
 
+    /**
+     * Only for internal usage. Used when object graph is loöaded from the database.
+     *
+     * @param string $key
+     * @param JORK_Model_Abstract $val
+     * @see JORK_Model_Abstract::add_to_component_collections()
+     * @package
+     */
     public function  offsetSet($key, $val) {
         $this->_storage[$key] = array(
             'persistent' => TRUE,

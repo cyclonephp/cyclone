@@ -37,5 +37,17 @@ class JORK_Mapping_Schema {
                 ? $this->columns[$col_name]
                 : $this->table;
     }
+
+    public function is_to_many_component($comp_name) {
+        if ( ! array_key_exists('mapped_by', ($comp_schema = $this->components[$comp_name])))
+            return $comp_schema['type'] == JORK::ONE_TO_MANY
+                || $comp_schema['type'] == JORK::MANY_TO_MANY;
+
+        $remote_comp_schema = JORK_Model_Abstract::schema_by_class($comp_schema['class'])
+            ->components[$comp_schema['mapped_by']];
+
+        return $remote_comp_schema['type'] == JORK::MANY_TO_MANY
+            || $remote_comp_schema['type'] == JORK::MANY_TO_ONE;
+    }
     
 }
