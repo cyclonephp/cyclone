@@ -43,7 +43,7 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $user = new Model_User;
         $user->id = 34;
         $post = new Model_Post;
-        $this->markTestSkipped('not yet implemented');
+        //$this->markTestSkipped('not yet implemented');
         $user->posts->append($post);
         $this->assertEquals($post->user_fk, 34);
     }
@@ -52,7 +52,7 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $topic = new Model_Topic;
         $topic->id = 2;
         $post = new Model_Post;
-        $this->markTestSkipped('not yet implemented');
+        //$this->markTestSkipped('not yet implemented');
         $topic->posts->append($post);
         $this->assertEquals(2, $post->topic_fk);
     }

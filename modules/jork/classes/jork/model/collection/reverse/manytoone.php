@@ -23,7 +23,9 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
     }
 
     public function delete_by_pk($pk) {
-
+        $this->_deleted[$pk] = $this->_storage[$pk];
+        $this->_deleted[$pk]['value']->{$this->_inverse_join_column} = NULL;
+        unset($this->_storage[$pk]);
     }
 
 
