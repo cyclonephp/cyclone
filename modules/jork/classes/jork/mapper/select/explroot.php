@@ -158,7 +158,14 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
     }
 
     protected function  map_group_by() {
-        
+        if (NULL === $this->_jork_query->group_by)
+            return;
+        foreach ($this->_jork_query->group_by as $group_by_itm) {
+            $prop_chain = explode('.', $group_by_itm);
+            $root_prop = array_shift($prop_chain);
+            $this->_db_query->group_by []= $this->_mappers[$root_prop]
+                    ->resolve_prop_chain($prop_chain);
+        }
     }
 
     

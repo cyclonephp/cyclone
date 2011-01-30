@@ -304,7 +304,26 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
                 'direction' => 'ASC'
             )
         ));
+    }
+
+    public function testForQuery() {
+        $jork_query = JORK::from('Model_Post');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        $this->assertTrue($mapper instanceof JORK_Mapper_Select_ImplRoot);
         
+        $jork_query = JORK::from('Model_Post post');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        $this->assertTrue($mapper instanceof JORK_Mapper_Select_ExplRoot);
+
+    }
+
+    public function testGroupBy() {
+        $jork_query = JORK::select(DB::expr('count({post.id})'), 'post.author')
+                ->from('Model_Post post')
+                ->group_by('post.author.name');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->group_by, array('t_users_0.name'));
     }
 
 }
