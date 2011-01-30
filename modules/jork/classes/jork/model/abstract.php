@@ -70,7 +70,8 @@ abstract class JORK_Model_Abstract {
     public function init_component_collections(&$prop_names) {
         foreach (array_diff_key($prop_names, $this->_components) as $prop => $dummy) {
             if ( ! array_key_exists($prop, $this->_components)) {
-                $this->_components[$prop] = array('value' => new ArrayObject);
+                $this->_components[$prop] = array('value' =>
+                    JORK_Model_Collection::for_component($this, $prop));
             }
         }
     }
@@ -152,9 +153,16 @@ abstract class JORK_Model_Abstract {
                     : NULL;
         }
         if (array_key_exists($key, $schema->components)) {
-            return array_key_exists($key, $this->_components)
-                    ? $this->_components[$key]['value']
-                    : NULL;
+            if (array_key_exists($key, $this->_components))
+                // return if the component value is already initialized
+                return $this->_components[$key]['value'];
+            // otherwise check if it's a to-many relation and initialize an
+            // empty component collection
+            $this->_components[$key] = array(
+                'value' => JORK_Model_Collection::for_component($this, $key)
+            );
+            return $this->_components[$key]['value'];
+                   
         }
         throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
