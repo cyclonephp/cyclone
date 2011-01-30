@@ -107,7 +107,14 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
     }
 
     protected function map_group_by() {
-
+        if (NULL === $this->_jork_query->group_by)
+            return;
+        foreach ($this->_jork_query->group_by as $group_by_itm) {
+            $col = $this->_mappers[NULL]->resolve_prop_chain($group_by_itm);
+            if (is_array($col))
+                throw new JORK_Exception($group_by_itm.' is not an atomic property');
+            $this->_db_query->group_by []= $col;
+        }
     }
 
     

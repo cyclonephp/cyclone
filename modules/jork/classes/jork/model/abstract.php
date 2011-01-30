@@ -94,6 +94,56 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     *
+     * @param string $key
+     * @param JORK_Model_Abstract $val
+     * @param array $comp_schema
+     */
+    protected function update_component_fks_reverse($key, $val, $comp_schema) {
+        $remote_schema = $val->schema()->components[$comp_schema['mapped_by']];
+        switch($remote_schema['type']) {
+            case JORK::ONE_TO_MANY:
+                $this->_atomics[$remote_schema['join_column']] = array_key_exists('inverse_join_column', $remote_schema)
+                    ? $val->_atomics[$remote_schema['inverse_join_column']]
+                    : $val->pk();
+                break;
+            case JORK::ONE_TO_ONE:
+                $val->_atomics[$remote_schema['join_column']] = array_key_exists('inverse_join_column', $remote_schema)
+                    ? $this->_atomics[$remote_schema['inverse_join_column']]
+                    : $this->pk();
+                break;
+        }
+    }
+
+    /**
+     * Updates the foreign keys when the value of a component changes.
+     *
+     * @param string $key the name of the component
+     * @param JORK_Model_Abstract $val
+     * @see JORK_Model_Abstract::__set()
+     */
+    protected function update_component_fks($key, $val) {
+        $schema = $this->schema();
+        $comp_schema = $schema->components[$key];
+        if (array_key_exists('mapped_by', $comp_schema)) {
+            $this->update_component_fks_reverse($key, $val, $comp_schema);
+            return;
+        }
+        switch ($comp_schema['type']) {
+            case JORK::MANY_TO_ONE:
+                $this->_atomics[$comp_schema['join_column']] = array_key_exists('inverse_join_column', $comp_schema)
+                    ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
+                    : $val->pk();
+                break;
+            case JORK::ONE_TO_ONE:
+                $this->_atomics[$comp_schema['join_column']] = array_key_exists('inverse_join_column', $comp_schema)
+                    ? $val->_atomics[$comp_schema['inverse_join_column']]
+                    : $val->pk();
+                break;
+        }
+    }
+
     public function  __get($key) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
@@ -112,13 +162,7 @@ abstract class JORK_Model_Abstract {
     public function __set($key, $val) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
-            if ( ! array_key_exists($key, $this->_atomics)) {
-                $this->_atomics[$key] = array(
-                    'value' => $val
-                );
-            } else {
-                $this->_atomics[$key]['value'] = $val;
-            }
+            $this->_atomics[$key] = $val;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
             if ( ! array_key_exists($key, $this->_components)) {
@@ -126,6 +170,7 @@ abstract class JORK_Model_Abstract {
                     'value' => $val,
                     'persistent' => FALSE
                 );
+                $this->update_component_fks($key, $val);
             } else {
                 $this->_components[$key]['value'] = $val;
                 $this->_components[$key]['persistent'] = FALSE;

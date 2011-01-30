@@ -73,5 +73,20 @@ class JORK_Mapper_Select_ImplRootTest extends Kohana_Unittest_TestCase {
         ));
     }
 
+    public function testProjection() {
+        $jork_query = JORK::select('author{id,name}')->from('Model_Post');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals($db_query->joins[0],
+            array(
+                'table' => array('t_users', 't_users_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_posts_0.user_fk', '=', 't_users_0.id')
+                )
+            )
+        );
+    }
+
 
 }
