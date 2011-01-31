@@ -129,31 +129,56 @@ abstract class JORK_Mapper_Select {
      * @throws JORK_Exception if the two operands are not the same class
      */
     protected function obj2condition(DB_Expression_Binary $expr) {
-        if (is_array($expr->left_operand) && $expr->operator == '='
-                && is_array($expr->right_operand)) {
-            //TODO resolving object equality check to primary key equality checks
+        $left_is_array = is_array($expr->left_operand);
+        $right_is_array = is_array($expr->right_operand);
+
+        $left_is_model = $expr->left_operand instanceof JORK_Model_Abstract;
+        $right_is_model = $expr->right_operand instanceof JORK_Model_Abstract;
+
+        if ( ! ($left_is_array || $left_is_model))
+            throw new JORK_Exception('left operator is neither a valid property chain nor a model object but '.  gettype($expr->left_operand));
+
+        if ( ! ($right_is_array || $right_is_model))
+            throw new JORK_Exception('right operator is neither a valid property chain nor a model object');
+
+        if ($expr->operator != '=')
+            throw new JORK_Exception('only equality comparision is possible between objects, operator \''
+                    . $expr->operator . '\' is forbidden');
+
+        //holy shit... it's coming -.-
+        if ($left_is_array) {
             list($left_mapper, $left_ent_schema, $left_last_prop)
                     = $expr->left_operand;
-            list($right_mapper, $right_ent_schema, $right_last_prop)
-                    = $expr->right_operand;
-            if ($left_ent_schema->components[$left_last_prop]['class']
-                    != $right_ent_schema->components[$right_last_prop]['class'])
-                throw new JORK_Exception("unable to check equality of class '"
-                        . $left_ent_schema->components[$left_last_prop]['class'] . "' with class '"
-                        . $right_ent_schema->components[$right_last_prop]['class'] . "'");
-            //holy shit... it's coming -.-
+//                if ($left_ent_schema->components[$left_last_prop]['class']
+//                    != $right_ent_schema->components[$right_last_prop]['class'])
+//                    throw new JORK_Exception("unable to check equality of class '"
+//                            . $left_ent_schema->components[$left_last_prop]['class'] . "' with class '"
+//                            . $right_ent_schema->components[$right_last_prop]['class'] . "'");
+            $left_class = $left_ent_schema->components[$left_last_prop]['class'];
+
             $left_prop_chain = array($left_last_prop
                 , JORK_Model_Abstract::schema_by_class($left_ent_schema->components[$left_last_prop]['class'])->primary_key());
             $left_mapper->merge_prop_chain($left_prop_chain);
             $expr->left_operand = $left_mapper->resolve_prop_chain($left_prop_chain);
+        } elseif ($left_is_model) {
+            $left_class = $expr->left_operand->schema()->class;
+            $expr->left_operand = $expr->left_operand->pk();
+        }
 
+        if ($right_is_array) {
+            list($right_mapper, $right_ent_schema, $right_last_prop)
+                    = $expr->right_operand;
+            $right_class = $right_ent_schema->components[$right_last_prop]['class'];
             $right_prop_chain = array($right_last_prop
                 , JORK_Model_Abstract::schema_by_class($right_ent_schema->components[$right_last_prop]['class'])->primary_key());
             $right_mapper->merge_prop_chain($right_prop_chain);
-            $expr->right_operand= $right_mapper->resolve_prop_chain($right_prop_chain);
-        } elseif (is_array($expr->left_operand) || is_array($expr->right_operand))
-        //only one operand was an array
-            throw new JORK_Exception();
+            $expr->right_operand = $right_mapper->resolve_prop_chain($right_prop_chain);
+        } elseif ($right_is_model) {
+            $right_class = $expr->right_operand->schema()->class;
+            $expr->right_operand = $expr->right_operand->pk();
+        }
+        if ($left_class != $right_class)
+            throw new JORK_Exception("unable to check equality of class '$left_class' with class '$right_class'");
     }
 
     /**

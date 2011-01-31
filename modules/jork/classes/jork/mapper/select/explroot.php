@@ -116,19 +116,23 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         if ($expr instanceof DB_Expression_Binary) {
             if ($expr->left_operand instanceof DB_Expression) {
                 $expr->left_operand = $this->resolve_db_expr($expr->left_operand);
-            } else {
+            } elseif (is_string($expr->left_operand)) {
                 $left_prop_chain = explode('.', $expr->left_operand);
                 $left_root_prop = array_shift($left_prop_chain);
                 $expr->left_operand = $this->_mappers[$left_root_prop]->resolve_prop_chain($left_prop_chain);
             }
+
+            
             if ($expr->right_operand instanceof DB_Expression) {
                 $expr->right_operand = $this->resolve_db_expr($expr->right_operand);
-            } else {
+            } elseif (is_string($expr->right_operand)) {
                 $right_prop_chain = explode('.', $expr->right_operand);
                 $right_root_prop = array_shift($right_prop_chain);
                 $expr->right_operand = $this->_mappers[$right_root_prop]->resolve_prop_chain($right_prop_chain);
             }
-            $this->obj2condition($expr);
+            if (is_array($expr->left_operand) || is_array($expr->right_operand)) {
+                $this->obj2condition($expr);
+            }
         } elseif ($expr instanceof DB_Expression_Unary) {
             $prop_chain = explode('.', $expr->operand);
             $root_prop = array_shift($prop_chain);
