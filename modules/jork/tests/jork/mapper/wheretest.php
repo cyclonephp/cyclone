@@ -149,6 +149,9 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
                )
            )
         ), $db_query->joins);
+        $this->assertEquals(array(
+            new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
+        ), $db_query->where_conditions);
     }
 
 
