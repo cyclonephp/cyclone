@@ -33,7 +33,7 @@ class Asset_Pool {
     protected function minify_assets($type) {
         $new_resources = array();
         $all_files = array(); //array containing the file names to be minified
-        $path = Config::inst()->get('core.asset_path').$type;
+        $path = 'assets'.DIRECTORY_SEPARATOR.$type;
         $max_latest_mod = 0; //latest file modification date for asset files to be minified
         foreach ($this->assets[$type] as $k => $minifiable) {
             $abs_path = Kohana::find_file($path, $k, $type);
@@ -48,7 +48,7 @@ class Asset_Pool {
             }
         }
         if ( ! empty($all_files)) {
-            $minified_file_rel_path = 'res'.DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.sha1(implode('', $all_files)).'.'.$type;
+            $minified_file_rel_path = Config::inst()->get('core.asset_path').$type.DIRECTORY_SEPARATOR.sha1(implode('', $all_files)).'.'.$type;
             $minified_file_abs_path = DOCROOT.$minified_file_rel_path;
             if ( ! file_exists($minified_file_abs_path)
                     || filemtime($minified_file_abs_path) < $max_latest_mod) {
