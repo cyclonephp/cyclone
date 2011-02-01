@@ -195,4 +195,22 @@ abstract class JORK_Model_Abstract {
             throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
 
+    public function insert() {
+        
+    }
+
+    public function update() {
+        
+    }
+
+    public function save() {
+        if ( ! $this->_persistent) {
+            if ($this->pk() === NULL) {
+                $this->insert();
+            } else {
+                $this->update();
+            }
+        }
+    }
+
 }

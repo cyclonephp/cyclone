@@ -62,4 +62,10 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $user->id = 5;
         $this->assertEquals(5, $user->pk());
     }
+
+    public function testSimpleSave() {
+        $user = new Model_User;
+        $user->name = 'foo bar';
+        $user->save();
+    }
 }
