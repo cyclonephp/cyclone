@@ -181,7 +181,8 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
 
     /**
-     * Adds an atomic property join to the db query
+     * Adds an atomic property join to the db query. Also joins the table of
+     * the db column if it's not joined yet.
      *
      * @param string $property
      * @return the full column name (with table alias)
@@ -321,13 +322,26 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         }
     }
 
+    /**
+     * If the last item of the property chain is an atomic property then the method
+     * returns the qualified name of the corresponding database column.
+     *
+     * Otherwise it returns the mapper object of the last property, the mapped entity schema
+     * and the last item of the property chain.
+     *
+     * @param array $prop_chain
+     * @return mixed
+     */
     public function resolve_prop_chain($prop_chain) {
         $root_prop = array_shift($prop_chain);
         if (empty($prop_chain)) { //we are there
             if ( ! array_key_exists($root_prop, $this->_entity_schema->columns)) {
-                if (array_key_exists($root_prop, $this->_entity_schema->components))
-                    throw new JORK_Exception('property "'.$root_prop.'" is not an atomic property of class'
-                            .'"'.$this->_entity_schema->class.'"');
+                if (array_key_exists($root_prop, $this->_entity_schema->components)) {
+                    // if the last property of the property chain is not an atomic
+                    // property, then we return the mapper ($this), the entity
+                    // schema of the mapper, and the final property
+                    return array($this, $this->_entity_schema, $root_prop);
+                }
                 throw new JORK_Exception('property "'.$root_prop.'" of class "'
                         .$this->_entity_schema->class.'" does not exist');
             }

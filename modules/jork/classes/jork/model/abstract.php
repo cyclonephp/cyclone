@@ -63,20 +63,26 @@ abstract class JORK_Model_Abstract {
     public function pk() {
         $pk = $this->schema()->primary_key();
         return array_key_exists($pk, $this->_atomics)
-                ? $this->_atomics[$pk]
+                ? $this->_atomics[$pk]['value']
                 : NULL;
     }
 
     public function init_component_collections(&$prop_names) {
         foreach (array_diff_key($prop_names, $this->_components) as $prop => $dummy) {
             if ( ! array_key_exists($prop, $this->_components)) {
-                $this->_components[$prop] = array('value' => new ArrayObject);
+                $this->_components[$prop] = array('value' =>
+                    JORK_Model_Collection::for_component($this, $prop));
             }
         }
     }
 
     public function populate_atomics($atomics) {
-        $this->_atomics = $atomics;
+        foreach ($atomics as $k => $v) {
+            $this->_atomics[$k] = array(
+                'value' => $v,
+                'persistent' => TRUE
+            );
+        }
     }
 
     public function set_components($components) {
@@ -90,7 +96,61 @@ abstract class JORK_Model_Abstract {
 
     public function add_to_component_collections($components) {
         foreach ($components as $prop_name => $new_comp) {
-            $this->_components[$prop_name]['value'][$new_comp->pk()]= $new_comp;
+            $this->_components[$prop_name]['value'][$new_comp->pk()] = $new_comp;
+        }
+    }
+
+    /**
+     *
+     * @param string $key
+     * @param JORK_Model_Abstract $val
+     * @param array $comp_schema
+     */
+    protected function update_component_fks_reverse($key, $val, $comp_schema) {
+        $remote_schema = $val->schema()->components[$comp_schema['mapped_by']];
+        switch($remote_schema['type']) {
+            case JORK::ONE_TO_MANY:
+                $this->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
+                    ? $val->_atomics[$remote_schema['inverse_join_column']]
+                    : $val->pk();
+                $this->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
+                break;
+            case JORK::ONE_TO_ONE:
+                $val->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
+                    ? $this->_atomics[$remote_schema['inverse_join_column']]
+                    : $this->pk();
+                $val->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
+                break;
+        }
+    }
+
+    /**
+     * Updates the foreign keys when the value of a component changes.
+     *
+     * @param string $key the name of the component
+     * @param JORK_Model_Abstract $val
+     * @see JORK_Model_Abstract::__set()
+     */
+    protected function update_component_fks($key, $val) {
+        $schema = $this->schema();
+        $comp_schema = $schema->components[$key];
+        if (array_key_exists('mapped_by', $comp_schema)) {
+            $this->update_component_fks_reverse($key, $val, $comp_schema);
+            return;
+        }
+        switch ($comp_schema['type']) {
+            case JORK::MANY_TO_ONE:
+                $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
+                    ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
+                    : $val->pk();
+                $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
+                break;
+            case JORK::ONE_TO_ONE:
+                $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
+                    ? $val->_atomics[$comp_schema['inverse_join_column']]
+                    : $val->pk();
+                $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
+                break;
         }
     }
 
@@ -98,13 +158,27 @@ abstract class JORK_Model_Abstract {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
             return array_key_exists($key, $this->_atomics)
-                    ? $this->_atomics[$key]
+                    ? $this->_atomics[$key]['value']
                     : NULL;
         }
         if (array_key_exists($key, $schema->components)) {
-            return array_key_exists($key, $this->_components)
-                    ? $this->_components[$key]['value']
-                    : NULL;
+            if (array_key_exists($key, $this->_components))
+                // return if the component value is already initialized
+                return $this->_components[$key]['value'];
+            if ($schema->is_to_many_component($key)) {
+                // it's a to-many relation and initialize an
+                // empty component collection
+                $this->_components[$key] = array(
+                    'value' => JORK_Model_Collection::for_component($this, $key)
+                );
+            } else {
+                $this->_components[$key] = array(
+                    'persistent' => TRUE, // default NULL must not be persisted
+                    'value' => NULL
+                );
+            }
+            return $this->_components[$key]['value'];
+                   
         }
         throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
@@ -112,13 +186,8 @@ abstract class JORK_Model_Abstract {
     public function __set($key, $val) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
-            if ( ! array_key_exists($key, $this->_atomics)) {
-                $this->_atomics[$key] = array(
-                    'value' => $val
-                );
-            } else {
-                $this->_atomics[$key]['value'] = $val;
-            }
+            $this->_atomics[$key]['value'] = $val;
+            $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
             if ( ! array_key_exists($key, $this->_components)) {
@@ -126,6 +195,7 @@ abstract class JORK_Model_Abstract {
                     'value' => $val,
                     'persistent' => FALSE
                 );
+                $this->update_component_fks($key, $val);
             } else {
                 $this->_components[$key]['value'] = $val;
                 $this->_components[$key]['persistent'] = FALSE;
@@ -133,6 +203,38 @@ abstract class JORK_Model_Abstract {
             $this->_persistent = FALSE;
         } else
             throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
+    }
+
+    public function insert() {
+        $schema = $this->schema();
+        $insert_sqls = JORK_Query_Cache::inst(get_class($this))->insert_sql();
+        $ins_tables = array();
+        foreach ($schema->columns as $col_name => $col_def) {
+            if (array_key_exists($col_name, $this->_atomics)) {
+                if ($this->_atomics[$col_name]['persistent'] == FALSE) {
+                    $ins_table = array_key_exists('table', $col_def)
+                            ? $col_def['table']
+                            : $schema->table;
+                    if ( ! in_array($ins_table, $ins_tables)) {
+                        $ins_tables []= $ins_table;
+                    }
+                }
+            }
+        }
+    }
+
+    public function update() {
+        
+    }
+
+    public function save() {
+        if ( ! $this->_persistent) {
+            if ($this->pk() === NULL) {
+                $this->insert();
+            } else {
+                $this->update();
+            }
+        }
     }
 
 }

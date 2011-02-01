@@ -29,8 +29,8 @@ class Model_Topic extends JORK_Model_Abstract {
                 )
             ),
             'posts' => array(
-				'class' => 'Model_Post',
-				'mapped_by' => 'topic'
+		'class' => 'Model_Post',
+		'mapped_by' => 'topic'
             ),
             'modinfo' => 'Model_ModInfo'
         );

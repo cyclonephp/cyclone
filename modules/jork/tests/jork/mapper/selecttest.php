@@ -3,96 +3,11 @@
 
 class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
-
-    public function testFrom() {
-        $jork_query = new JORK_Query_Select;
-        $jork_query->from('Model_User user', 'Model_Topic topic');
-        $mapper = new JORK_Mapper_Select($jork_query);
-        list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->tables, array(
-            array('t_users', 't_users_0'),
-            //array('user_contact_info', 'user_contact_info_0'),
-            array('t_topics', 't_topics_0')
-        ));
-    }
-
-    public function testFromImplRoot() {
-        $jork_query = new JORK_Query_Select;
-        $jork_query->from('Model_User');
-        $mapper = new JORK_Mapper_Select($jork_query);
-        list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->columns, array(
-            array('t_users_0.id', 't_users_0_id'), array('t_users_0.name', 't_users_0_name')
-            , array('t_users_0.password', 't_users_0_password')
-            , array('t_users_0.created_at', 't_users_0_created_at')
-            , array('user_contact_info_0.email', 'user_contact_info_0_email')
-            , array('user_contact_info_0.phone_num', 'user_contact_info_0_phone_num')
-        ));
-        $this->assertEquals($db_query->tables, array(
-            array('t_users', 't_users_0'),
-            //array('user_contact_info', 'user_contact_info_0')
-        ));
-    }
-
-    public function testSelectImplRoot() {
-        $jork_query = new JORK_Query_Select;
-        $jork_query->from('Model_Category');
-        $mapper = new JORK_Mapper_Select($jork_query);
-        list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->columns, array(
-            array('t_categories_0.id', 't_categories_0_id')
-            , array('t_categories_0.c_name', 't_categories_0_c_name')
-            , array('t_categories_0.moderator_fk', 't_categories_0_moderator_fk')
-            , array('t_categories_0.created_at', 't_categories_0_created_at')
-            , array('t_categories_0.creator_fk', 't_categories_0_creator_fk')
-            , array('t_categories_0.modified_at', 't_categories_0_modified_at')
-            , array('t_categories_0.modifier_fk', 't_categories_0_modifier_fk')
-        ));
-        $this->assertEquals($db_query->tables, array(
-            array('t_categories', 't_categories_0')
-        ));
-        $jork_query->select('id');
-        $mapper = new JORK_Mapper_Select($jork_query);
-        list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->columns, array(
-            array('t_categories_0.id', 't_categories_0_id')
-        ));
-    }
-
-    public function testSelectPropChain() {
-        $jork_query = new JORK_Query_Select;
-        $jork_query->select('topic')->from('Model_Post');
-        $mapper = new JORK_Mapper_Select($jork_query);
-        list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->columns, array(
-            array('t_topics_0.id', 't_topics_0_id')
-            , array('t_topics_0.name', 't_topics_0_name')
-            , array('t_topics_0.created_at', 't_topics_0_created_at')
-            , array('t_topics_0.creator_fk', 't_topics_0_creator_fk')
-            , array('t_topics_0.modified_at', 't_topics_0_modified_at')
-            , array('t_topics_0.modifier_fk', 't_topics_0_modifier_fk')
-            , array('t_posts_0.id', 't_posts_0_id')
-        ));
-        $this->assertEquals($db_query->tables, array(
-            array('t_posts', 't_posts_0')
-        ));
-        $this->assertEquals($db_query->joins, array(
-            array(
-                'table' => array('t_topics', 't_topics_0'),
-                'type' => 'LEFT',
-                'conditions' => array(
-                    new DB_Expression_Binary('t_posts_0.topic_fk', '=', 't_topics_0.id')
-                )
-            )
-        ));
-    }
-
     public function testSelectManyToOne() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('topic', 'topic.creator')->from('Model_Topic topic');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
-        //print_r($db_query->tables);
         $this->assertEquals($db_query->tables, array(
             array('t_topics', 't_topics_0')
         ));
@@ -119,7 +34,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('post', 'post.topic.creator')
                 ->from('Model_Post post');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
@@ -155,7 +70,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectManyToOneReverse() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('t', 't.posts')->from('Model_Topic t');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_topics', 't_topics_0')
@@ -173,7 +88,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectOneToMany() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('posts')->from('Model_User');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0')
@@ -192,7 +107,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testSelectOneToManyReverse() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('author')->from('Model_Post');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
@@ -219,7 +134,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testOneToOne() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('moderator')->from('Model_Category');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_categories', 't_categories_0')
@@ -245,7 +160,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
     public function testOneToOneReverse() {
         $jork_query = new JORK_Query_Select;
         $jork_query->select('moderated_category')->from('Model_User');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_users', 't_users_0')
@@ -261,30 +176,69 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
         ));
     }
 
-    public function testWhereImpl() {
-        $jork_query = JORK::from('Model_User')
-                ->where('posts.created_at', '>', DB::expr('2010-11-11'))
-                ->where('exists', 'name');
-        $mapper = new JORK_Mapper_Select($jork_query);
+    public function testManyToMany() {
+        $jork_query = JORK::from('Model_Topic')->with('categories');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->where_conditions, array(
-            new DB_Expression_Binary('t_posts_0.created_at', '>'
-                    , DB::expr('2010-11-11')),
-            new DB_Expression_Unary('exists', 't_users_0.name')
+        $this->assertEquals($db_query->tables, array(
+            array('t_topics', 't_topics_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('categories_topics', 'categories_topics_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_topics_0.id', '=', 'categories_topics_0.topic_fk')
+                )
+            ),
+            array(
+                'table' => array('t_categories', 't_categories_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('categories_topics_0.category_fk', '=', 't_categories_0.id')
+                )
+            )
         ));
     }
 
-    public function testWhere() {
-        $jork_query = JORK::from('Model_User user')
-                ->where('user.posts.created_at', '>', DB::expr('2010-11-11'))
-                ->where('exists', 'user.name');
-        $mapper = new JORK_Mapper_Select($jork_query);
+    public function testManyToManyReverse() {
+        $jork_query = JORK::from('Model_Category')->with('topics');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->where_conditions, array(
-            new DB_Expression_Binary('t_posts_0.created_at', '>', DB::expr('2010-11-11')),
-            new DB_Expression_Unary('exists', 't_users_0.name')
+        $this->assertEquals($db_query->tables, array(
+            array('t_categories', 't_categories_0')
+        ));
+        $this->assertEquals($db_query->joins, array(
+            array(
+                'table' => array('categories_topics', 'categories_topics_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('t_categories_0.id'
+                            , '=', 'categories_topics_0.category_fk')
+                )
+            ),
+            array(
+                'table' => array('t_topics', 't_topics_0'),
+                'type' => 'LEFT',
+                'conditions' => array(
+                    new DB_Expression_Binary('categories_topics_0.topic_fk'
+                            , '=', 't_topics_0.id')
+                )
+            )
         ));
     }
 
-    
+
+
+    public function testForQuery() {
+        $jork_query = JORK::from('Model_Post');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        $this->assertTrue($mapper instanceof JORK_Mapper_Select_ImplRoot);
+        
+        $jork_query = JORK::from('Model_Post post');
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        $this->assertTrue($mapper instanceof JORK_Mapper_Select_ExplRoot);
+
+    }
+
 }

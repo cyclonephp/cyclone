@@ -19,7 +19,7 @@ class JORK_Result_MapperTest extends Kohana_Unittest_TestCase {
     public function testImplRoot() {
         $jork_query = new JORK_Query_Select;
         $jork_query->from('Model_Topic');
-        $mapper = new JORK_Mapper_Select($jork_query);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, $mappers) = $mapper->map();
 
         $resultset = array(
