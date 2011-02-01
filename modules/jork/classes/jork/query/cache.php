@@ -16,6 +16,10 @@ class JORK_Query_Cache {
         return self::$_instances[$class];
     }
 
+    public static function clear_pool() {
+        self::$_instances = array();
+    }
+
     /**
      * The class name the query cache belongs to.
      *
@@ -94,4 +98,5 @@ class JORK_Query_Cache {
         }
         return $this->_update_sql;
     }
+
 }

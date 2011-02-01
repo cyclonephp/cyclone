@@ -3,6 +3,10 @@
 
 class JORK_Query_CacheTest extends Kohana_Unittest_TestCase {
 
+    public function  setUp() {
+        JORK_Query_Cache::clear_pool();
+    }
+
     public function testInst() {
         $inst = JORK_Query_Cache::inst('Model_User');
         $this->assertInstanceOf('JORK_Query_Cache', $inst);
