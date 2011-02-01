@@ -63,7 +63,7 @@ abstract class JORK_Model_Abstract {
     public function pk() {
         $pk = $this->schema()->primary_key();
         return array_key_exists($pk, $this->_atomics)
-                ? $this->_atomics[$pk]
+                ? $this->_atomics[$pk]['value']
                 : NULL;
     }
 
@@ -77,7 +77,12 @@ abstract class JORK_Model_Abstract {
     }
 
     public function populate_atomics($atomics) {
-        $this->_atomics = $atomics;
+        foreach ($atomics as $k => $v) {
+            $this->_atomics[$k] = array(
+                'value' => $v,
+                'persistent' => TRUE
+            );
+        }
     }
 
     public function set_components($components) {
@@ -105,14 +110,16 @@ abstract class JORK_Model_Abstract {
         $remote_schema = $val->schema()->components[$comp_schema['mapped_by']];
         switch($remote_schema['type']) {
             case JORK::ONE_TO_MANY:
-                $this->_atomics[$remote_schema['join_column']] = array_key_exists('inverse_join_column', $remote_schema)
+                $this->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
                     ? $val->_atomics[$remote_schema['inverse_join_column']]
                     : $val->pk();
+                $this->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
                 break;
             case JORK::ONE_TO_ONE:
-                $val->_atomics[$remote_schema['join_column']] = array_key_exists('inverse_join_column', $remote_schema)
+                $val->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
                     ? $this->_atomics[$remote_schema['inverse_join_column']]
                     : $this->pk();
+                $val->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
                 break;
         }
     }
@@ -133,14 +140,16 @@ abstract class JORK_Model_Abstract {
         }
         switch ($comp_schema['type']) {
             case JORK::MANY_TO_ONE:
-                $this->_atomics[$comp_schema['join_column']] = array_key_exists('inverse_join_column', $comp_schema)
+                $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
                     ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
                     : $val->pk();
+                $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
                 break;
             case JORK::ONE_TO_ONE:
-                $this->_atomics[$comp_schema['join_column']] = array_key_exists('inverse_join_column', $comp_schema)
+                $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
                     ? $val->_atomics[$comp_schema['inverse_join_column']]
                     : $val->pk();
+                $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
                 break;
         }
     }
@@ -149,7 +158,7 @@ abstract class JORK_Model_Abstract {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
             return array_key_exists($key, $this->_atomics)
-                    ? $this->_atomics[$key]
+                    ? $this->_atomics[$key]['value']
                     : NULL;
         }
         if (array_key_exists($key, $schema->components)) {
@@ -177,7 +186,8 @@ abstract class JORK_Model_Abstract {
     public function __set($key, $val) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->columns)) {
-            $this->_atomics[$key] = $val;
+            $this->_atomics[$key]['value'] = $val;
+            $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
             if ( ! array_key_exists($key, $this->_components)) {
@@ -196,7 +206,21 @@ abstract class JORK_Model_Abstract {
     }
 
     public function insert() {
-        
+        $schema = $this->schema();
+        $insert_sqls = JORK_Query_Cache::inst(get_class($this))->insert_sql();
+        $ins_tables = array();
+        foreach ($schema->columns as $col_name => $col_def) {
+            if (array_key_exists($col_name, $this->_atomics)) {
+                if ($this->_atomics[$col_name]['persistent'] == FALSE) {
+                    $ins_table = array_key_exists('table', $col_def)
+                            ? $col_def['table']
+                            : $schema->table;
+                    if ( ! in_array($ins_table, $ins_tables)) {
+                        $ins_tables []= $ins_table;
+                    }
+                }
+            }
+        }
     }
 
     public function update() {
