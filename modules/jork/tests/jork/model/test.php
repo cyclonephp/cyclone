@@ -67,11 +67,17 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $user = new Model_User;
         $user->name = 'foo bar';
         $user->save();
-        $result = JORK::from('Model_User')->where('id', '=', DB::expr(5))
+        $result = JORK::from('Model_User')->where('id', '=', DB::esc(5))
                 ->exec('jork_test');
         foreach ($result as $user) {
             $this->assertEquals(5, $user->id);
             $this->assertEquals('foo bar', $user->name);
         }
+    }
+
+    public function testFKUpdateOnSave() {
+        $user = new Model_User;
+        $post = Model_Post;
+        $user->posts->append($post);
     }
 }
