@@ -3,6 +3,19 @@
 
 class JORK_Model_Test extends Kohana_Unittest_TestCase {
 
+    public function  setUp() {
+        $sql = file_get_contents(MODPATH.'jork/tests/testdata.sql');
+        try {
+            DB::inst('jork_test')->connect();
+            DB::inst('jork_test')->exec_custom($sql);
+            DB::inst('jork_test')->disconnect();
+            DB::inst('jork_test')->connect();
+            DB::select()->from('t_posts')->exec('jork_test');
+        } catch (DB_Exception $ex) {
+            $this->markTestSkipped('failed to establish database connection jork_test');
+        }
+    }
+
     public function testInst() {
         Model_User::inst();
     }
@@ -67,5 +80,33 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $user = new Model_User;
         $user->name = 'foo bar';
         $user->save();
+        $result = JORK::from('Model_User')->where('id', '=', DB::esc(5))
+                ->exec('jork_test');
+        foreach ($result as $user) {
+            $this->assertEquals(5, $user->id);
+            $this->assertEquals('foo bar', $user->name);
+        }
+    }
+
+    public function testFKOneToManyUpdateOnSave() {
+        $user = new Model_User;
+        $post = new Model_Post;
+        $user->posts->append($post);
+        $user->name = 'foo bar';
+        $user->save();
+        $this->assertEquals(5, $user->id);
+        $this->assertEquals(5, $post->user_fk);
+    }
+
+    public function testFKManyToOneReverseUpdateOnSave() {
+        $topic = new Model_Topic;
+        $topic->name = 'foo bar';
+        $post = new Model_Post;
+        $topic->posts->append($post);
+        
+        $topic->save();
+        $this->assertEquals(5, $topic->id);
+        $this->assertEquals(5, $post->topic_fk);
+
     }
 }

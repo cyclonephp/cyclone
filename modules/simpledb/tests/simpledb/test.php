@@ -3,7 +3,6 @@
 
 class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
-
     public function testInstance() {
         $inst = DB::inst();
         $this->assertTrue($inst instanceof DB_Adapter_Mysqli);
@@ -226,13 +225,17 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
     }
 
     public function setUp() {
-        DB::query('truncate user')->exec();
-        $names = array('user1', 'user2');
-        $insert = DB::insert('user');
-        foreach ($names as $name) {
-            $insert->values(array('name' => $name));
+        try {
+            DB::query('truncate user')->exec();
+            $names = array('user1', 'user2');
+            $insert = DB::insert('user');
+            foreach ($names as $name) {
+                $insert->values(array('name' => $name));
+            }
+            $insert->exec();
+        } catch (Exception $ex) {
+            $this->markTestSkipped('skipping simpledb tests');
         }
-        $insert->exec();
     }
 
     public function tearDown() {

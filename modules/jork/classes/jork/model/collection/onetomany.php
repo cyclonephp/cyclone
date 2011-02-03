@@ -24,4 +24,18 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
         $this->_deleted[$pk]['value']->{$this->_join_column} = NULL;
         unset($this->_storage[$pk]);
     }
+
+    public function  notify_owner_insertion($owner_pk) {
+        if (array_key_exists('inverse_join_column', $this->_comp_schema)
+                && ($this->_owner->schema()->primary_key()
+                != $this->_comp_schema['inverse_join_column'])) {
+            //we are not joining on the primary key of the owner
+            return;
+                }
+        $itm_join_col = $this->_join_column;
+        foreach ($this->_storage as $item) {
+            $item['persistent'] = FALSE;
+            $item['value']->$itm_join_col = $owner_pk;
+        }
+    }
 }

@@ -96,6 +96,15 @@ abstract class JORK_Model_Collection extends ArrayObject {
         $this->_comp_schema = $comp_schema;
     }
 
+    /**
+     * Called when the parent component is inserted and it's primary key has
+     * been generated.
+     *
+     * @param mixed $owner_pk the new primary key of the owner of the collection.
+     * @see JORK_Model_Abstract::insert();
+     */
+    public abstract function notify_owner_insertion($owner_pk);
+
     public function  append($value) {
         $this->_do_append($value);
     }
