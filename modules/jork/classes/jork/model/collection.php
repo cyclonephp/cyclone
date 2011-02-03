@@ -103,7 +103,7 @@ abstract class JORK_Model_Collection extends ArrayObject {
      * @param mixed $owner_pk the new primary key of the owner of the collection.
      * @see JORK_Model_Abstract::insert();
      */
-    public abstract function notify_owner_pk_generation($owner_pk);
+    public abstract function notify_owner_insertion($owner_pk);
 
     public function  append($value) {
         $this->_do_append($value);

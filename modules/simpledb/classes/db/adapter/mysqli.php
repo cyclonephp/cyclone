@@ -138,7 +138,8 @@ class DB_Adapter_Mysqli extends DB_Adapter {
 
     public function  commit() {
         if ( ! $this->mysqli->commit())
-            throw new DB_Exception('failed to commit transaction');
+            throw new DB_Exception('failed to commit transaction: '
+                    .$this->mysqli->error);
     }
 
     public function rollback() {

@@ -56,6 +56,8 @@ create table if not exists categories_topics(
     primary key (topic_fk, category_fk)
 );
 
+start transaction;
+
 truncate table t_posts;
 
 truncate table t_topics;
@@ -67,6 +69,7 @@ truncate table t_users;
 truncate table user_contact_info;
 
 truncate table categories_topics;
+
 
 /**/
 insert into t_users values
@@ -102,3 +105,5 @@ insert into categories_topics (topic_fk, category_fk) values
 , (1, 2)
 , (1, 3)
 , (2, 2);
+
+ commit;

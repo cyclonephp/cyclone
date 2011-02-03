@@ -28,7 +28,7 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
         unset($this->_storage[$pk]);
     }
 
-    public function  notify_owner_pk_generation($owner_pk) {
+    public function  notify_owner_insertion($owner_pk) {
         if (array_key_exists('inverse_join_column', $this->_comp_schema)
                 && ($this->_owner->schema()->primary_key()
                 != $this->_comp_schema['inverse_join_column'])) {

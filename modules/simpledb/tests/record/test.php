@@ -6,12 +6,17 @@ class Record_Test extends Kohana_Unittest_TestCase {
     private $names = array(1 => 'user1', 2 => 'user2');
 
     public function setUp() {
-        DB::query('truncate user')->exec();
-        $insert = DB::insert('user');
-        foreach ($this->names as $id => $name) {
-            $insert->values(array('id' => $id, 'name' => $name));
+        try {
+            DB::query('truncate user')->exec();
+            $names = array('user1', 'user2');
+            $insert = DB::insert('user');
+            foreach ($names as $name) {
+                $insert->values(array('name' => $name));
+            }
+            $insert->exec();
+        } catch (Exception $ex) {
+            $this->markTestSkipped('skipping simpledb tests');
         }
-        $insert->exec();
     }
 
     public function tearDown() {

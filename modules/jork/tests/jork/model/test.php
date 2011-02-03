@@ -3,6 +3,19 @@
 
 class JORK_Model_Test extends Kohana_Unittest_TestCase {
 
+    public function  setUp() {
+        $sql = file_get_contents(MODPATH.'jork/tests/testdata.sql');
+        try {
+            DB::inst('jork_test')->connect();
+            DB::inst('jork_test')->exec_custom($sql);
+            DB::inst('jork_test')->disconnect();
+            DB::inst('jork_test')->connect();
+            DB::select()->from('t_posts')->exec('jork_test');
+        } catch (DB_Exception $ex) {
+            $this->markTestSkipped('failed to establish database connection jork_test');
+        }
+    }
+
     public function testInst() {
         Model_User::inst();
     }
@@ -81,8 +94,8 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $user->posts->append($post);
         $user->name = 'foo bar';
         $user->save();
-        $this->assertEquals(6, $user->id);
-        $this->assertEquals(6, $post->user_fk);
+        $this->assertEquals(5, $user->id);
+        $this->assertEquals(5, $post->user_fk);
     }
 
     public function testFKManyToOneReverseUpdateOnSave() {

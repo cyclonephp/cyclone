@@ -255,7 +255,7 @@ abstract class JORK_Model_Abstract {
                     $this->_atomics[$schema->primary_key()]['value'] = $tmp_id;
                     foreach ($this->_components as $name => $comp) {
                         if ($comp['value'] instanceof JORK_Model_Collection) {
-                            $comp['value']->notify_owner_pk_generation($tmp_id);
+                            $comp['value']->notify_owner_insertion($tmp_id);
                         }
                     }
                 }
