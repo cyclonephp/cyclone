@@ -128,7 +128,15 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function exec_custom($sql) {
-        return $this->mysqli->multi_query($sql);
+        $result = $this->mysqli->multi_query($sql);
+        if ( ! $result)
+            throw new DB_Exception ('failed to execute query: '.$this->mysqli->error
+                    , $this->mysqli->errno);
+        $rval = array();
+        do {
+            $rval []= $this->mysqli->store_result();
+        } while ($this->mysqli->more_results() && $this->mysqli->next_result());
+        return $rval;
     }
 
     public function  autocommit($autocommit) {

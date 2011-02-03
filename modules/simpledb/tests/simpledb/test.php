@@ -155,7 +155,6 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
             
         }
 
-        DB::inst()->exec_custom('create table tmp2(x int)');
         DB::inst()->exec_custom('select 2');
 
         DB::inst()->exec_custom('drop table if exists t_posts; create table t_posts(id int);');
@@ -165,7 +164,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testExecCustom() {
-        DB::inst()->exec_custom('create table tmp (id int)');
+        DB::inst()->exec_custom('create table if not exists tmp (id int)');
     }
 
     public function testAsArray() {
