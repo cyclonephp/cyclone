@@ -69,10 +69,12 @@ class JORK_Query_Cache {
             $primary_tbl_ins = new DB_Query_Insert;
             $primary_tbl_ins->table = $this->_schema->table;
             $this->_insert_sql = array($this->_schema->table => $primary_tbl_ins);
-            foreach ($this->_schema->secondary_tables as $sec_table => $join_metadata) {
-                $ins_sql = new DB_Query_Insert();
-                $ins_sql->table = $sec_table;
-                $this->_insert_sql [$sec_table]= $ins_sql;
+            if ($this->_schema->secondary_tables != NULL) {
+                foreach ($this->_schema->secondary_tables as $sec_table => $join_metadata) {
+                    $ins_sql = new DB_Query_Insert();
+                    $ins_sql->table = $sec_table;
+                    $this->_insert_sql [$sec_table] = $ins_sql;
+                }
             }
         }
         return $this->_insert_sql;

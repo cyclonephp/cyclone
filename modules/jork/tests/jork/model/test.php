@@ -75,9 +75,25 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         }
     }
 
-    public function testFKUpdateOnSave() {
+    public function testFKOneToManyUpdateOnSave() {
         $user = new Model_User;
-        $post = Model_Post;
+        $post = new Model_Post;
         $user->posts->append($post);
+        $user->name = 'foo bar';
+        $user->save();
+        $this->assertEquals(6, $user->id);
+        $this->assertEquals(6, $post->user_fk);
+    }
+
+    public function testFKManyToOneReverseUpdateOnSave() {
+        $topic = new Model_Topic;
+        $topic->name = 'foo bar';
+        $post = new Model_Post;
+        $topic->posts->append($post);
+        
+        $topic->save();
+        $this->assertEquals(5, $topic->id);
+        $this->assertEquals(5, $post->topic_fk);
+
     }
 }

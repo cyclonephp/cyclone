@@ -230,6 +230,10 @@ abstract class JORK_Model_Abstract {
                             ? $col_def['db_column']
                             : $col_name;
                     $values[$ins_table][$col] = $this->_atomics[$col_name]['value'];
+
+                    // In fact the value is not yet persistent, but we assume
+                    // that no problem will happen until the insertions
+                    $this->_atomics[$col_name]['persistent'] = TRUE;
                 }
             } elseif (array_key_exists('primary', $col_def)) {
                 // The primary key does not exist in the record
@@ -248,10 +252,17 @@ abstract class JORK_Model_Abstract {
                 $insert_sqls[$tbl_name]->values = array($ins_values);
                 $tmp_id = $insert_sqls[$tbl_name]->exec('jork_test');
                 if ($prim_table == $tbl_name) {
-                    $this->_atomics[$schema->primary_key()] = $tmp_id;
+                    $this->_atomics[$schema->primary_key()]['value'] = $tmp_id;
+                    foreach ($this->_components as $name => $comp) {
+                        if ($comp['value'] instanceof JORK_Model_Collection) {
+                            $comp['value']->notify_owner_pk_generation($tmp_id);
+                        }
+                    }
                 }
             }
         }
+        // The insert process finished, the entity is now persistent
+        $this->_persistent = TRUE;
     }
 
     public function update() {
