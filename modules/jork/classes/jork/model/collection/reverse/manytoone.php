@@ -40,6 +40,11 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
             $item['persistent'] = FALSE;
             $item['value']->$itm_join_col = $owner_pk;
         }
+        $this->save();
+    }
+
+    public function save() {
+        
     }
     
 }

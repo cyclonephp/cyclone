@@ -16,7 +16,11 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
     }
 
     public function  notify_owner_insertion($owner_pk) {
-        // nothing to do here
+        $this->save();
+    }
+
+    public function save() {
+        
     }
    
     

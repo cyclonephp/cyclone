@@ -23,7 +23,11 @@ class JORK_Model_Collection_Reverse_ManyToMany extends JORK_Model_Collection {
     }
 
     public function notify_owner_insertion($owner_pk) {
-        
+        $this->save();
+    }
+
+    public function save() {
+
     }
     
 }

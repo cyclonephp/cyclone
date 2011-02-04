@@ -58,6 +58,15 @@ abstract class JORK_Model_Abstract {
     protected $_persistent = FALSE;
 
     /**
+     * Indicates if the saving process of the entity has already been started
+     * or not. It's used to prevent infinite recursion in the case of saving
+     * bidirectional relationships.
+     *
+     * @var boolean
+     */
+    protected $_save_in_progress = FALSE;
+
+    /**
      * @return mixed the primary key of the entity
      */
     public function pk() {
@@ -270,12 +279,16 @@ abstract class JORK_Model_Abstract {
     }
 
     public function save() {
-        if ( ! $this->_persistent) {
-            if ($this->pk() === NULL) {
-                $this->insert();
-            } else {
-                $this->update();
+        if (!$this->_save_in_progress) {
+            $this->_save_in_progress = TRUE;
+            if (!$this->_persistent) {
+                if ($this->pk() === NULL) {
+                    $this->insert();
+                } else {
+                    $this->update();
+                }
             }
+            $this->_save_in_progress = FALSE;
         }
     }
 

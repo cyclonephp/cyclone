@@ -20,8 +20,8 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
     }
 
     public function  delete_by_pk($pk) {
-        $this->_deleted[$pk] = $this->_storage[$pk];
-        $this->_deleted[$pk]['value']->{$this->_join_column} = NULL;
+        $this->_deleted[$pk] = $this->_storage[$pk]['value'];
+        $this->_deleted[$pk]->{$this->_join_column} = NULL;
         unset($this->_storage[$pk]);
     }
 
@@ -36,6 +36,22 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
         foreach ($this->_storage as $item) {
             $item['persistent'] = FALSE;
             $item['value']->$itm_join_col = $owner_pk;
+        }
+        $this->save();
+    }
+
+    public function save() {
+        foreach ($this->_deleted as $del_itm) {
+            // join column has already been set to NULL
+            // in delete_by_pk()
+            $del_itm->save();
+        }
+        $this->_deleted = array();
+        foreach ($this->_storage as $itm) {
+            if (FALSE == $itm['persistent']) {
+                $itm['value']->save();
+                $itm['persistent'] = TRUE;
+            }
         }
     }
 }
