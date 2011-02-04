@@ -245,12 +245,12 @@ abstract class JORK_Model_Abstract {
         if (NULL === $prim_table) {
             foreach ($values as $tbl_name => $ins_values) {
                 $insert_sqls[$tbl_name]->values = array($ins_values);
-                $insert_sqls[$tbl_name]->exec('jork_test');
+                $insert_sqls[$tbl_name]->exec($schema->db_conn);
             }
         } else {
             foreach ($values as $tbl_name => $ins_values) {
                 $insert_sqls[$tbl_name]->values = array($ins_values);
-                $tmp_id = $insert_sqls[$tbl_name]->exec('jork_test');
+                $tmp_id = $insert_sqls[$tbl_name]->exec($schema->db_conn);
                 if ($prim_table == $tbl_name) {
                     $this->_atomics[$schema->primary_key()]['value'] = $tmp_id;
                     foreach ($this->_components as $name => $comp) {

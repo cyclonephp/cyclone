@@ -5,6 +5,7 @@ class Model_User extends JORK_Model_Abstract {
 
 
     protected function setup() {
+        $this->_schema->db_conn = 'jork_test';
         $this->_schema->table = 't_users';
         $this->_schema->secondary_tables = array(
             'user_contact_info' => array(

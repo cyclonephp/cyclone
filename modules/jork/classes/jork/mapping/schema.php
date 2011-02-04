@@ -3,6 +3,8 @@
 
 class JORK_Mapping_Schema {
 
+    public $db_conn = 'default';
+
     public $class;
 
     public $table;

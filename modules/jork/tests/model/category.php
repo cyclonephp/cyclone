@@ -5,6 +5,7 @@ class Model_Category extends JORK_Model_Abstract {
 
 
     public function setup() {
+        $this->_schema->db_conn = 'jork_test';
         $this->_schema->table = 't_categories';
         $this->_schema->columns = array(
             'id' => array(
