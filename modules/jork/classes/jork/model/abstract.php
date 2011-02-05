@@ -58,6 +58,13 @@ abstract class JORK_Model_Abstract {
     protected $_persistent = FALSE;
 
     /**
+     * A set of listeners to be notified when the primary key of the model changes.
+     *
+     * @var array<JORK_Model_Collection>
+     */
+    protected $_pk_change_listeners = array();
+
+    /**
      * Indicates if the saving process of the entity has already been started
      * or not. It's used to prevent infinite recursion in the case of saving
      * bidirectional relationships.
@@ -74,6 +81,10 @@ abstract class JORK_Model_Abstract {
         return array_key_exists($pk, $this->_atomics)
                 ? $this->_atomics[$pk]['value']
                 : NULL;
+    }
+
+    public function add_pk_change_listener($listener) {
+        $this->_pk_change_listeners []= $listener;
     }
 
     public function init_component_collections(&$prop_names) {
@@ -262,10 +273,8 @@ abstract class JORK_Model_Abstract {
                 $tmp_id = $insert_sqls[$tbl_name]->exec($schema->db_conn);
                 if ($prim_table == $tbl_name) {
                     $this->_atomics[$schema->primary_key()]['value'] = $tmp_id;
-                    foreach ($this->_components as $name => $comp) {
-                        if ($comp['value'] instanceof JORK_Model_Collection) {
-                            $comp['value']->notify_owner_insertion($tmp_id);
-                        }
+                    foreach ($this->_pk_change_listeners as $listener) {
+                        $listener->notify_pk_creation($this);
                     }
                 }
             }

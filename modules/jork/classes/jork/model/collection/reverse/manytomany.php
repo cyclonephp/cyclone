@@ -10,19 +10,12 @@ class JORK_Model_Collection_Reverse_ManyToMany extends JORK_Model_Collection {
         $this->_inverse_join_column = $owner->schema()->primary_key();
     }
 
-    protected function  _do_append($value) {
-        $this->_storage[$value->pk()] = array(
-            'persistent' => FALSE,
-            'value' => $value
-        );
-    }
-
     public function delete_by_pk($pk) {
         $this->_deleted[$pk] = $this->_storage[$pk];
         unset($this->_storage[$pk]);
     }
 
-    public function notify_owner_insertion($owner_pk) {
+    public function notify_pk_creation($owner_pk) {
         $this->save();
     }
 

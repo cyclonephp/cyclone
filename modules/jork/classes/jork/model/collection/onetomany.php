@@ -11,11 +11,8 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
                 : $owner->schema()->primary_key();
     }
 
-    protected function  _do_append($value) {
-        $this->_storage[$value->pk()] = array(
-            'persistent' => FALSE,
-            'value' => $value
-        );
+    public function  append($value) {
+        parent::append($value);
         $value->{$this->_join_column} = $this->_owner->{$this->_inverse_join_column};
     }
 
@@ -25,19 +22,27 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
         unset($this->_storage[$pk]);
     }
 
-    public function  notify_owner_insertion($owner_pk) {
-        if (array_key_exists('inverse_join_column', $this->_comp_schema)
-                && ($this->_owner->schema()->primary_key()
-                != $this->_comp_schema['inverse_join_column'])) {
-            //we are not joining on the primary key of the owner
+    public function  notify_pk_creation($entity) {
+        if ($entity == $this->_owner) {
+            if (array_key_exists('inverse_join_column', $this->_comp_schema)
+                    && ($this->_owner->schema()->primary_key()
+                    != $this->_comp_schema['inverse_join_column'])) {
+                //we are not joining on the primary key of the owner
+                return;
+            }
+            $itm_join_col = $this->_join_column;
+            $owner_pk = $entity->pk();
+            foreach ($this->_storage as $item) {
+                $item['persistent'] = FALSE;
+                $item['value']->$itm_join_col = $owner_pk;
+            }
+            $this->save();
             return;
-                }
-        $itm_join_col = $this->_join_column;
-        foreach ($this->_storage as $item) {
-            $item['persistent'] = FALSE;
-            $item['value']->$itm_join_col = $owner_pk;
         }
-        $this->save();
+
+        // $entity is a collection item in $this->_storage
+        // it's key must be updated
+        $this->update_stor_pk($entity);
     }
 
     public function save() {
