@@ -64,7 +64,7 @@ class JORK_Naming_Service {
                 $this->_entity_aliases[$name] = JORK_Model_Abstract::schema_by_class($name);
                 return;
             } else {
-                foreach ($this->_implicit_root_schema->columns as $col_name => $col_def) {
+                foreach ($this->_implicit_root_schema->atomics as $col_name => $col_def) {
                     if ($name == $col_name) {
                         $this->_entity_aliases[$name] = $col_def;
                         return;
@@ -100,7 +100,7 @@ class JORK_Naming_Service {
                         $found = TRUE; break;
                     }
                 }
-                foreach ($current_schema->columns as $col_name => $col_def) {
+                foreach ($current_schema->atomics as $col_name => $col_def) {
                     if ($col_name == $seg) {
                         $this->_entity_aliases[implode('.', $walked_segments)] = $col_def;
                         //the schema in the next iteration will be NULL if column

@@ -51,7 +51,7 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
 
         $remote_comp_def = $remote_schema->components[$local_schema['mapped_by']];
 
-        $remote_join_col_def = $remote_schema->columns[$remote_comp_def['join_column']];
+        $remote_join_col_def = $remote_schema->atomics[$remote_comp_def['join_column']];
 
         $remote_join_table = array_key_exists('table', $remote_join_col_def)
                 ? $remote_join_col_def['table']

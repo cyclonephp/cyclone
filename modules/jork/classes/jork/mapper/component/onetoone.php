@@ -38,7 +38,7 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
         $parent_join_col = array_key_exists('inverse_join_column', $comp_schema)
                 ? $comp_schema['inverse_join_column']
                 : $this->_entity_schema->primary_key();
-        $parent_join_col_schema = $remote_schema->columns[$parent_join_col];
+        $parent_join_col_schema = $remote_schema->atomics[$parent_join_col];
         $parent_table = array_key_exists('table', $parent_join_col_schema)
                 ? $parent_join_col_schema['table']
                 : $this->_parent_mapper->_entity_schema->table;
@@ -46,7 +46,7 @@ class JORK_Mapper_Component_OneToOne extends JORK_Mapper_Component {
 
         $local_join_col = $comp_schema['join_column'];
 
-        $local_join_col_schema = $this->_entity_schema->columns[$local_join_col];
+        $local_join_col_schema = $this->_entity_schema->atomics[$local_join_col];
         $local_table = array_key_exists('table', $local_join_col_schema)
                 ? $local_join_col['table']
                 : $this->_entity_schema->table;

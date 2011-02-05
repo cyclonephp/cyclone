@@ -16,14 +16,14 @@ class JORK_Mapping_Schema {
     public $components;
 
     public function primary_key() {
-        foreach ($this->columns as $name => $def) {
+        foreach ($this->atomics as $name => $def) {
             if (array_key_exists('primary', $def))
                 return $name;
         }
     }
 
     public function get_property_schema($name) {
-        foreach ($this->columns as $k => $v) {
+        foreach ($this->atomics as $k => $v) {
             if ($k == $name)
                 return $v;
         }
@@ -35,8 +35,8 @@ class JORK_Mapping_Schema {
     }
 
     public function table_name_for_column($col_name) {
-        return array_key_exists('table', $this->columns[$col_name])
-                ? $this->columns[$col_name]
+        return array_key_exists('table', $this->atomics[$col_name])
+                ? $this->atomics[$col_name]
                 : $this->table;
     }
 

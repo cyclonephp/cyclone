@@ -201,8 +201,8 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         }
         $tbl_alias = $this->_table_aliases[$tbl_name];
         
-        $col_name = array_key_exists('db_column', $prop_schema) 
-                ? $prop_schema['db_column']
+        $col_name = array_key_exists('column', $prop_schema)
+                ? $prop_schema['column']
                 : $prop_name;
 
         $full_column = $tbl_alias.'.'.$col_name;
@@ -311,7 +311,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         //The primary key column should _always_ be selected
         if (NULL === $this->_result_primary_key_column) {
             $pk = $this->_entity_schema->primary_key();
-            $this->add_atomic_property($pk, $this->_entity_schema->columns[$pk]);
+            $this->add_atomic_property($pk, $this->_entity_schema->atomics[$pk]);
         }
     }
 
@@ -320,7 +320,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
      * Called if the select list is empty.
      */
     public function select_all_atomics() {
-        foreach ($this->_entity_schema->columns as $prop_name => $prop_schema) {
+        foreach ($this->_entity_schema->atomics as $prop_name => $prop_schema) {
             $this->add_atomic_property($prop_name, $prop_schema);
         }
     }
@@ -338,7 +338,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     public function resolve_prop_chain($prop_chain) {
         $root_prop = array_shift($prop_chain);
         if (empty($prop_chain)) { //we are there
-            if ( ! array_key_exists($root_prop, $this->_entity_schema->columns)) {
+            if ( ! array_key_exists($root_prop, $this->_entity_schema->atomics)) {
                 if (array_key_exists($root_prop, $this->_entity_schema->components)) {
                     // if the last property of the property chain is not an atomic
                     // property, then we return the mapper ($this), the entity
@@ -348,7 +348,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                 throw new JORK_Exception('property "'.$root_prop.'" of class "'
                         .$this->_entity_schema->class.'" does not exist');
             }
-            $col_schema = $this->_entity_schema->columns[$root_prop];
+            $col_schema = $this->_entity_schema->atomics[$root_prop];
             $table = array_key_exists('table', $col_schema)
                     ? $col_schema['table']
                     : $this->_entity_schema->table;

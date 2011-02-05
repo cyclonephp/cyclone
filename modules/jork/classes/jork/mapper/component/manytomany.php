@@ -7,14 +7,14 @@ class JORK_Mapper_Component_ManyToMany extends JORK_Mapper_Component {
         $remote_schema = JORK_Model_Abstract::schema_by_class($comp_schema['class']);
 
         $local_join_col = $this->_parent_mapper->_entity_schema->primary_key();
-        $local_join_col_schema = $this->_parent_mapper->_entity_schema->columns[$local_join_col];
+        $local_join_col_schema = $this->_parent_mapper->_entity_schema->atomics[$local_join_col];
         $local_table = array_key_exists('table', $local_join_col_schema)
                 ? $local_join_col_schema['table']
                 : $this->_parent_mapper->_entity_schema->table;
         $this->_parent_mapper->add_table($local_table);
         $local_table_alias = $this->_parent_mapper->table_alias($local_table);
-        $local_join_col_name = array_key_exists('db_column', $local_join_col_schema)
-                ? $local_join_col_schema['db_column']
+        $local_join_col_name = array_key_exists('column', $local_join_col_schema)
+                ? $local_join_col_schema['column']
                 : $local_join_col;
         
         $mid_local_join_col = $comp_schema['join_table']['join_column'];
@@ -25,13 +25,13 @@ class JORK_Mapper_Component_ManyToMany extends JORK_Mapper_Component {
         $mid_remote_join_col = $comp_schema['join_table']['inverse_join_column'];
 
         $remote_join_col = $remote_schema->primary_key();
-        $remote_join_col_schema = $remote_schema->columns[$remote_join_col];
+        $remote_join_col_schema = $remote_schema->atomics[$remote_join_col];
         $remote_table = array_key_exists('table', $remote_join_col_schema)
                 ? $remote_join_col_schema['table']
                 : $remote_schema->table;
         $remote_table_alias = $this->table_alias($remote_table);
-        $remote_join_col_name = array_key_exists('db_column', $remote_join_col_schema)
-                ? $remote_join_col_schema['db_column']
+        $remote_join_col_name = array_key_exists('column', $remote_join_col_schema)
+                ? $remote_join_col_schema['column']
                 : $remote_join_col;
 
         $this->_db_query->joins []= array(
@@ -58,9 +58,9 @@ class JORK_Mapper_Component_ManyToMany extends JORK_Mapper_Component {
                 ->_parent_mapper->_entity_schema->components[$this->_comp_name]['mapped_by']];
 
         $local_join_col = $this->_entity_schema->primary_key();
-        $local_join_col_schema = $this->_entity_schema->columns[$local_join_col];
-        $local_join_col_name = array_key_exists('db_column', $local_join_col_schema)
-                ? $local_join_col_schema['db_column']
+        $local_join_col_schema = $this->_entity_schema->atomics[$local_join_col];
+        $local_join_col_name = array_key_exists('column', $local_join_col_schema)
+                ? $local_join_col_schema['column']
                 : $local_join_col;
 
         $local_table = array_key_exists('table', $local_join_col_schema)
@@ -79,9 +79,9 @@ class JORK_Mapper_Component_ManyToMany extends JORK_Mapper_Component {
         $mid_remote_column = $comp_schema['join_table']['join_column'];
 
         $remote_join_col = $this->_parent_mapper->_entity_schema->primary_key();
-        $remote_join_col_schema = $this->_parent_mapper->_entity_schema->columns[$remote_join_col];
-        $remote_join_col_name = array_key_exists('db_column', $remote_join_col_schema)
-                ? $remote_join_col_schema['db_column']
+        $remote_join_col_schema = $this->_parent_mapper->_entity_schema->atomics[$remote_join_col];
+        $remote_join_col_name = array_key_exists('column', $remote_join_col_schema)
+                ? $remote_join_col_schema['column']
                 : $remote_join_col;
 
         $remote_join_table = array_key_exists('table', $remote_join_col_schema)

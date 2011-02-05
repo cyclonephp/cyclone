@@ -176,7 +176,7 @@ abstract class JORK_Model_Abstract {
 
     public function  __get($key) {
         $schema = $this->schema();
-        if (array_key_exists($key, $schema->columns)) {
+        if (array_key_exists($key, $schema->atomics)) {
             return array_key_exists($key, $this->_atomics)
                     ? $this->_atomics[$key]['value']
                     : NULL;
@@ -205,7 +205,7 @@ abstract class JORK_Model_Abstract {
 
     public function __set($key, $val) {
         $schema = $this->schema();
-        if (array_key_exists($key, $schema->columns)) {
+        if (array_key_exists($key, $schema->atomics)) {
             $this->_atomics[$key]['value'] = $val;
             $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
@@ -237,7 +237,7 @@ abstract class JORK_Model_Abstract {
             $ins_tables = array();
             $values = array();
             $prim_table = NULL;
-            foreach ($schema->columns as $col_name => $col_def) {
+            foreach ($schema->atomics as $col_name => $col_def) {
                 if (array_key_exists($col_name, $this->_atomics)) {
                     if ($this->_atomics[$col_name]['persistent'] == FALSE) {
                         $ins_table = array_key_exists('table', $col_def) 
@@ -249,8 +249,8 @@ abstract class JORK_Model_Abstract {
                         if ( ! array_key_exists($ins_table, $values)) {
                             $values[$ins_table] = array();
                         }
-                        $col = array_key_exists('db_column', $col_def) 
-                                ? $col_def['db_column']
+                        $col = array_key_exists('column', $col_def)
+                                ? $col_def['column']
                                 : $col_name;
                         $values[$ins_table][$col] = $this->_atomics[$col_name]['value'];
 
@@ -300,7 +300,7 @@ abstract class JORK_Model_Abstract {
 
             $upd_tables = array();
             $values = array();
-            foreach ($schema->columns as $col_name => $col_def) {
+            foreach ($schema->atomics as $col_name => $col_def) {
                 if (array_key_exists($col_name, $this->_atomics)
                         && (FALSE == $this->_atomics[$col_name]['persistent'])) {
                     $tbl_name = array_key_exists('table', $col_def)
@@ -312,8 +312,8 @@ abstract class JORK_Model_Abstract {
                     if ( ! array_key_exists($tbl_name, $values)) {
                         $values[$tbl_name] = array();
                     }
-                    $col = array_key_exists('db_column', $col_def)
-                                ? $col_def['db_column']
+                    $col = array_key_exists('column', $col_def)
+                                ? $col_def['column']
                                 : $col_name;
                     $values[$tbl_name][$col] = $this->_atomics[$col_name]['value'];
                     $this->_atomics[$col_name]['persistent'] = TRUE;
