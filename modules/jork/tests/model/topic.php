@@ -5,7 +5,7 @@ class Model_Topic extends JORK_Model_Abstract {
     public function setup() {
         $this->_schema->db_conn = 'jork_test';
         $this->_schema->table = 't_topics';
-        $this->_schema->columns = array(
+        $this->_schema->atomics = array(
             'id' => array(
                 'type' => 'int',
                 'primary' => true,

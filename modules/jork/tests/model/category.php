@@ -7,7 +7,7 @@ class Model_Category extends JORK_Model_Abstract {
     public function setup() {
         $this->_schema->db_conn = 'jork_test';
         $this->_schema->table = 't_categories';
-        $this->_schema->columns = array(
+        $this->_schema->atomics = array(
             'id' => array(
                 'type' => 'int',
                 'primary' => true,
@@ -15,7 +15,7 @@ class Model_Category extends JORK_Model_Abstract {
             ),
             'name' => array(
                 'type' => 'string',
-                'db_column' => 'c_name',
+                'column' => 'c_name',
                 'constraints' => array(
                     'max_length' => 64,
                     'min_length' => 3,

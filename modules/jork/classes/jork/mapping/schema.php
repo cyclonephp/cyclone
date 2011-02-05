@@ -11,7 +11,7 @@ class JORK_Mapping_Schema {
 
     public $secondary_tables;
 
-    public $columns;
+    public $atomics;
 
     public $components;
 

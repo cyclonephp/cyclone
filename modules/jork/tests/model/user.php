@@ -13,7 +13,7 @@ class Model_User extends JORK_Model_Abstract {
                 'inverse_join_column' => 'id'
             )
         );
-        $this->_schema->columns = array(
+        $this->_schema->atomics = array(
             'id' => array(
                 'type' => 'int',
                 'primary' => true,
