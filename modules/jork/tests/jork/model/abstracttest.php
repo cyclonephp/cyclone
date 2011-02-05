@@ -1,13 +1,14 @@
 <?php
 
 
-class JORK_Model_Test extends Kohana_Unittest_TestCase {
+class JORK_Model_AbstractTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
         $sql = file_get_contents(MODPATH.'jork/tests/testdata.sql');
         try {
             DB::inst('jork_test')->connect();
             DB::inst('jork_test')->exec_custom($sql);
+            DB::inst('jork_test')->commit();
             DB::inst('jork_test')->disconnect();
             DB::inst('jork_test')->connect();
             DB::select()->from('t_posts')->exec('jork_test');
@@ -80,6 +81,7 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $user = new Model_User;
         $user->name = 'foo bar';
         $user->save();
+        $this->assertEquals(5, $user->id);
         $result = JORK::from('Model_User')->where('id', '=', DB::esc(5))
                 ->exec('jork_test');
         foreach ($result as $user) {
@@ -107,6 +109,21 @@ class JORK_Model_Test extends Kohana_Unittest_TestCase {
         $topic->save();
         $this->assertEquals(5, $topic->id);
         $this->assertEquals(5, $post->topic_fk);
+    }
 
+    public function testUpdate() {
+        $user = new Model_User;
+        $user->id = 4;
+        $user->name = 'foo';
+        $user->save();
+
+        $post = new Model_Post;
+
+        $user->posts->append($post);
+
+        $result = DB::select()->from('t_users')->where('id', '=', DB::esc(4))->exec('jork_test');
+        foreach ($result as $row) {
+            $this->assertEquals('foo', $row['name']);
+        }
     }
 }

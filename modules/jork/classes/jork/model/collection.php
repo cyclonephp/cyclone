@@ -94,22 +94,52 @@ abstract class JORK_Model_Collection extends ArrayObject {
         $this->_owner = $owner;
         $this->_comp_name = $comp_name;
         $this->_comp_schema = $comp_schema;
+        $this->_owner->add_pk_change_listener($this);
     }
 
     /**
      * Called when the parent component is inserted and it's primary key has
      * been generated.
      *
+     * Implementations call the save() method.
+     *
      * @param mixed $owner_pk the new primary key of the owner of the collection.
      * @see JORK_Model_Abstract::insert();
      */
-    public abstract function notify_owner_insertion($owner_pk);
+    public abstract function notify_pk_creation($owner_pk);
+
+    public abstract function save();
 
     public function  append($value) {
-        $this->_do_append($value);
+        $value->add_pk_change_listener($this);
+        $pk = $value->pk();
+        $new_itm = array(
+            'persistent' => FALSE,
+            'value' => $value
+        );
+        if (NULL === $pk) {
+            $this->_storage []= $new_itm;
+        } else {
+            $this->_storage[$pk] = $new_itm;
+        }
     }
 
-    protected abstract function _do_append($value);
+    protected function update_stor_pk($entity) {
+        $new_pk = $entity->pk();
+        $old_pk = NULL;
+        foreach ($this->_storage as $pk => $itm) {
+            if ($itm['value']->pk() == $new_pk) {
+                $old_pk = $pk;
+                break;
+            }
+        }
+        if ($old_pk === NULL)
+            // exception message should be fixed
+            throw new JORK_Exception('failed to update data structure');
+
+        $this->_storage[$new_pk] = $this->_storage[$old_pk];
+        unset($this->_storage[$old_pk]);
+    }
 
     public function  offsetGet($key) {
         if ( ! array_key_exists($key, $this->_storage))

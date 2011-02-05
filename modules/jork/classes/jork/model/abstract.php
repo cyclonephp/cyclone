@@ -58,6 +58,22 @@ abstract class JORK_Model_Abstract {
     protected $_persistent = FALSE;
 
     /**
+     * A set of listeners to be notified when the primary key of the model changes.
+     *
+     * @var array<JORK_Model_Collection>
+     */
+    protected $_pk_change_listeners = array();
+
+    /**
+     * Indicates if the saving process of the entity has already been started
+     * or not. It's used to prevent infinite recursion in the case of saving
+     * bidirectional relationships.
+     *
+     * @var boolean
+     */
+    protected $_save_in_progress = FALSE;
+
+    /**
      * @return mixed the primary key of the entity
      */
     public function pk() {
@@ -65,6 +81,10 @@ abstract class JORK_Model_Abstract {
         return array_key_exists($pk, $this->_atomics)
                 ? $this->_atomics[$pk]['value']
                 : NULL;
+    }
+
+    public function add_pk_change_listener($listener) {
+        $this->_pk_change_listeners []= $listener;
     }
 
     public function init_component_collections(&$prop_names) {
@@ -111,13 +131,13 @@ abstract class JORK_Model_Abstract {
         switch($remote_schema['type']) {
             case JORK::ONE_TO_MANY:
                 $this->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
-                    ? $val->_atomics[$remote_schema['inverse_join_column']]
+                    ? $val->_atomics[$remote_schema['inverse_join_column']]['value']
                     : $val->pk();
                 $this->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
                 break;
             case JORK::ONE_TO_ONE:
                 $val->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
-                    ? $this->_atomics[$remote_schema['inverse_join_column']]
+                    ? $this->_atomics[$remote_schema['inverse_join_column']]['value']
                     : $this->pk();
                 $val->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
                 break;
@@ -147,7 +167,7 @@ abstract class JORK_Model_Abstract {
                 break;
             case JORK::ONE_TO_ONE:
                 $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
-                    ? $val->_atomics[$comp_schema['inverse_join_column']]
+                    ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
                     : $val->pk();
                 $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
                 break;
@@ -209,73 +229,114 @@ abstract class JORK_Model_Abstract {
      * 
      */
     public function insert() {
-        $schema = $this->schema();
-        $insert_sqls = JORK_Query_Cache::inst(get_class($this))->insert_sql();
-        $ins_tables = array();
-        $values = array();
-        $prim_table = NULL;
-        foreach ($schema->columns as $col_name => $col_def) {
-            if (array_key_exists($col_name, $this->_atomics)) {
-                if ($this->_atomics[$col_name]['persistent'] == FALSE) {
-                    $ins_table = array_key_exists('table', $col_def)
-                            ? $col_def['table']
-                            : $schema->table;
-                    if ( ! in_array($ins_table, $ins_tables)) {
-                        $ins_tables []= $ins_table;
-                    }
-                    if ( ! array_key_exists($ins_table, $values)) {
-                        $values[$ins_table] = array();
-                    }
-                    $col = array_key_exists('db_column', $col_def)
-                            ? $col_def['db_column']
-                            : $col_name;
-                    $values[$ins_table][$col] = $this->_atomics[$col_name]['value'];
+        if ( ! ($this->_persistent  || $this->_save_in_progress)) {
+            $this->_save_in_progress = TRUE;
 
-                    // In fact the value is not yet persistent, but we assume
-                    // that no problem will happen until the insertions
-                    $this->_atomics[$col_name]['persistent'] = TRUE;
+            $schema = $this->schema();
+            $insert_sqls = JORK_Query_Cache::inst(get_class($this))->insert_sql();
+            $ins_tables = array();
+            $values = array();
+            $prim_table = NULL;
+            foreach ($schema->columns as $col_name => $col_def) {
+                if (array_key_exists($col_name, $this->_atomics)) {
+                    if ($this->_atomics[$col_name]['persistent'] == FALSE) {
+                        $ins_table = array_key_exists('table', $col_def) 
+                                ? $col_def['table']
+                                : $schema->table;
+                        if ( ! in_array($ins_table, $ins_tables)) {
+                            $ins_tables [] = $ins_table;
+                        }
+                        if ( ! array_key_exists($ins_table, $values)) {
+                            $values[$ins_table] = array();
+                        }
+                        $col = array_key_exists('db_column', $col_def) 
+                                ? $col_def['db_column']
+                                : $col_name;
+                        $values[$ins_table][$col] = $this->_atomics[$col_name]['value'];
+
+                        // In fact the value is not yet persistent, but we assume
+                        // that no problem will happen until the insertions
+                        $this->_atomics[$col_name]['persistent'] = TRUE;
+                    }
+                } elseif (array_key_exists('primary', $col_def)) {
+                    // The primary key does not exist in the record
+                    // therefore we save the table name for the table
+                    // containing the primary key
+                    $prim_table = $schema->table_name_for_column($col_name);
                 }
-            } elseif (array_key_exists('primary', $col_def)) {
-                // The primary key does not exist in the record
-                // therefore we save the table name for the table
-                // containing the primary key
-                $prim_table = $schema->table_name_for_column($col_name);
             }
-        }
-        if (NULL === $prim_table) {
-            foreach ($values as $tbl_name => $ins_values) {
-                $insert_sqls[$tbl_name]->values = array($ins_values);
-                $insert_sqls[$tbl_name]->exec('jork_test');
-            }
-        } else {
-            foreach ($values as $tbl_name => $ins_values) {
-                $insert_sqls[$tbl_name]->values = array($ins_values);
-                $tmp_id = $insert_sqls[$tbl_name]->exec('jork_test');
-                if ($prim_table == $tbl_name) {
-                    $this->_atomics[$schema->primary_key()]['value'] = $tmp_id;
-                    foreach ($this->_components as $name => $comp) {
-                        if ($comp['value'] instanceof JORK_Model_Collection) {
-                            $comp['value']->notify_owner_insertion($tmp_id);
+            if (NULL === $prim_table) {
+                foreach ($values as $tbl_name => $ins_values) {
+                    $insert_sqls[$tbl_name]->values = array($ins_values);
+                    $insert_sqls[$tbl_name]->exec($schema->db_conn);
+                }
+            } else {
+                foreach ($values as $tbl_name => $ins_values) {
+                    $insert_sqls[$tbl_name]->values = array($ins_values);
+                    $tmp_id = $insert_sqls[$tbl_name]->exec($schema->db_conn);
+                    if ($prim_table == $tbl_name) {
+                        $this->_atomics[$schema->primary_key()] = array(
+                            'value' => $tmp_id,
+                            'persistent' => TRUE
+                        );
+                        foreach ($this->_pk_change_listeners as $listener) {
+                            $listener->notify_pk_creation($this);
                         }
                     }
                 }
             }
+            // The insert process finished, the entity is now persistent
+            $this->_persistent = TRUE;
+            $this->_save_in_progress = FALSE;
         }
-        // The insert process finished, the entity is now persistent
-        $this->_persistent = TRUE;
     }
 
     public function update() {
-        
+        if ( ! ($this->_persistent  || $this->_save_in_progress)) {
+            $this->_save_in_progress = TRUE;
+
+            $schema = $this->schema();
+            $update_sqls = JORK_Query_Cache::inst(get_class($this))->update_sql();
+
+            $upd_tables = array();
+            $values = array();
+            foreach ($schema->columns as $col_name => $col_def) {
+                if (array_key_exists($col_name, $this->_atomics)
+                        && (FALSE == $this->_atomics[$col_name]['persistent'])) {
+                    $tbl_name = array_key_exists('table', $col_def)
+                            ? $col_def['table']
+                            : $schema->table;
+                    if ( ! in_array($tbl_name, $upd_tables)) {
+                        $upd_tables []= $tbl_name;
+                    }
+                    if ( ! array_key_exists($tbl_name, $values)) {
+                        $values[$tbl_name] = array();
+                    }
+                    $col = array_key_exists('db_column', $col_def)
+                                ? $col_def['db_column']
+                                : $col_name;
+                    $values[$tbl_name][$col] = $this->_atomics[$col_name]['value'];
+                    $this->_atomics[$col_name]['persistent'] = TRUE;
+                }
+            }
+
+            foreach ($values as $tbl_name => $upd_vals) {
+                $update_sqls[$tbl_name]->values = $upd_vals;
+                $update_sqls[$tbl_name]->where($schema->primary_key(), '='
+                        , DB::esc($this->pk()));
+                $update_sqls[$tbl_name]->exec($schema->db_conn);
+            }
+
+            $this->_persistent = TRUE;
+            $this->_save_in_progress = FALSE;
+        }
     }
 
     public function save() {
-        if ( ! $this->_persistent) {
-            if ($this->pk() === NULL) {
-                $this->insert();
-            } else {
-                $this->update();
-            }
+        if ($this->pk() === NULL) {
+            $this->insert();
+        } else {
+            $this->update();
         }
     }
 
