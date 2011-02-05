@@ -92,10 +92,12 @@ class JORK_Query_Cache {
             $this->_update_sql = array(
                 $this->_schema->table => $prim_tbl_upd
             );
-            foreach ($this->_schema->secondary_tables as $sec_table => $join_metadata) {
-                $upd_sql = new DB_Query_Update;
-                $upd_sql->table = $sec_table;
-                $this->_update_sql[$sec_table] = $upd_sql;
+            if ($this->_schema->secondary_tables != NULL) {
+                foreach ($this->_schema->secondary_tables as $sec_table => $join_metadata) {
+                    $upd_sql = new DB_Query_Update;
+                    $upd_sql->table = $sec_table;
+                    $this->_update_sql[$sec_table] = $upd_sql;
+                }
             }
         }
         return $this->_update_sql;
