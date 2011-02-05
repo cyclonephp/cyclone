@@ -5,31 +5,31 @@ class FileSystem {
         if(is_file(APPPATH.$rel_filename)){
             return APPPATH.$rel_filename;
         }
-
+        
         $dir_handle = opendir(MODPATH);
         if($dir_handle){
             while(FALSE !== ($fname = readdir($dir_handle))){
-                if(($fname != '.') && ($fname != '..') ){
-                    if(is_file(MODPATH.$fname.$rel_filename)){
+                if(($fname != '.') && ($fname != '..')){
+                    if(file_exists(MODPATH.$fname.DIRECTORY_SEPARATOR.$rel_filename)){
                         closedir($dir_handle);
-                        return MODPATH.$fname.$rel_filename;
+                        return MODPATH.$fname.DIRECTORY_SEPARATOR.$rel_filename;
                     }
                 }
             }
             closedir($dir_handle);
         }
 
-        if(is_file(SYSPATH.$filename)){
-            return SYSPATH.$filename;
+        if(is_file(SYSPATH.$rel_filename)){
+            return SYSPATH.$rel_filename;
         }
-
+        
         // throw exception if couldn't find the file
     }
 
     public static function autoloader_kohana($classname){
        $classname = strtolower($classname);
-       $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'php';
-       var_dump($rel_filename);
+       $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
+       //return $rel_filename;
        $result = FileSystem::find_file($rel_filename);
        if($result){
         include_once $result;

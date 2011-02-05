@@ -15,7 +15,7 @@ class Core_FileSystemTest extends Kohana_Unittest_TestCase {
 
     public function testAutloder_kohana(){
         $test_classname = 'Filesystem';
-        $this->assertEquals(TRUE, FileSystem::autoloader_kohana($test_classname));
+        $this->assertEquals(TRUE, FileSystem::autoloader_kohana($test_classname),'>>>>');
         $this->assertTrue(class_exists($test_classname));
 
         $test_classname = 'Controller_Core';
