@@ -290,6 +290,9 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     public function merge_prop_chain(array $prop_chain, $is_select = FALSE, $is_only = FALSE) {
         $root_prop = array_shift($prop_chain);
         $schema = $this->_entity_schema->get_property_schema($root_prop);
+        if (is_string($schema)) { // embedded component
+            
+        }
         if ( ! empty($prop_chain)) {
             if ( ! array_key_exists('class', $schema))
                 throw new JORK_Syntax_Exception('only the last item of a property

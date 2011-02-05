@@ -101,15 +101,19 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         $user = new Model_User;
         $user->id = 4;
         $user->name = 'foo';
-        $user->save();
 
         $post = new Model_Post;
 
         $user->posts->append($post);
 
+        $user->save();
+
         $result = DB::select()->from('t_users')->where('id', '=', DB::esc(4))->exec('jork_test');
         foreach ($result as $row) {
             $this->assertEquals('foo', $row['name']);
         }
+
+        $result = DB::select()->from('t_posts')->where('id', '=', DB::esc(5))->exec('jork_test');
+        $this->assertEquals(1, count($result));
     }
 }

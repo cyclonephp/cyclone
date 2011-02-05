@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Model_Collection_OneToManyTest extends Kohana_Unittest_TestCase {
+class JORK_Model_Collection_OneToManyTest extends JORK_DbTest {
 
     public function testAppend() {
         $user = new Model_User;

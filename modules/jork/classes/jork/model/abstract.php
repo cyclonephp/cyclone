@@ -327,6 +327,11 @@ abstract class JORK_Model_Abstract {
                 $update_sqls[$tbl_name]->exec($schema->db_conn);
             }
 
+            // cascade save
+            foreach ($this->_components as $comp) {
+                $comp['value']->save();
+            }
+
             $this->_persistent = TRUE;
             $this->_save_in_progress = FALSE;
         }
