@@ -1,21 +1,7 @@
 <?php
 
 
-class JORK_Model_AbstractTest extends Kohana_Unittest_TestCase {
-
-    public function  setUp() {
-        $sql = file_get_contents(MODPATH.'jork/tests/testdata.sql');
-        try {
-            DB::inst('jork_test')->connect();
-            DB::inst('jork_test')->exec_custom($sql);
-            DB::inst('jork_test')->commit();
-            DB::inst('jork_test')->disconnect();
-            DB::inst('jork_test')->connect();
-            DB::select()->from('t_posts')->exec('jork_test');
-        } catch (DB_Exception $ex) {
-            $this->markTestSkipped('failed to establish database connection jork_test');
-        }
-    }
+class JORK_Model_AbstractTest extends JORK_DbTest {
 
     public function testInst() {
         Model_User::inst();
