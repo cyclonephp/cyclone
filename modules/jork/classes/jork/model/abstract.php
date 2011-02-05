@@ -13,14 +13,6 @@ abstract class JORK_Model_Abstract {
             $inst->_schema = new JORK_Mapping_Schema;
             $inst->_schema->class = $classname;
             $inst->setup();
-            foreach ($inst->_schema->components as $k => $v) {
-                if (is_string($v)) { //embeddable component
-                    $embedded_schema_provider = new $v;
-                    if ( ! ($embedded_schema_provider instanceof JORK_Model_Embeddable))
-                        throw new JORK_Exception ('unknown component type: '.$v);
-                    $embedded_schema_provider->append_schema($inst->_schema);
-                }
-            }
             self::$_instances[$classname] = $inst;
         }
         return self::$_instances[$classname];
