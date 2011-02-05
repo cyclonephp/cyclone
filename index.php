@@ -35,8 +35,10 @@ spl_autoload_register(array('Kohana', 'auto_load'));
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
 //-- environment setup -----------------------------------------
-
 Kohana::$environment = getenv('CYCLONEPHP_ENV');
+if( ! Kohana::$environment){
+    Kohana::$environment = 'development';
+}
 
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
