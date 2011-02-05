@@ -29,7 +29,7 @@ class FileSystem {
     public static function autoloader_kohana($classname){
        $classname = strtolower($classname);
        $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
-       //return $rel_filename;
+       
        $result = FileSystem::find_file($rel_filename);
        if($result){
         include_once $result;
@@ -38,11 +38,15 @@ class FileSystem {
        return FALSE;
     }
 
-    /**
-     * TODO pajla
-     */
-    public static function cameclass($classname){
-        
+    public static function camelcase($classname){
+        $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
+
+        $result = FileSystem::find_file($rel_filename);
+        if($result){
+            include_once $result;
+            return TRUE;
+        }
+        return FALSE;
     }
 }
 ?>
