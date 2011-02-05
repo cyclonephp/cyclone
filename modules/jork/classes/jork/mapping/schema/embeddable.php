@@ -1,6 +1,6 @@
 <?php
 
-abstract class JORK_Model_Embeddable {
+abstract class JORK_Mapping_Schema_Embeddable {
 
     public $atomics = array();
 

@@ -1,7 +1,7 @@
 <?php
 
 
-class Model_ModInfo extends JORK_Model_Embeddable {
+class Model_ModInfo extends JORK_Mapping_Schema_Embeddable {
 
     public $atomics = array(
         'created_at' => array(
