@@ -159,7 +159,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         if ($identifier instanceof DB_Expression)
             return $identifier->compile_expr($this);
         $segments = explode('.', $identifier);
-        $rval = '`'.$segments[0].'`';
+        $rval = '`'.$this->config['prefix'].$segments[0].'`';
         if (count($segments) > 1) {
             if ('*' == $segments[1]) {
                 $rval .= '.*';
