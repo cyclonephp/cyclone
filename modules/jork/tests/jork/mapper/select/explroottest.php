@@ -15,7 +15,7 @@ class JORK_Mapper_ExplRootTest extends Kohana_Unittest_TestCase {
     }
 
     public function testProjection() {
-        $jork_query = JORK::select('topic.creator{id,name,posts}')->from('Model_Topic topic');
+        $jork_query = JORK::select('topic.modinfo.creator{id,name,posts}')->from('Model_Topic topic');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(

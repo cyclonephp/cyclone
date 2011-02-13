@@ -53,7 +53,7 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
 
     public function testWhereObj() {
         $jork_query = JORK::from('Model_Post post')
-            ->where('post.author', '=', 'post.topic.creator');
+            ->where('post.author', '=', 'post.topic.modinfo.creator');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(

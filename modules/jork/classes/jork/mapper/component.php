@@ -43,6 +43,11 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
             , $comp_name, $select_item) {
         $comp_def = $parent_mapper->_entity_schema->components[$comp_name];
 
+        if ($comp_def instanceof JORK_Mapping_Schema_Embeddable) {
+            return new JORK_Mapper_Component_Embedded($parent_mapper, $comp_name
+                    , $select_item);
+        }
+
         $impls = array(
             JORK::ONE_TO_ONE => 'JORK_Mapper_Component_OneToOne',
             JORK::ONE_TO_MANY => 'JORK_Mapper_Component_OneToMany',

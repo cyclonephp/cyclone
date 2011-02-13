@@ -41,7 +41,11 @@ class JORK_Mapping_Schema {
     }
 
     public function is_to_many_component($comp_name) {
-        if ( ! array_key_exists('mapped_by', ($comp_schema = $this->components[$comp_name])))
+        $comp_schema = $this->components[$comp_name];
+        if ($comp_schema instanceof JORK_Mapping_Schema_Embeddable)
+            // embedded components are always to-one components by nature
+            return FALSE;
+        if ( ! array_key_exists('mapped_by', $comp_schema))
             return $comp_schema['type'] == JORK::ONE_TO_MANY
                 || $comp_schema['type'] == JORK::MANY_TO_MANY;
 

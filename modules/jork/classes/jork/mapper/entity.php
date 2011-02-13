@@ -267,11 +267,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
         $next_mapper_class = get_class($next_mapper);
 
-        if ('JORK_Mapper_Component_ManyToMany' == $next_mapper_class
-                || ($next_mapper->_is_reverse 
-                        && 'JORK_Mapper_Component_ManyToOne' == $next_mapper_class)
-                || ( ! $next_mapper->_is_reverse 
-                        && 'JORK_Mapper_Component_OneToMany' == $next_mapper_class)) {
+        if ($this->_entity_schema->is_to_many_component($prop_name)) {
             $this->_next_to_many_mappers[$prop_name] = $next_mapper;
         } else {
             $this->_next_to_one_mappers[$prop_name] = $next_mapper;
@@ -294,7 +290,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
             
         }
         if ( ! empty($prop_chain)) {
-            if ( ! array_key_exists('class', $schema))
+            if ( is_array($schema) && ! array_key_exists('class', $schema))
                 throw new JORK_Syntax_Exception('only the last item of a property
                     chain can be an atomic property');
             $next_mapper = $this->get_component_mapper($root_prop, $schema);
@@ -320,6 +316,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
      * Called if the select list is empty.
      */
     public function select_all_atomics() {
+        echo $this->_entity_alias.PHP_EOL;
         foreach ($this->_entity_schema->atomics as $prop_name => $prop_schema) {
             $this->add_atomic_property($prop_name, $prop_schema);
         }
