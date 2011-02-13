@@ -223,6 +223,18 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals($sql, "SELECT * FROM `user` WHERE `id` IS NULL");
     }
 
+    public function testPrefix(){
+        $query = DB::select('user.id','name')
+                ->from('user')
+                ->join('posts')
+                ->on('posts.user_fk', '=', 'user.id')
+                ->where('user.registered_at', '>', DB::esc('2010-01-01'));
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `cy_user`.`id`, `cy_user`.`name` FROM `cy_user` JOIN `cy_posts` ON `cy_posts`.`user_fk` = `cy_user`.`id` WHERE `cy_user`.`registered_at` > 2010-01-01"
+                            , $sql);
+        //TODO validate + more test
+    }
+    
     public function setUp() {
         try {
             DB::query('truncate user')->exec();
@@ -240,5 +252,4 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
     public function tearDown() {
         DB::clear_connections();
     }
-
 }

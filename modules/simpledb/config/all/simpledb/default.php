@@ -2,6 +2,7 @@
 
 return array(
     'adapter' => 'mysqli',
+    'prefix' => 'cy_',
     'connection' => array(
         'username' => 'simpledb',
         'password' => 'simpledb',
