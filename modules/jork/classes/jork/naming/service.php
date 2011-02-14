@@ -95,7 +95,11 @@ class JORK_Naming_Service {
                 $walked_segments []= $seg;
                 foreach ($current_schema->components as $cmp_name => $cmp_def) {
                     if ($cmp_name == $seg) {
-                        $current_schema = JORK_Model_Abstract::schema_by_class($cmp_def['class']);
+                        if ($cmp_def instanceof JORK_Mapping_Schema_Embeddable) {
+                            $current_schema = $cmp_def;
+                        } else {
+                            $current_schema = JORK_Model_Abstract::schema_by_class($cmp_def['class']);
+                        }
                         $this->_entity_aliases[implode('.', $walked_segments)] = $current_schema;
                         $found = TRUE; break;
                     }

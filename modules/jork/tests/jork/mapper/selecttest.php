@@ -5,7 +5,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
     public function testSelectManyToOne() {
         $jork_query = new JORK_Query_Select;
-        $jork_query->select('topic', 'topic.creator')->from('Model_Topic topic');
+        $jork_query->select('topic', 'topic.modinfo.creator')->from('Model_Topic topic');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
@@ -32,7 +32,7 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
     public function testSelectManyToOne2() {
         $jork_query = new JORK_Query_Select;
-        $jork_query->select('post', 'post.topic.creator')
+        $jork_query->select('post', 'post.topic.modinfo.creator')
                 ->from('Model_Post post');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();

@@ -33,7 +33,7 @@ class Model_Topic extends JORK_Model_Abstract {
 		'class' => 'Model_Post',
 		'mapped_by' => 'topic'
             ),
-            'modinfo' => new Model_ModInfo
+            'modinfo' => new Model_ModInfo($this->_schema)
         );
     }
 

@@ -16,7 +16,8 @@ class JORK_Mapper_Component_ManyToOne extends JORK_Mapper_Component {
 
         $this->_parent_mapper->add_table($join_table);
 
-        $join_table_alias = $this->_naming_srv->table_alias($this->_parent_mapper->_entity_alias, $join_table);
+        //$join_table_alias = $this->_naming_srv->table_alias($this->_parent_mapper->_entity_alias, $join_table);
+        $join_table_alias = $this->_parent_mapper->table_alias($join_table);
 
         $remote_join_col = array_key_exists('inverse_join_column', $comp_schema)
                 ? $comp_schema['inverse_join_column']

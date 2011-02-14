@@ -5,7 +5,7 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
 
     public function testWhereImpl() {
         $jork_query = JORK::from('Model_User')
-                ->where('posts.created_at', '>', DB::expr('2010-11-11'))
+                ->where('posts.modinfo.created_at', '>', DB::expr('2010-11-11'))
                 ->where('exists', 'name')
                 ->where('avg({id}) > x');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
@@ -20,7 +20,7 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
 
     public function testWhere() {
         $jork_query = JORK::from('Model_User user')
-                ->where('user.posts.created_at', '>', DB::expr('2010-11-11'))
+                ->where('user.posts.modinfo.created_at', '>', DB::expr('2010-11-11'))
                 ->where('exists', 'user.name')
                 ->where('avg({user.id}) > x');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
@@ -62,7 +62,7 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($db_query->where_conditions, array(
             new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
         ));
-        $this->assertEquals($db_query->joins, array(
+        $this->assertEquals(array(
            array(
                'table' => array('t_users', 't_users_0'),
                'type' => 'LEFT',
@@ -98,7 +98,7 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
                    new DB_Expression_Binary('t_users_1.id', '=', 'user_contact_info_1.user_fk')
                )
            )
-        ));
+        ), $db_query->joins);
         $this->assertEquals(array(
             new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
         ), $db_query->where_conditions);
@@ -106,15 +106,15 @@ class JORK_Mapper_WhereTest extends Kohana_Unittest_TestCase {
 
     public function testWhereObjImpl() {
         $jork_query = JORK::from('Model_Post')
-            ->where('author', '=', 'topic.creator');
+            ->where('author', '=', 'topic.modinfo.creator');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->tables, array(
             array('t_posts', 't_posts_0')
         ));
-        $this->assertEquals($db_query->where_conditions, array(
+        $this->assertEquals(array(
             new DB_Expression_Binary('t_users_0.id', '=', 't_users_1.id')
-        ));
+        ), $db_query->where_conditions);
         $this->assertEquals(array(
            array(
                'table' => array('t_users', 't_users_0'),

@@ -25,6 +25,8 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
                 ->_entity_schema->components[$comp_name];
         $this->_naming_srv = $this->_parent_mapper->_naming_srv;
         $this->_db_query = $this->_parent_mapper->_db_query;
+        $this->_jork_query = $parent_mapper->_jork_query;
+        $this->_table_aliases = &$this->_parent_mapper->_table_aliases;
     }
 
     protected function add_atomic_property($prop_name, &$prop_schema) {
@@ -47,10 +49,15 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
         $full_alias = $tbl_alias.'_'.$col_name;
         $this->_db_query->columns []= array($full_column, $full_alias);
         $this->_result_atomics[$full_alias] = $prop_name;
-//
-//        if ($prop_name == $this->_entity_schema->primary_key()) {
-//            $this->_result_primary_key_column = $full_alias;
-//        }
+
+    }
+
+    protected function  add_table($tbl_name) {
+        $this->_parent_mapper->add_table($tbl_name);
+    }
+
+    protected function  table_alias($tbl_name) {
+        return $this->_parent_mapper->table_alias($tbl_name);
     }
     
     

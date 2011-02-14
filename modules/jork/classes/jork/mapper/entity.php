@@ -191,11 +191,19 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
         if (in_array($prop_name, $this->_result_atomics))
                 return;
-        
+
+        if ($prop_schema instanceof JORK_Mapping_Schema_Embeddable) {
+            print($prop_name);
+            var_dump($this->_entity_schema);
+            die();
+        }
+        try {
         $tbl_name = array_key_exists('table', $prop_schema)
                 ? $prop_schema['table']
                 : $this->_entity_schema->table;
-
+        } catch (ErrorException $ex) {
+            echo $ex->getMessage();
+        }
         if ( ! array_key_exists($tbl_name, $this->_table_aliases)) {
             $tbl_alias = $this->add_table($tbl_name);
         }
@@ -297,15 +305,20 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
             $next_mapper->select_all_atomics();
             $next_mapper->merge_prop_chain($prop_chain);
         } else {
-            if (array_key_exists('class', $schema)) {
+            if (array_key_exists('class', $schema)) { // component
                 $next_mapper = $this->get_component_mapper($root_prop, $schema);
                 $next_mapper->select_all_atomics();
-            } else {
+            } elseif (is_array($schema)) { // atomic property
                 $this->add_atomic_property($root_prop, $schema);
+            } else { // embedded component
+                $next_mapper = $this->get_component_mapper($root_prop, $schema);
+                $next_mapper->select_all_atomics();
             }
         }
         //The primary key column should _always_ be selected
-        if (NULL === $this->_result_primary_key_column) {
+        if (NULL === $this->_result_primary_key_column
+                // dirty hack, must be cleaned up
+                && ! ($this instanceof JORK_Mapper_Component_Embedded)) {
             $pk = $this->_entity_schema->primary_key();
             $this->add_atomic_property($pk, $this->_entity_schema->atomics[$pk]);
         }
@@ -316,7 +329,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
      * Called if the select list is empty.
      */
     public function select_all_atomics() {
-        echo $this->_entity_alias.PHP_EOL;
+        //echo $this->_entity_alias.PHP_EOL;
         foreach ($this->_entity_schema->atomics as $prop_name => $prop_schema) {
             $this->add_atomic_property($prop_name, $prop_schema);
         }

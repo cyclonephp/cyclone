@@ -47,7 +47,7 @@ class JORK_Mapper_ExplRootTest extends Kohana_Unittest_TestCase {
     }
 
     public function testOrderBy() {
-        $jork_query = JORK::from('Model_Post post')->order_by('post.created_at');
+        $jork_query = JORK::from('Model_Post post')->order_by('post.modinfo.created_at');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
         $this->assertEquals($db_query->order_by, array(

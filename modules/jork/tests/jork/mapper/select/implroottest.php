@@ -25,15 +25,11 @@ class JORK_Mapper_Select_ImplRootTest extends Kohana_Unittest_TestCase {
         $jork_query->from('Model_Category');
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
-        $this->assertEquals($db_query->columns, array(
+        $this->assertEquals(array(
             array('t_categories_0.id', 't_categories_0_id')
             , array('t_categories_0.c_name', 't_categories_0_c_name')
             , array('t_categories_0.moderator_fk', 't_categories_0_moderator_fk')
-            , array('t_categories_0.created_at', 't_categories_0_created_at')
-            , array('t_categories_0.creator_fk', 't_categories_0_creator_fk')
-            , array('t_categories_0.modified_at', 't_categories_0_modified_at')
-            , array('t_categories_0.modifier_fk', 't_categories_0_modifier_fk')
-        ));
+        ), $db_query->columns);
         $this->assertEquals($db_query->tables, array(
             array('t_categories', 't_categories_0')
         ));
@@ -53,10 +49,6 @@ class JORK_Mapper_Select_ImplRootTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($db_query->columns, array(
             array('t_topics_0.id', 't_topics_0_id')
             , array('t_topics_0.name', 't_topics_0_name')
-            , array('t_topics_0.created_at', 't_topics_0_created_at')
-            , array('t_topics_0.creator_fk', 't_topics_0_creator_fk')
-            , array('t_topics_0.modified_at', 't_topics_0_modified_at')
-            , array('t_topics_0.modifier_fk', 't_topics_0_modifier_fk')
             , array('t_posts_0.id', 't_posts_0_id')
         ));
         $this->assertEquals($db_query->tables, array(
