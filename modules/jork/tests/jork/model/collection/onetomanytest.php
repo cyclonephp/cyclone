@@ -13,6 +13,17 @@ class JORK_Model_Collection_OneToManyTest extends JORK_DbTest {
         //$this->assertEquals($user, $post->author);
     }
 
+    /**
+     * @expectedException JORK_Exception
+     * @expectedExceptionMessage the items of this collection should be Model_Post instances
+     */
+    public function testTypeSafety() {
+        $topic = new Model_Topic;
+        $user = new Model_User;
+        $user->posts->append($topic);
+    }
+
+
     public function testDelete() {
         $user = new Model_User;
         $user->id = 15;

@@ -46,7 +46,7 @@ class JORK_Result_MapperTest extends JORK_DbTest {
         $idx = 1;
         foreach ($result as $user) {
             $this->assertTrue($user instanceof  Model_User);
-            $this->assertTrue($user->posts instanceof ArrayObject);
+            $this->assertTrue($user->posts instanceof JORK_Model_Collection);
             if ($idx == 1) {
                 $this->assertTrue($user->posts[1] instanceof Model_Post);
                 $this->assertEquals(1, $user->posts[1]->id);

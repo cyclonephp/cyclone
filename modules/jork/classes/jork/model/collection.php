@@ -94,6 +94,7 @@ abstract class JORK_Model_Collection extends ArrayObject {
         $this->_owner = $owner;
         $this->_comp_name = $comp_name;
         $this->_comp_schema = $comp_schema;
+        $this->_comp_class = $comp_schema['class'];
         $this->_owner->add_pk_change_listener($this);
     }
 
@@ -111,6 +112,8 @@ abstract class JORK_Model_Collection extends ArrayObject {
     public abstract function save();
 
     public function  append($value) {
+        if ( ! ($value instanceof $this->_comp_class))
+            throw new JORK_Exception ("the items of this collection should be {$this->_comp_class} instances");
         $value->add_pk_change_listener($this);
         $pk = $value->pk();
         $new_itm = array(
