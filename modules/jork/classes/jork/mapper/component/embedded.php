@@ -16,6 +16,26 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
      */
     protected $_comp_schema;
 
+    /**
+     * Used at result mapping.
+     *
+     * @var array the previous database result row
+     */
+    protected $_prev_result_row;
+
+    /**
+     *
+     * @var JORK_Model_Abstract
+     */
+    protected $_prev_result_entity;
+
+    public function map_row(&$db_row) {
+        if ($db_row == $this->_prev_result_row)
+            return $this->_prev_result_entity;
+
+        return array(new Model_ModInfo($this->_parent_mapper->_entity_schema), false);
+    }
+
 
     public function __construct($parent_mapper, $comp_name, $select_item) {
         $this->_parent_mapper = $parent_mapper;
@@ -30,7 +50,6 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
     }
 
     protected function add_atomic_property($prop_name, &$prop_schema) {
-
         if (in_array($prop_name, $this->_result_atomics))
                 return;
 

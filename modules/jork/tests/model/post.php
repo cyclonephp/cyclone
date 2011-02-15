@@ -39,7 +39,7 @@ class Model_Post extends JORK_Model_Abstract {
                 'type' => JORK::MANY_TO_ONE,
                 'join_column' => 'topic_fk'
             ),
-            'modinfo' => new Model_ModInfo($this->_schema)
+            'modinfo' => 'Model_ModInfo'
         );
     }
 

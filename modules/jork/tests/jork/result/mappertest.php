@@ -63,10 +63,12 @@ class JORK_Result_MapperTest extends JORK_DbTest {
     }
 
     public function testEmbedded() {
-        $result = JORK::select('modinfo')->from('Model_Topic')
+        $result = JORK::from('Model_Topic')->with('modinfo')
                 ->where('id', '=', DB::esc(4))
                 ->exec('jork_test');
         $this->assertEquals(1, count($result));
+        $this->assertInstanceOf('Model_Topic', $result[0]);
+        $this->assertInstanceOf('Model_ModInfo', $result[0]->modinfo);
     }
 
 
