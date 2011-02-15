@@ -8,15 +8,17 @@ class JORK_Mapping_Schema_Embeddable {
 
     public $table;
 
+    public $class;
+
     /**
      *
      * @var JORK_Mapping_Schema
      */
     protected $_parent_schema;
 
-    public function  __construct(JORK_Mapping_Schema $parent_schema) {
+    public function  __construct(JORK_Mapping_Schema $parent_schema, $class) {
         $this->_parent_schema = $parent_schema;
-        $this->table = $parent_schema->table;
+        $this->class = $class;
     }
 
     public function primary_key() {

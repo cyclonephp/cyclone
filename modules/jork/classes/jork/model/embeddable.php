@@ -1,7 +1,7 @@
 <?php
 
 
-abstract class JORK_Model_Embeddable {
+abstract class JORK_Model_Embeddable extends JORK_Model_Abstract {
 
     private static $_instances = array();
 
@@ -11,7 +11,5 @@ abstract class JORK_Model_Embeddable {
         }
         return self::$_instances[$class];
     }
-
-    public abstract function setup(JORK_Mapping_Schema_Embeddable $schema);
 
 }

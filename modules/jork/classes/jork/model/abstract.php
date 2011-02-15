@@ -16,8 +16,9 @@ abstract class JORK_Model_Abstract {
             foreach ($inst->_schema->components as $k => &$v) {
                 if (is_string($v)) { // embedded component class found
                     $emb_inst = call_user_func(array($v, 'inst'));
-                    $emb_schema = new JORK_Mapping_Schema_Embeddable($inst->_schema);
-                    $emb_inst->setup($emb_schema);
+                    $emb_schema = new JORK_Mapping_Schema_Embeddable($inst->_schema, $v);
+                    $emb_inst->_schema = $emb_schema;
+                    $emb_inst->setup();
                     $emb_schema->table = $inst->_schema->table;
                     $v = $emb_schema;
                 }

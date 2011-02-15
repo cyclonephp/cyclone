@@ -69,6 +69,7 @@ class JORK_Result_MapperTest extends JORK_DbTest {
         $this->assertEquals(1, count($result));
         $this->assertInstanceOf('Model_Topic', $result[0]);
         $this->assertInstanceOf('Model_ModInfo', $result[0]->modinfo);
+        $this->assertEquals(4, $result[0]->modinfo->creator_fk);
     }
 
 

@@ -3,8 +3,8 @@
 
 class Model_ModInfo extends JORK_Model_Embeddable {
 
-    public function setup(JORK_Mapping_Schema_Embeddable $schema) {
-        $schema->atomics = array(
+    public function setup() {
+        $this->_schema->atomics = array(
             'created_at' => array(
                 'type' => 'datetime',
                 'constraints' => array(
@@ -28,7 +28,7 @@ class Model_ModInfo extends JORK_Model_Embeddable {
             )
         );
         
-        $schema->components = array(
+        $this->_schema->components = array(
             'creator' => array(
                 'class' => 'Model_User',
                 'type' => JORK::MANY_TO_ONE,
