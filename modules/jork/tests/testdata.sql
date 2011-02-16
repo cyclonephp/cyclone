@@ -95,7 +95,7 @@ insert into t_posts (id, name, topic_fk, user_fk, created_at, creator_fk) values
 , (3, 't 02 p 01', 2, 1, '2011-01-06', 1)
 , (4, 't 04 p 01', 4, 2, '2011-01-06', 2);
 
-insert into t_categories (id, name, moderator_fk, created_at, creator_fk) values
+insert into t_categories (id, c_name, moderator_fk, created_at, creator_fk) values
 (1, 'cat 01', NULL, '2011-01-06', 1)
 , (2, 'cat 02', 1, '2011-01-06', 1)
 , (3, 'cat 03', 2, '2011-01-06', 1);

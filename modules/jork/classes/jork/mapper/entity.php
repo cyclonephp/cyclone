@@ -215,6 +215,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
         $full_column = $tbl_alias.'.'.$col_name;
         $full_alias = $tbl_alias.'_'.$col_name;
+        
         $this->_db_query->columns []= array($full_column, $full_alias);
         $this->_result_atomics[$full_alias] = $prop_name;
 
