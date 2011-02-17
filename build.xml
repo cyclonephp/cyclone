@@ -89,12 +89,11 @@
 	<target name="lint" depends="phplint,jslint"/>
 	
 	<target name="docs">
-		<phpdoc title="CyclonePHP docs" destdir="docs">
+		<phpdoc title="CyclonePHP documentation" destdir="docs" output="HTML:frames:earthli">
 			<fileset dir="${modpath}">
-				<include name="*/classes/**/*.php"/>
+				<include name="*/"/>
 			</fileset>
 		</phpdoc>
 	</target>
-
 	
 </project>
