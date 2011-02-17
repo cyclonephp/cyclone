@@ -20,7 +20,7 @@ class JORK_Model_Collection_Reverse_ManyToMany extends JORK_Model_Collection {
     }
 
     public function save() {
-
+        
     }
     
 }

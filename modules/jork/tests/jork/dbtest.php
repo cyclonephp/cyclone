@@ -14,4 +14,8 @@ abstract class JORK_DbTest extends Kohana_Unittest_TestCase {
         }
     }
 
+    public function  tearDown() {
+        JORK_InstancePool::clear();
+    }
+
 }

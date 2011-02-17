@@ -1,7 +1,7 @@
 <?php
 
 
-class JORK_Model_Collection_ManyToManyTest extends Kohana_Unittest_TestCase {
+class JORK_Model_Collection_ManyToManyTest extends JORK_DbTest {
 
     public function testAppend() {
         $topic = new Model_Topic;

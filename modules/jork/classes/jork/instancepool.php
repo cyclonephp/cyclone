@@ -17,6 +17,10 @@ class JORK_InstancePool {
         return self::$_instances[$class];
     }
 
+    public static function clear() {
+        self::$_instances = array();
+    }
+
     /**
      * the class which' instances should be stored
      *
