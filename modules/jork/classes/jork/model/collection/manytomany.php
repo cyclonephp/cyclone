@@ -20,7 +20,9 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
             $del_stmt->table = $this->_comp_schema['join_table']['name'];
             $del_stmt->conditions = array(
                 new DB_Expression_Binary($this->_comp_schema['join_table']['join_column']
-                        , '=', new DB_Expression_Set(array_keys($this->_deleted)))
+                        , '=', DB::esc($pk)),
+                new DB_Expression_Binary($this->_comp_schema['join_table']['inverse_join_column']
+                        , 'IN', new DB_Expression_Set(array_keys($this->_deleted)))
             );
             $del_stmt->exec($db_conn);
         }
