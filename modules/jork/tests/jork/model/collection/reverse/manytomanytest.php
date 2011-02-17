@@ -39,7 +39,6 @@ class JORK_Model_Collection_Reverse_ManyToManyTest extends JORK_DbTest {
         $category->topics->append($topic);
         
         $category->topics->save();
-
         $result = DB::select()->from('categories_topics')
                 ->where('category_fk', '=', DB::esc(2))
                 ->exec('jork_test')->as_array();
