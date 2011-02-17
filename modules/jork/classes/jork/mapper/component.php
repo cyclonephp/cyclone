@@ -3,6 +3,9 @@
 /**
  * This class is responsible for mapping any property chains represented by
  * JORK joins to DB joins and creating the result mappers.
+ * 
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
  */
 abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
 

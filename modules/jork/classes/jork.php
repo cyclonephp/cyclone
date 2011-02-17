@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Erős <crystal@cyclonephp.com>
+ * @package jork
+ */
 class JORK {
 
     const ONE_TO_ONE = 0;

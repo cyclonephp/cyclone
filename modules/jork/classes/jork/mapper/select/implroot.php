@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
 
     protected final function  __construct(JORK_Query_Select $jork_query) {

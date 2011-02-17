@@ -4,6 +4,9 @@
  * Represents a collection of models which are components of an other model,
  * in other words it is used for storing to-many relationships between objects
  * at runtime.
+ * 
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
  */
 abstract class JORK_Model_Collection extends ArrayObject {
 

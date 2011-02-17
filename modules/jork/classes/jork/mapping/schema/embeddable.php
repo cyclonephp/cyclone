@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Erős <crystal@cyclonephp.com>
+ * @package jork
+ */
 class JORK_Mapping_Schema_Embeddable {
 
     public $atomics = array();

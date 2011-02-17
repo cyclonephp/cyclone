@@ -92,6 +92,7 @@
 		<phpdoc title="CyclonePHP documentation" destdir="docs" output="HTML:frames:earthli">
 			<fileset dir="${modpath}">
 				<include name="*/"/>
+				<exclude name="*/tests/**"/>
 			</fileset>
 		</phpdoc>
 	</target>

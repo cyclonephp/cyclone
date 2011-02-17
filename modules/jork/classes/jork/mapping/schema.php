@@ -1,7 +1,10 @@
 <?php
 
-
-class JORK_Mapping_Schema {
+/**
+ * @author Bence Erős <crystal@cyclonephp.com>
+ * @package jork
+ */
+ class JORK_Mapping_Schema {
 
     public $db_conn = 'default';
 

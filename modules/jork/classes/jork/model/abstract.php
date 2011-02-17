@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 abstract class JORK_Model_Abstract {
 
     protected abstract function setup();

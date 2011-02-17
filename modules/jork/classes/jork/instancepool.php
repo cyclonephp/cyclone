@@ -4,8 +4,10 @@
  * This class is responsible for storing only one entity instance with a
  * given primary key. Entity instantiations during the database query result
  * mapping process should be done using this class
+ * 
+ * @author Bence Erős <crystal@cyclonephp.com>
+ * @package jork
  */
-
 class JORK_InstancePool {
 
     private static $_instances = array();

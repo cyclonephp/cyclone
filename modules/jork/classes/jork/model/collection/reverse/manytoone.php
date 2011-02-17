@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
 
     public function  __construct($owner, $comp_name, $comp_schema) {

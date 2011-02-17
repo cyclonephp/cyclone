@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
 
     public function delete_by_pk($pk) {

@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
 
     protected function map_from() {
