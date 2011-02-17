@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package Config
+ */
 class Config {
 
     const NOT_FOUND = -1;

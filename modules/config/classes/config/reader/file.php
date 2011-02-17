@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package Config
+ */
 class Config_Reader_File implements Config_Reader {
 
     public $root_path;
