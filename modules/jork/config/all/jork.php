@@ -1,5 +1,5 @@
 <?php
 
 return array(
-    'show_sql' => FALSE
+    'show_sql' => true
 );

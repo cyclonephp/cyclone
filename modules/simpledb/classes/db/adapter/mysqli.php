@@ -44,7 +44,12 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         $this->_select_aliases($query->tables, $query->joins);
         $rval = 'SELECT ';
         $rval .= $this->escape_values($query->columns);
-        $rval .= ' FROM '.$this->escape_table($query->tables);
+        $rval .= ' FROM ';
+        $tbl_names = array();
+        foreach ($query->tables as $table) {
+            $tbl_names []= $this->escape_table($table);
+        }
+        $rval .= implode(', ', $tbl_names);
         foreach ($query->joins as $join) {
             $rval .= ' '.$join['type'].' JOIN '.$this->escape_table($join['table']);
             $rval .= ' ON '.$this->compile_expressions($join['conditions']);
@@ -179,27 +184,18 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     public function escape_table($table){
         if ($table instanceof DB_Expression)
             return $table->compile_expr($this);
-        if(is_array($table)){
-            if(is_array($table[0])){
-                $rtable = $table[0][0].' '.$table[0][1];
-            }else{
-                $rtable = $table[0];
-            }
-        }else{
-            $rtable = $table;
-        }
-
-        if(array_key_exists('prefix', $this->config)){
-            $rtable = explode(' ', $rtable);
-            $rtable[0] = '`'.$this->config['prefix'].$rtable[0].'`';
-            if(count($rtable) == 2){
-                $rtable[1] = '`'.$rtable[1].'`';
-            }
-            $rtable = implode(' ', $rtable);
-        }
         
-        return $rtable;
+        $prefix = array_key_exists('prefix', $this->config)
+                ? $this->config['prefix']
+                : '';
 
+        if (is_array($table)) {
+            $rtable = '`' . $prefix . $table[0] . '` `' . $table[1] . '`';
+        } else {
+            $rtable = '`' . $prefix . $table . '`';
+        }
+
+        return $rtable;
     }
 
     public function escape_identifier($identifier) {
