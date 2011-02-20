@@ -1,0 +1,16 @@
+#!/bin/bash
+totalsum=0;
+for i in application modules/{core,config,kform,simpledb,jork}
+do
+modsum=0;
+for file in `find $i -name '*'`; do
+	if [ -f $file ]; then
+		linecount=`wc -l $file | sed 's/ [a-zA-Z0-9\./_]*//'`;
+		let modsum=$modsum+$linecount;
+	fi
+done
+echo "$i: $modsum";
+let totalsum=$totalsum+$modsum
+done
+echo "total: $totalsum"
+
