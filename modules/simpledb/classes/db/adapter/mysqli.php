@@ -235,6 +235,9 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function escape_param($param) {
+        if (NULL === $param)
+            return 'NULL';
+        
         return "'".$this->mysqli->real_escape_string($param)."'"; //TODO test & secure
     }
 

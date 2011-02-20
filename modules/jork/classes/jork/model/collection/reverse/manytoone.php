@@ -79,10 +79,8 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
                 new DB_Expression_Binary($col_name, '='
                         , DB::esc($this->_owner->pk()))
             );
-            var_dump($upd_stmt);
+            
             $upd_stmt->exec($this->_owner->schema()->db_conn);
-            echo $upd_stmt->compile('jork_test');
-
         }
     }
 
