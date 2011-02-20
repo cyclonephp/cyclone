@@ -124,5 +124,8 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
        $post->delete();
        $this->assertEquals(0, count(DB::select()->from('t_posts')
                ->where('id', '=', DB::esc(4))->exec('jork_test')));
+
+       $user = new Model_User;
+       $user->delete();
     }
 }
