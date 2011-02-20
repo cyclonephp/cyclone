@@ -3,6 +3,7 @@
 abstract class DB_Adapter {
 
     protected $config;
+    protected $_table_aliases = array();
 
     public function  __construct($config) {
         $this->config = $config;

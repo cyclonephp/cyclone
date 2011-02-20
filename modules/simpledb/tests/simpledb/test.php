@@ -49,8 +49,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $query = DB::insert('user')->values(array(
             'name' => 'user'
             , 'email' => 'user@example.com'));
-
-        $this->assertEquals("INSERT INTO `user` (`name`, `email`) VALUES ('user', 'user@example.com')"
+        $this->assertEquals("INSERT INTO `cy_user` (`name`, `email`) VALUES ('user', 'user@example.com')"
                 , $query->compile());
     }
 
@@ -58,14 +57,14 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $query = DB::update('user')->values(array('name' => 'crystal', 'email' => 'ebence88@gmail.com'))
                 ->where('id', '=', DB::esc(1))->limit(10);
 
-        $this->assertEquals("UPDATE `user` SET `name` = 'crystal', `email` = 'ebence88@gmail.com' WHERE `id` = '1' LIMIT 10",
+        $this->assertEquals("UPDATE `cy_user` SET `name` = 'crystal', `email` = 'ebence88@gmail.com' WHERE `id` = '1' LIMIT 10",
                 $query->compile());
     }
 
     public function testCompileDelete() {
         $query = DB::delete('user')->where('name', 'like', '%crys%')->limit(10);
 
-        $this->assertEquals("DELETE FROM `user` WHERE `name` like `%crys%` LIMIT 10"
+        $this->assertEquals("DELETE FROM `cy_user` WHERE `name` like `%crys%` LIMIT 10"
                 , $query->compile());
     }
 
@@ -83,7 +82,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
                 ;
 
         $this->assertEquals($query->compile(), 
-                'SELECT `id`, `name`, (SELECT count(1) FROM `posts` WHERE `posts`.`author_fk` = `user`.`id`) AS `post_count` FROM `users` LEFT JOIN `groups` ON `users`.`group_fk` = `group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
+                'SELECT `id`, `name`, (SELECT count(1) FROM `cy_posts` WHERE `cy_posts`.`author_fk` = `cy_user`.`id`) AS `post_count` FROM `cy_users` LEFT JOIN `cy_groups` ON `cy_users`.`group_fk` = `cy_group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
     }
 
     /**
@@ -108,7 +107,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testSet() {
         $sql = DB::select()->from('user')->where('col', 'IN', DB::expr(array(1, 2)))->compile();
-        $this->assertEquals($sql, "SELECT * FROM `user` WHERE `col` IN ('1', '2')");
+        $this->assertEquals($sql, "SELECT * FROM `cy_user` WHERE `col` IN ('1', '2')");
     }
 
     /**
@@ -215,12 +214,12 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testStarEscaping() {
         $sql = DB::select('user.*')->from('user')->compile();
-        $this->assertEquals($sql, 'SELECT `user`.* FROM `user`');
+        $this->assertEquals($sql, 'SELECT `cy_user`.* FROM `cy_user`');
     }
 
     public function testNullValues() {
         $sql = DB::select()->from('user')->where('id', 'IS', null)->compile();
-        $this->assertEquals($sql, "SELECT * FROM `user` WHERE `id` IS NULL");
+        $this->assertEquals($sql, "SELECT * FROM `cy_user` WHERE `id` IS NULL");
     }
 
     public function testPrefix(){
@@ -230,8 +229,15 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
                 ->on('posts.user_fk', '=', 'user.id')
                 ->where('user.registered_at', '>', DB::esc('2010-01-01'));
         $sql = $query->compile();
-        $this->assertEquals("SELECT `cy_user`.`id`, `cy_user`.`name` FROM `cy_user` JOIN `cy_posts` ON `cy_posts`.`user_fk` = `cy_user`.`id` WHERE `cy_user`.`registered_at` > 2010-01-01"
+        $this->assertEquals("SELECT `cy_user`.`id`, `name` FROM `cy_user` INNER JOIN `cy_posts` ON `cy_posts`.`user_fk` = `cy_user`.`id` WHERE `cy_user`.`registered_at` > '2010-01-01'"
                             , $sql);
+
+        $query = DB::select('u.id')
+                ->from(array('user','u'));
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id` FROM `cy_user` `u`", $sql);
+
+        //$query = DB::select();
         //TODO validate + more test
     }
     
@@ -245,6 +251,7 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
             }
             $insert->exec();
         } catch (Exception $ex) {
+            echo $ex->getMessage().PHP_EOL;
             $this->markTestSkipped('skipping simpledb tests');
         }
     }

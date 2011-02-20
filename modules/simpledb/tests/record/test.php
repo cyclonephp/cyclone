@@ -7,7 +7,7 @@ class Record_Test extends Kohana_Unittest_TestCase {
 
     public function setUp() {
         try {
-            DB::query('truncate user')->exec();
+            DB::query('truncate cy_user')->exec();
             $names = array('user1', 'user2');
             $insert = DB::insert('user');
             foreach ($names as $name) {
