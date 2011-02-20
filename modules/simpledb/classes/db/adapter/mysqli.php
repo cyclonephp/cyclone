@@ -24,14 +24,18 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     protected function _select_aliases($tables, $joins = NULL){
-        foreach($tables as $table){
-            if(is_array($table)){
-                $this->_table_aliases[] = $table[1];
+        if(is_array($tables)){
+            foreach($tables as $table){
+                if(is_array($table)){
+                    $this->_table_aliases[] = $table[1];
+                }
             }
         }
-        foreach($joins as $join){
-            if(is_array($join['table'])){
-                $this->_table_aliases[] = $join['table'][1];
+        if (is_array($joins)){
+            foreach($joins as $join){
+                if(is_array($join['table'])){
+                    $this->_table_aliases[] = $join['table'][1];
+                }
             }
         }
     }
@@ -70,9 +74,9 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function  compile_insert(DB_Query_Insert $query) {
-        //$this->_select_aliases($query->table);
+        $this->_select_aliases($query->table);
         $rval = 'INSERT INTO ';
-        $rval .= $this->escape_table($query->table);/*$this->escape_identifier($query->table);*/
+        $rval .= $this->escape_table($query->table);
         if (empty($query->values))
             throw new DB_Exception('no value lists to be inserted');
         $rval .= ' ('.$this->escape_values(array_keys($query->values[0])).') VALUES ';
@@ -85,8 +89,9 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function  compile_update(DB_Query_Update $query) {
+        $this->_select_aliases($query->table);
         $rval = 'UPDATE ';
-        $rval .= $this->escape_table($query->table);/*$this->escape_identifier($query->table);*/
+        $rval .= $this->escape_table($query->table);
         $rval .= ' SET ';
         foreach ($query->values as $k => $v) {
             $pieces []= $this->escape_identifier($k).' = '.$this->escape_param($v);
@@ -102,8 +107,9 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function  compile_delete(DB_Query_Delete $query) {
+        $this->_select_aliases($query->table);
         $rval = 'DELETE FROM ';
-        $rval .= $this->escape_table($query->table);/*$this->escape_identifier($query->table);*/
+        $rval .= $this->escape_table($query->table);
         if ( ! empty($query->conditions)) {
             $rval .= ' WHERE '.$this->compile_expressions($query->conditions);
         }
