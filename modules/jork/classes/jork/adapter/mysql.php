@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Adapter_Mysql extends JORK_Adapter_Abstract {
 
     /**

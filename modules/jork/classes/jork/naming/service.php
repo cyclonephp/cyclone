@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Naming_Service {
 
     public function  __construct() {

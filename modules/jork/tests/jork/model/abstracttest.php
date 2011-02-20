@@ -116,4 +116,16 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         $result = DB::select()->from('t_posts')->where('id', '=', DB::esc(5))->exec('jork_test');
         $this->assertEquals(1, count($result));
     }
+
+    public function testDelete() {
+       $result = JORK::from('Model_Post')->where('id', '=', DB::esc(4))
+               ->exec('jork_test');
+       $post = $result[0];
+       $post->delete();
+       $this->assertEquals(0, count(DB::select()->from('t_posts')
+               ->where('id', '=', DB::esc(4))->exec('jork_test')));
+
+       $user = new Model_User;
+       $user->delete();
+    }
 }

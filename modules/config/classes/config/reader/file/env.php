@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package Config
+ */
 class Config_Reader_File_Env implements Config_Reader {
 
     /**

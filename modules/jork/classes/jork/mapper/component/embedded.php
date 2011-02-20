@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
 
     /**

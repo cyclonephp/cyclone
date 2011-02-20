@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Erős <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK {
 
     const ONE_TO_ONE = 0;
@@ -10,6 +13,8 @@ class JORK {
     const MANY_TO_MANY = 2;
 
     const MANY_TO_ONE = 3;
+
+    const DEL_CASCADE = 1;
 
     private static $_instance;
 

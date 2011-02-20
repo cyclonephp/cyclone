@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 abstract class JORK_Model_Abstract {
 
     protected abstract function setup();
@@ -344,6 +347,23 @@ abstract class JORK_Model_Abstract {
             $this->insert();
         } else {
             $this->update();
+        }
+    }
+
+    public function delete() {
+        $this->delete_by_pk($this->pk());
+    }
+
+    public function delete_by_pk() {
+        $pk = $this->pk();
+        if ($pk === NULL)
+            return;
+        
+        $delete_sqls = JORK_Query_Cache::inst(get_class($this))->delete_sql();
+        $pk = new DB_Expression_Param($pk);
+        foreach ($delete_sqls as $del_stmt) {
+            $del_stmt->conditions[0]->right_operand = $pk;
+            $del_stmt->exec($this->schema()->db_conn);
         }
     }
 

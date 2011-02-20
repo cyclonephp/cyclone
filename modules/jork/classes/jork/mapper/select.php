@@ -2,6 +2,9 @@
 
 /**
  * Maps a jork select to a db select.
+ * 
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
  */
 abstract class JORK_Mapper_Select {
 

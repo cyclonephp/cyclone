@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 abstract class JORK_Model_Embeddable extends JORK_Model_Abstract {
 
     private static $_instances = array();

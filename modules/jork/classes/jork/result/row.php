@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
+ */
 class JORK_Result_Row extends ArrayObject {
 
     private $_mappers;

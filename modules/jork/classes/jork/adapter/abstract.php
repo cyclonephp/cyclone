@@ -2,6 +2,9 @@
 
 /**
  * Base class for all JORK adapters
+ * 
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
  */
 abstract class JORK_Adapter_Abstract implements JORK_Adapter {
 

@@ -7,6 +7,9 @@
  * @see JORK_Mapper_Entity
  * @see JORK_Mapper_Component
  * @see JORK_Mapper_Expression
+ * 
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package JORK
  */
 
 interface JORK_Mapper_Row {
