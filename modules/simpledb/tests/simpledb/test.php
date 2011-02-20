@@ -237,10 +237,61 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $sql = $query->compile();
         $this->assertEquals("SELECT `u`.`id` FROM `cy_user` `u`", $sql);
 
+        $query = DB::select('u.id','t.id')
+                ->from(array('user','u'))
+                ->from(array('temp','t'));
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `t`.`id` FROM `cy_user` `u`, `cy_temp` `t`", $sql);
         //$query = DB::select();
         //TODO validate + more test
     }
-    
+
+    public function testUnions(){
+        $union_query_all = DB::select('azon','nev')
+                ->from('tablanev');
+        $query = DB::select('u.id','u.name')
+                ->from(array('user','u'))
+                ->union($union_query_all, TRUE);
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION ALL SELECT `azon`, `nev` FROM `cy_tablanev`",$sql);
+
+        $union_query = DB::select('azon','nev')
+                ->from('tablanev');
+        $query = DB::select('u.id','u.name')
+                ->from(array('user','u'))
+                ->union($union_query, FALSE);
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION SELECT `azon`, `nev` FROM `cy_tablanev`",$sql);
+
+        $union_query_all = DB::select('azon','nev')
+                ->from('tablanev');
+        $union_query = DB::select('column_name1','column_name2')
+                ->from('table_name');
+        $query = DB::select('u.id','u.name')
+                ->from(array('user','u'))
+                ->union($union_query_all, TRUE)
+                ->union($union_query, FALSE);
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION ALL SELECT `azon`, `nev` FROM `cy_tablanev` UNION SELECT `column_name1`, `column_name2` FROM `cy_table_name`",$sql);
+    }
+
+    public function testHints(){
+        $query = DB::select('u.name')
+                ->from(array('user','u'))
+                ->hint('INDEX (some_index)');
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`name` FROM `cy_user` `u` USE INDEX (some_index)", $sql);
+
+        $query = DB::select('u.name')
+                ->from(array('user','u'))
+                ->hint('INDEX (index1)')
+                ->hint('IGNORE INDEX (index1) FOR ORDER BY')
+                ->hint('IGNORE INDEX (index1) FOR GROUP BY');
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`name` FROM `cy_user` `u` USE INDEX (index1) IGNORE INDEX (index1) FOR ORDER BY IGNORE INDEX (index1) FOR GROUP BY"
+                , $sql);
+    }
+
     public function setUp() {
         try {
             DB::query('truncate cy_user')->exec();

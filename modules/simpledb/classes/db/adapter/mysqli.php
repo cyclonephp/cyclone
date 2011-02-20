@@ -50,6 +50,12 @@ class DB_Adapter_Mysqli extends DB_Adapter {
             $tbl_names []= $this->escape_table($table);
         }
         $rval .= implode(', ', $tbl_names);
+        if ( ! empty($query->hints)){
+            $rval .= " USE";
+            foreach ($query->hints as $hint) {
+                $rval .= ' '.$hint;
+            }
+        }
         foreach ($query->joins as $join) {
             $rval .= ' '.$join['type'].' JOIN '.$this->escape_table($join['table']);
             $rval .= ' ON '.$this->compile_expressions($join['conditions']);
@@ -74,6 +80,15 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         }
         if ( ! is_null($query->offset)) {
             $rval .= ' OFFSET '.$query->offset;
+        }
+        if ( ! empty($query->unions)) {
+            foreach($query->unions as $union) {
+                $rval .= ' UNION ';
+                if ($union['all'] == TRUE) {
+                    $rval .= 'ALL ';
+                }
+                $rval .= $this->compile_select($union['select']);
+            }
         }
         return $rval;
     }
