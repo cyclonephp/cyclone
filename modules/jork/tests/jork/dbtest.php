@@ -10,6 +10,7 @@ abstract class JORK_DbTest extends Kohana_Unittest_TestCase {
             DB::inst('jork_test')->exec_custom($sql);
             DB::inst('jork_test')->commit();
         } catch (DB_Exception $ex) {
+            echo $ex->getMessage() . PHP_EOL;
             $this->markTestSkipped('failed to establish database connection jork_test');
         }
     }

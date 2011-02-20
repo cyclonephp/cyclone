@@ -52,7 +52,6 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         $topic = new Model_Topic;
         $topic->id = 2;
         $post = new Model_Post;
-        //$this->markTestSkipped('not yet implemented');
         $topic->posts->append($post);
         $this->assertEquals(2, $post->topic_fk);
     }
