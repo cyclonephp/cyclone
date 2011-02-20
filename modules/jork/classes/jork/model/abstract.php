@@ -374,7 +374,12 @@ abstract class JORK_Model_Abstract {
                     //$component['value']->delete();
                 } elseif (JORK::SET_NULL == $on_delete) {
                     if ($schema->is_to_many_component($comp_name)) {
-                        //$component['value']->notify_owner_deletion();
+                        if ( ! array_key_exists($comp_name, $this->_components)) {
+                            $this->_components[$comp_name] = array(
+                                'value' => JORK_Model_Collection::for_component($this, $comp_name)
+                            );
+                        }
+                        $this->_components[$comp_name]['value']->notify_owner_deletion();
                     }
                 }
             }

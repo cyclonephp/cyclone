@@ -49,8 +49,13 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
     }
 
     public function  notify_owner_deletion() {
-        if (array_key_exists('on_delete', $this->_comp_schema)) {
-            echo "ITT\n";
+        if ( ! array_key_exists('on_delete', $this->_comp_schema))
+            return;
+        
+        $on_delete = $this->_comp_schema['on_delete'];
+        if (JORK::SET_NULL === $on_delete) {
+            $del_stmt = new DB_Query_Delete;
+            
         }
     }
 

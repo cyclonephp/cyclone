@@ -63,7 +63,7 @@ class JORK_Query_Select {
      *
      * @var string select item
      * @var ...
-     * @return JORK_Query_Builder_Select
+     * @return JORK_Query_Select
      */
     public function select() {
         $args = func_get_args();
@@ -74,7 +74,7 @@ class JORK_Query_Select {
      * Builder method for the select clause of the query
      *
      * @var array<string> args
-     * @return JORK_Query_Builder_Select
+     * @return JORK_Query_Select
      *
      * @see JORK::select()
      */
@@ -109,13 +109,18 @@ class JORK_Query_Select {
      *
      * @param string from list item
      * @param ...
-     * @return JORK_Query_Builder_Select
+     * @return JORK_Query_Select
      */
     public function from() {
         $args = func_get_args();
         return $this->from_array($args);
     }
 
+    /**
+     *
+     * @param array<string> $args
+     * @return JORK_Query_Select
+     */
     public function from_array($args) {
         foreach ($args as $arg) {
             preg_match('/^(?<class>[a-zA-Z_0-9]+)( +(?<alias>[a-zA-Z_0-9]+))?$/', $arg, $matches);
@@ -134,7 +139,7 @@ class JORK_Query_Select {
 
     /**
      *
-     * @return JORK_Query_Builder_Select
+     * @return JORK_Query_Select
      */
     public function with() {
         foreach (func_get_args() as $arg) {
@@ -156,6 +161,11 @@ class JORK_Query_Select {
         return $this;
     }
 
+    /**
+     * @param string $entity_class_def
+     * @param string $type
+     * @return JORK_Query_Select
+     */
     public function join($entity_class_def, $type = 'INNER') {
         preg_match('/^(?<class>[a-zA-Z_0-9.]+)( +(?<alias>[a-zA-Z_0-9]+))?$/', $entity_class_def, $matches);
         if (empty($matches))
@@ -173,52 +183,45 @@ class JORK_Query_Select {
         return $this;
     }
 
+    /**
+     * @param string $entity_class_def
+     * @return JORK_Query_Select
+     */
     public function left_join($entity_class_def) {
         $this->join($entity_class_def, 'LEFT');
         return $this;
     }
 
+    /**
+     * @return JORK_Query_Select
+     */
     public function on() {
         $this->_last_join['condition'] = func_get_args();
+        return $this;
     }
 
-//    protected function merge_path(array $path, $alias) {
-//        $merge_into = $this->with_list;
-//        $path_last = count($path) - 1;
-//        for ($i = 0; $i <= $path_last; $i++) {
-//            $item = $path[$i];
-//            $found_existing = false;
-//            foreach ($merge_into as &$existing_component) {
-//                if ($existing_component['component'] == $item) {
-//                    $merge_into = &$existing_component['nexts'];
-//                    $found_existing = true;
-//                }
-//            }
-//            if ( ! $found_existing) {
-//                $new_item = array(
-//                    'component' => $item,
-//                    'nexts' => new ArrayObject
-//                );
-//                if ($i == $path_last) {
-//                    $new_item['alias'] = $alias;
-//                }
-//                $merge_into []= $new_item;
-//                $merge_into = &$new_item['nexts'];
-//            }
-//        }
-//    }
-
+    /**
+     * @return JORK_Query_Select 
+     */
     public function where() {
         $args = func_get_args();
         $this->where_conditions []= DB::create_expr($args);
         return $this;
     }
 
+    /**
+     * @return JORK_Query_Select 
+     */
     public function group_by() {
         $this->group_by = func_get_args();
         return $this;
     }
 
+    /**
+     * @param string $column
+     * @param string $direction
+     * @return JORK_Query_Select
+     */
     public function order_by($column, $direction = 'ASC') {
         $this->order_by []= array(
             'column' => $column,
@@ -227,16 +230,28 @@ class JORK_Query_Select {
         return $this;
     }
 
+    /**
+     * @param int $offset
+     * @return JORK_Query_Select
+     */
     public function offset($offset) {
         $this->offset = (int) $offset;
         return $this;
     }
 
+    /**
+     * @param int $limit
+     * @return JORK_Query_Select
+     */
     public function limit($limit) {
         $this->limit = (int) $limit;
         return $this;
     }
 
+    /**
+     * @param string $adapter
+     * @return JORK_Result_Iterator 
+     */
     public function exec($adapter = 'default') {
         $mapper = JORK_Mapper_Select::for_query($this);
         list($db_query, $mappers) = $mapper->map();
