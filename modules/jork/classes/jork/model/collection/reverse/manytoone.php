@@ -51,13 +51,38 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
     public function  notify_owner_deletion() {
         if ( ! array_key_exists('on_delete', $this->_comp_schema))
             return;
-        
         $on_delete = $this->_comp_schema['on_delete'];
         if (JORK::SET_NULL === $on_delete) {
             $upd_stmt = new DB_Query_Update;
             $children_schema = JORK_Model_Abstract
                 ::schema_by_class($this->_comp_schema['class']);
+            $remote_comp_schema = $children_schema
+                ->get_property_schema($this->_comp_schema['mapped_by']);
+
+            $atomic_name = $remote_comp_schema['join_column'];
+
+            $col_schema = $children_schema->get_property_schema($atomic_name);
             
+            $upd_stmt->table = array_key_exists('table', $col_schema)
+                    ? $col_schema['table']
+                    : $children_schema->table;
+
+            $col_name = array_key_exists('column', $col_schema)
+                    ? $col_schema['column']
+                    : $atomic_name;
+
+            $upd_stmt->values = array(
+                $col_name => NULL
+            );
+
+            $upd_stmt->conditions = array(
+                new DB_Expression_Binary($col_name, '='
+                        , DB::esc($this->_owner->pk()))
+            );
+            var_dump($upd_stmt);
+            $upd_stmt->exec($this->_owner->schema()->db_conn);
+            echo $upd_stmt->compile('jork_test');
+
         }
     }
 
