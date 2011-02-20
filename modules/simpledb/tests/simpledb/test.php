@@ -275,6 +275,23 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION ALL SELECT `azon`, `nev` FROM `cy_tablanev` UNION SELECT `column_name1`, `column_name2` FROM `cy_table_name`",$sql);
     }
 
+    public function testHints(){
+        $query = DB::select('u.name')
+                ->from(array('user','u'))
+                ->hint('INDEX (some_index)');
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`name` FROM `cy_user` `u` USE INDEX (some_index)", $sql);
+
+        $query = DB::select('u.name')
+                ->from(array('user','u'))
+                ->hint('INDEX (index1)')
+                ->hint('IGNORE INDEX (index1) FOR ORDER BY')
+                ->hint('IGNORE INDEX (index1) FOR GROUP BY');
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`name` FROM `cy_user` `u` USE INDEX (index1) IGNORE INDEX (index1) FOR ORDER BY IGNORE INDEX (index1) FOR GROUP BY"
+                , $sql);
+    }
+
     public function setUp() {
         try {
             DB::query('truncate cy_user')->exec();
