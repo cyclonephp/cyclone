@@ -23,12 +23,26 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         $this->mysqli->close();
     }
 
+    protected function _select_aliases($tables, $joins = NULL){
+        foreach($tables as $table){
+            if(is_array($table)){
+                $this->_table_aliases[] = $table[1];
+            }
+        }
+        foreach($joins as $join){
+            if(is_array($join['table'])){
+                $this->_table_aliases[] = $join['table'][1];
+            }
+        }
+    }
+
     public function  compile_select(DB_Query_Select $query) {
+        $this->_select_aliases($query->tables, $query->joins);
         $rval = 'SELECT ';
         $rval .= $this->escape_values($query->columns);
-        $rval .= ' FROM '.$this->escape_values($query->tables);
+        $rval .= ' FROM '.$this->escape_table($query->tables);
         foreach ($query->joins as $join) {
-            $rval .= ' '.$join['type'].' JOIN '.$this->escape_value($join['table']);
+            $rval .= ' '.$join['type'].' JOIN '.$this->escape_table($join['table']);
             $rval .= ' ON '.$this->compile_expressions($join['conditions']);
         }
         if ( ! empty($query->where_conditions)) {
@@ -56,8 +70,9 @@ class DB_Adapter_Mysqli extends DB_Adapter {
     }
 
     public function  compile_insert(DB_Query_Insert $query) {
+        //$this->_select_aliases($query->table);
         $rval = 'INSERT INTO ';
-        $rval .= $this->escape_identifier($query->table);
+        $rval .= $this->escape_table($query->table);/*$this->escape_identifier($query->table);*/
         if (empty($query->values))
             throw new DB_Exception('no value lists to be inserted');
         $rval .= ' ('.$this->escape_values(array_keys($query->values[0])).') VALUES ';
@@ -71,7 +86,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
 
     public function  compile_update(DB_Query_Update $query) {
         $rval = 'UPDATE ';
-        $rval .= $this->escape_identifier($query->table);
+        $rval .= $this->escape_table($query->table);/*$this->escape_identifier($query->table);*/
         $rval .= ' SET ';
         foreach ($query->values as $k => $v) {
             $pieces []= $this->escape_identifier($k).' = '.$this->escape_param($v);
@@ -88,7 +103,7 @@ class DB_Adapter_Mysqli extends DB_Adapter {
 
     public function  compile_delete(DB_Query_Delete $query) {
         $rval = 'DELETE FROM ';
-        $rval .= $this->escape_identifier($query->table);
+        $rval .= $this->escape_table($query->table);/*$this->escape_identifier($query->table);*/
         if ( ! empty($query->conditions)) {
             $rval .= ' WHERE '.$this->compile_expressions($query->conditions);
         }
@@ -155,15 +170,43 @@ class DB_Adapter_Mysqli extends DB_Adapter {
             throw new DB_Exception('failed to rollback transaction');
     }
 
+    public function escape_table($table){
+        if ($table instanceof DB_Expression)
+            return $table->compile_expr($this);
+        if(is_array($table)){
+            if(is_array($table[0])){
+                $rtable = $table[0][0].' '.$table[0][1];
+            }else{
+                $rtable = $table[0];
+            }
+        }else{
+            $rtable = $table;
+        }
+
+        if(array_key_exists('prefix', $this->config)){
+            $rtable = explode(' ', $rtable);
+            $rtable[0] = '`'.$this->config['prefix'].$rtable[0].'`';
+            if(count($rtable) == 2){
+                $rtable[1] = '`'.$rtable[1].'`';
+            }
+            $rtable = implode(' ', $rtable);
+        }
+        
+        return $rtable;
+
+    }
+
     public function escape_identifier($identifier) {
         if ($identifier instanceof DB_Expression)
             return $identifier->compile_expr($this);
         $segments = explode('.', $identifier);
-        if (array_key_exists('prefix', $this->config)){
-            $rval = '`'.$this->config['prefix'].$segments[0].'`';
-        }else{
-            $rval = '`'.$segments[0].'`';
+        $rval = '`'.$segments[0].'`';
+        if(array_key_exists('prefix', $this->config) && count($segments) == 2){
+            if( ! in_array($segments[0], $this->_table_aliases)){
+                $rval =  '`'.$this->config['prefix'].$segments[0].'`';
+            }
         }
+        
         if (count($segments) > 1) {
             if ('*' == $segments[1]) {
                 $rval .= '.*';
