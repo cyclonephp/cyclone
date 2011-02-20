@@ -75,6 +75,13 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         if ( ! is_null($query->offset)) {
             $rval .= ' OFFSET '.$query->offset;
         }
+        if ( ! empty($query->unions)) {
+            $rval .= ' UNION ';
+            if ($query->unions['all'] == TRUE){
+                $rval .= 'ALL ';
+            }
+            $rval .= $this->compile_select($query->unions['select']);
+        }
         return $rval;
     }
 

@@ -25,6 +25,8 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
 
     public $for_update;
 
+    public $unions = array();
+
     public function columns() {
         if (0 == func_num_args()) {
             $this->columns = array(DB::expr('*'));
@@ -123,5 +125,9 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
         return $adapter->compile_select($this);
     }
 
-    
+    public function union(DB_Query_Select $select, $all = TRUE){
+        $this->unions['select'] = $select;
+        $this->unions['all'] = $all;
+        return $this;
+    }
 }

@@ -237,10 +237,33 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
         $sql = $query->compile();
         $this->assertEquals("SELECT `u`.`id` FROM `cy_user` `u`", $sql);
 
+        $query = DB::select('u.id','t.id')
+                ->from(array('user','u'))
+                ->from(array('temp','t'));
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `t`.`id` FROM `cy_user` `u`, `cy_temp` `t`", $sql);
         //$query = DB::select();
         //TODO validate + more test
     }
-    
+
+    public function testUnions(){
+        $union_query_all = DB::select('azon','nev')
+                ->from('tablanev');
+        $query = DB::select('u.id','u.name')
+                ->from(array('user','u'))
+                ->union($union_query_all, TRUE);
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION ALL SELECT `azon`, `nev` FROM `cy_tablanev`",$sql);
+
+        $union_query = DB::select('azon','nev')
+                ->from('tablanev');
+        $query = DB::select('u.id','u.name')
+                ->from(array('user','u'))
+                ->union($union_query, FALSE);
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION SELECT `azon`, `nev` FROM `cy_tablanev`",$sql);
+    }
+
     public function setUp() {
         try {
             DB::query('truncate cy_user')->exec();
