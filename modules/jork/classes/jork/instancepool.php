@@ -6,7 +6,7 @@
  * mapping process should be done using this class
  * 
  * @author Bence Erős <crystal@cyclonephp.com>
- * @package jork
+ * @package JORK
  */
 class JORK_InstancePool {
 

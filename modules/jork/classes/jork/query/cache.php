@@ -58,6 +58,15 @@ class JORK_Query_Cache {
      */
     private $_update_sql;
 
+    /**
+     * An array of DELETE statements used to delete the instances
+     * of $this->_class.
+     *
+     * @var array<DB_Query_Delete>
+     * @see JORK_Model_Abstract::delete()
+     */
+    private $_delete_sql;
+
     private function  __construct($class) {
         $this->_class = $class;
         $this->_schema = JORK_Model_Abstract::schema_by_class($class);
@@ -105,6 +114,31 @@ class JORK_Query_Cache {
             }
         }
         return $this->_update_sql;
+    }
+
+    public function delete_sql() {
+        if (NULL === $this->_delete_sql) {
+            $prim_tbl_del = new DB_Query_Delete;
+            $prim_tbl_del->table = $this->_schema->table;
+            $prim_tbl_del->conditions = array(
+                new DB_Expression_Binary($this->_schema->primary_key(), '=', NULL)
+            );
+            $this->_delete_sql = array($prim_tbl_del);
+            if ($this->_schema->secondary_tables != NULL) {
+                foreach ($this->_schema->secondary_tables as $tbl_name => $tbl_def) {
+                    if (array_key_exists('on_delete', $tbl_def)
+                            && $tbl_def['on_delete'] === JORK::DEL_CASCADE) {
+                        $del_stmt = new DB_Query_Delete;
+                        $del_stmt->table = $tbl_name;
+                        $del_stmt->conditions = array(
+                            new DB_Expression_Binary($tbl_def['join_column'], '=', NULL)
+                        );
+                        $this->_delete_sql [] = $del_stmt;
+                    }
+                }
+            }
+        }
+        return $this->_delete_sql;
     }
 
 }

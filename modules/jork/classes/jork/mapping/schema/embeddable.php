@@ -2,7 +2,7 @@
 
 /**
  * @author Bence Erős <crystal@cyclonephp.com>
- * @package jork
+ * @package JORK
  */
 class JORK_Mapping_Schema_Embeddable {
 

@@ -2,6 +2,6 @@
 
 /**
  * @author Bence Erős <crystal@cyclonephp.com>
- * @package jork
+ * @package JORK
  */
 class JORK_Exception extends Exception {}
