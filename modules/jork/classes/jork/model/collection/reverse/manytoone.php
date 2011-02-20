@@ -54,7 +54,9 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
         
         $on_delete = $this->_comp_schema['on_delete'];
         if (JORK::SET_NULL === $on_delete) {
-            $del_stmt = new DB_Query_Delete;
+            $upd_stmt = new DB_Query_Update;
+            $children_schema = JORK_Model_Abstract
+                ::schema_by_class($this->_comp_schema['class']);
             
         }
     }
