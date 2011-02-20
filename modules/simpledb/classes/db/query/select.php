@@ -126,8 +126,10 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
     }
 
     public function union(DB_Query_Select $select, $all = TRUE){
-        $this->unions['select'] = $select;
-        $this->unions['all'] = $all;
+        $this->unions[] = array(
+            'select' => $select,
+            'all' => $all
+        );
         return $this;
     }
 }

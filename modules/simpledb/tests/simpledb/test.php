@@ -262,6 +262,17 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
                 ->union($union_query, FALSE);
         $sql = $query->compile();
         $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION SELECT `azon`, `nev` FROM `cy_tablanev`",$sql);
+
+        $union_query_all = DB::select('azon','nev')
+                ->from('tablanev');
+        $union_query = DB::select('column_name1','column_name2')
+                ->from('table_name');
+        $query = DB::select('u.id','u.name')
+                ->from(array('user','u'))
+                ->union($union_query_all, TRUE)
+                ->union($union_query, FALSE);
+        $sql = $query->compile();
+        $this->assertEquals("SELECT `u`.`id`, `u`.`name` FROM `cy_user` `u` UNION ALL SELECT `azon`, `nev` FROM `cy_tablanev` UNION SELECT `column_name1`, `column_name2` FROM `cy_table_name`",$sql);
     }
 
     public function setUp() {
