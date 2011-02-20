@@ -48,6 +48,12 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
         $this->update_stor_pk($entity);
     }
 
+    public function  notify_owner_deletion() {
+        if (array_key_exists('on_delete', $this->_comp_schema)) {
+            echo "ITT\n";
+        }
+    }
+
     public function save() {
         foreach ($this->_deleted as $del_itm) {
             // join column has already been set to NULL

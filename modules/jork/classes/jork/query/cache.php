@@ -127,7 +127,7 @@ class JORK_Query_Cache {
             if ($this->_schema->secondary_tables != NULL) {
                 foreach ($this->_schema->secondary_tables as $tbl_name => $tbl_def) {
                     if (array_key_exists('on_delete', $tbl_def)
-                            && $tbl_def['on_delete'] === JORK::DEL_CASCADE) {
+                            && $tbl_def['on_delete'] === JORK::CASCADE) {
                         $del_stmt = new DB_Query_Delete;
                         $del_stmt->table = $tbl_name;
                         $del_stmt->conditions = array(

@@ -14,7 +14,9 @@ class JORK {
 
     const MANY_TO_ONE = 3;
 
-    const DEL_CASCADE = 1;
+    const CASCADE = 5;
+
+    const SET_NULL = 6;
 
     private static $_instance;
 

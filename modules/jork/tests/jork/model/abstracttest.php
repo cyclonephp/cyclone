@@ -128,4 +128,21 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
        $user = new Model_User;
        $user->delete();
     }
+
+    /**
+     * Tests component behavior on entity deletion
+     */
+    public function testDeleteComponents() {
+        $result = JORK::from('Model_Topic')
+                ->with('posts')
+                ->where('id', '=', DB::esc(1))
+                ->exec('jork_test');
+        $topic = $result[0];
+
+        $topic->delete();
+
+        $this->assertEquals(2, count(DB::select()->from('t_posts')
+                ->where('topic_fk', 'is', NULL)->exec('jork_test')));
+        
+    }
 }

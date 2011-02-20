@@ -354,16 +354,30 @@ abstract class JORK_Model_Abstract {
         $this->delete_by_pk($this->pk());
     }
 
-    public function delete_by_pk() {
-        $pk = $this->pk();
+    public function delete_by_pk($pk) {
         if ($pk === NULL)
             return;
-        
+
+        $schema = $this->schema();
         $delete_sqls = JORK_Query_Cache::inst(get_class($this))->delete_sql();
         $pk = new DB_Expression_Param($pk);
         foreach ($delete_sqls as $del_stmt) {
             $del_stmt->conditions[0]->right_operand = $pk;
-            $del_stmt->exec($this->schema()->db_conn);
+            $del_stmt->exec($schema->db_conn);
+        }
+
+        foreach ($schema->components as $comp_name => $comp_def) {
+            if (array_key_exists('on_delete', $comp_def)) {
+                $on_delete = $comp_def['on_delete'];
+                if (JORK::CASCADE === $on_delete) {
+                    
+                    //$component['value']->delete();
+                } elseif (JORK::SET_NULL == $on_delete) {
+                    if ($schema->is_to_many_component($comp_name)) {
+                        //$component['value']->notify_owner_deletion();
+                    }
+                }
+            }
         }
     }
 

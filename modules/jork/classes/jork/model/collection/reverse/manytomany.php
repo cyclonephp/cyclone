@@ -15,6 +15,10 @@ class JORK_Model_Collection_Reverse_ManyToMany extends JORK_Model_Collection {
         $this->save();
     }
 
+    public function  notify_owner_deletion() {
+        
+    }
+
     public function save() {
         $comp_schema = JORK_Model_Abstract::schema_by_class($this->_comp_schema['class'])
             ->get_property_schema($this->_comp_schema['mapped_by']);

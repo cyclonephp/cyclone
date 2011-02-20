@@ -31,7 +31,8 @@ class Model_Topic extends JORK_Model_Abstract {
             ),
             'posts' => array(
 		'class' => 'Model_Post',
-		'mapped_by' => 'topic'
+		'mapped_by' => 'topic',
+                'on_delete' => JORK::SET_NULL
             ),
             'modinfo' => 'Model_ModInfo'
         );

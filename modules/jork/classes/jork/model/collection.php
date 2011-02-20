@@ -112,6 +112,13 @@ abstract class JORK_Model_Collection extends ArrayObject {
      */
     public abstract function notify_pk_creation($owner_pk);
 
+    /**
+     * Called if delete() is called on the owner of the collection.
+     *
+     * @see JORK_Model_Abstract::delete()
+     */
+    public abstract function notify_owner_deletion();
+
     public abstract function save();
 
     public function  append($value) {
