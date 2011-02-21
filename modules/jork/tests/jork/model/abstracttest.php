@@ -143,6 +143,9 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         $this->assertEquals(2, count(DB::select()->from('t_posts')
                 ->where('topic_fk', 'is', NULL)->exec('jork_test')));
 
+    }
+
+    public function testSetNullFkForReverseOneToOne() {
         $result = JORK::from('Model_User')->where('id', '=', DB::esc(1))
                 ->exec('jork_test');
         $user = $result[0];
@@ -154,4 +157,5 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
                 ->exec('jork_test')->as_array()
         ));
     }
+
 }
