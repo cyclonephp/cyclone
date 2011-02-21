@@ -36,6 +36,7 @@ class Model_Category extends JORK_Model_Abstract {
                 'class' => 'Model_User',
                 'type' => JORK::ONE_TO_ONE,
                 'join_column' => 'moderator_fk',
+                'on_delete' => JORK::SET_NULL
             ),
             'modinfo' => 'Model_ModInfo'
         );
