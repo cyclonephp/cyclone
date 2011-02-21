@@ -381,81 +381,74 @@ abstract class JORK_Model_Abstract {
                             );
                         }
                         $this->_components[$comp_name]['value']->notify_owner_deletion($pk);
+                    } elseif (array_key_exists('mapped_by', $comp_def)) {
+                        // we handle reverse one-to-one components here
+                        $remote_class_schema = self::schema_by_class($comp_def['class']);
+                        if (JORK::ONE_TO_ONE == $remote_class_schema
+                                ->components[$comp_def['mapped_by']]['type']) {
+                            $this->set_null_fk_for_reverse_one_to_one($remote_class_schema
+                                    , $comp_def, $pk);
+                        }
                     }
                 }
-            } elseif (array_key_exists('mapped_by', $comp_def)) {
-                $remote_class_schema = self::schema_by_class($comp_def['class']);
-                $remote_comp_schema = $remote_class_schema
-                    ->components[$comp_def['mapped_by']];
-                if (JORK::ONE_TO_ONE == $remote_comp_schema['type']
-                        && array_key_exists('on_delete', $remote_comp_schema)) {
-                    $on_delete = $remote_comp_schema['on_delete'];
-                    if (JORK::SET_NULL == $on_delete) {
-                        $upd_stmt = new DB_Query_Update;
+            } 
+        }
+    }
 
-                        $remote_atomic_schema = $remote_class_schema->atomics[$remote_comp_schema['join_column']];
+    private function set_null_fk_for_reverse_one_to_one(JORK_Mapping_Schema $remote_class_schema
+            , $comp_def, DB_Expression_Param $pk) {
+        $remote_comp_schema = $remote_class_schema
+                                ->components[$comp_def['mapped_by']];
+        $schema = $this->schema();
 
-                        $remote_join_col = array_key_exists('column', $remote_atomic_schema)
-                                ? $remote_atomic_schema['column']
-                                : $remote_comp_schema['join_column'];
+        $upd_stmt = new DB_Query_Update;
 
-                        $upd_stmt->values = array(
-                            $remote_join_col => NULL
-                        );
+        $remote_atomic_schema = $remote_class_schema->atomics[$remote_comp_schema['join_column']];
 
-                        $local_join_atomic = array_key_exists('inverse_join_column'
-                                , $remote_comp_schema)
-                                ? $remote_comp_schema['join_column']
-                                : $schema->primary_key();
+        $remote_join_col = array_key_exists('column', $remote_atomic_schema) ? $remote_atomic_schema['column'] : $remote_comp_schema['join_column'];
 
-                        $local_join_col = array_key_exists('column'
-                                , $schema->atomics[$local_join_atomic])
-                                ? $schema->atomics[$local_join_atomic]['column']
-                                : $local_join_atomic;
+        $upd_stmt->values = array(
+            $remote_join_col => NULL
+        );
 
-                        $upd_stmt->table = array_key_exists('table', $remote_atomic_schema)
-                                ? $remote_atomic_schema['table']
-                                : $remote_class_schema->table;
+        $local_join_atomic = array_key_exists('inverse_join_column'
+                        , $remote_comp_schema) ? $remote_comp_schema['join_column'] : $schema->primary_key();
 
-                        if ($local_join_atomic == $schema->primary_key()) {
-                            // we are simply happy, the primary key is the
-                            // join column and we have it
-                            $local_join_cond = $pk;
-                        } else {
-                            // the local join column is not the primary key
-                            if (array_key_exists($local_join_atomic, $this->_atomics)) {
-                                // but if it's loaded then we are still happy
-                                $local_join_cond = new DB_Expression_Param($this->_atomics[$local_join_atomic]);
-                            } else {
-                                // otherwise we have to create a subselect to
-                                // get the value of the local join column based on the primary key
-                                // and we hope that the local join column is unique
-                                $local_join_cond = new DB_Query_Select;
-                                $local_join_cond->columns = array($local_join_col);
-                                $local_join_cond->tables = array(
-                                    array_key_exists('table', $schema->atomics[$local_join_atomic])
-                                        ? $schema->atomics[$local_join_atomic]['table']
-                                        : $schema->table
-                                );
-                                $local_join_cond->where_conditions = array(
-                                    new DB_Expression_Binary($schema->primary_key()
-                                            , '=', $pk)
-                                );
-                            }
-                        }
+        $local_join_col = array_key_exists('column'
+                        , $schema->atomics[$local_join_atomic]) ? $schema->atomics[$local_join_atomic]['column'] : $local_join_atomic;
 
-                        $upd_stmt->conditions = array(
-                            new DB_Expression_Binary($remote_join_col, '=', $local_join_cond)
-                        );
-                        
-                        $upd_stmt->exec($schema->db_conn);
-                    } elseif (JORK::CASCADE == $on_delete) {
+        $upd_stmt->table = array_key_exists('table', $remote_atomic_schema) ? $remote_atomic_schema['table'] : $remote_class_schema->table;
 
-                    } else
-                        throw new JORK_Exception('invalid value for on_delete');
-                }
+        if ($local_join_atomic == $schema->primary_key()) {
+            // we are simply happy, the primary key is the
+            // join column and we have it
+            $local_join_cond = $pk;
+        } else {
+            // the local join column is not the primary key
+            if (array_key_exists($local_join_atomic, $this->_atomics)) {
+                // but if it's loaded then we are still happy
+                $local_join_cond = new DB_Expression_Param($this->_atomics[$local_join_atomic]);
+            } else {
+                // otherwise we have to create a subselect to
+                // get the value of the local join column based on the primary key
+                // and we hope that the local join column is unique
+                $local_join_cond = new DB_Query_Select;
+                $local_join_cond->columns = array($local_join_col);
+                $local_join_cond->tables = array(
+                    array_key_exists('table', $schema->atomics[$local_join_atomic]) ? $schema->atomics[$local_join_atomic]['table'] : $schema->table
+                );
+                $local_join_cond->where_conditions = array(
+                    new DB_Expression_Binary($schema->primary_key()
+                            , '=', $pk)
+                );
             }
         }
+
+        $upd_stmt->conditions = array(
+            new DB_Expression_Binary($remote_join_col, '=', $local_join_cond)
+        );
+
+        $upd_stmt->exec($schema->db_conn);
     }
 
 }
