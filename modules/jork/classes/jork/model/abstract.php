@@ -379,7 +379,7 @@ abstract class JORK_Model_Abstract {
                                 'value' => JORK_Model_Collection::for_component($this, $comp_name)
                             );
                         }
-                        $this->_components[$comp_name]['value']->notify_owner_deletion();
+                        $this->_components[$comp_name]['value']->notify_owner_deletion($pk);
                     }
                 }
             }

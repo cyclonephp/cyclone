@@ -48,7 +48,7 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
         $this->update_stor_pk($entity);
     }
 
-    public function  notify_owner_deletion() {
+    public function  notify_owner_deletion(DB_Expression_Param $owner_pk) {
         if ( ! array_key_exists('on_delete', $this->_comp_schema))
             return;
         $on_delete = $this->_comp_schema['on_delete'];
@@ -77,11 +77,14 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
 
             $upd_stmt->conditions = array(
                 new DB_Expression_Binary($col_name, '='
-                        , DB::esc($this->_owner->pk()))
+                        , $owner_pk)
             );
             
             $upd_stmt->exec($this->_owner->schema()->db_conn);
-        }
+        } elseif (JORK::CASCADE == $on_delete) {
+            throw new JORK_Exception('cascade delete is not yet implemented');
+        } else
+            throw new JORK_Exception('invalid value for on_delete');
     }
 
     public function save() {

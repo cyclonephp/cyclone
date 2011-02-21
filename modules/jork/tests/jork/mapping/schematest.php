@@ -17,7 +17,8 @@ class JORK_Mapping_SchemaTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($schema->get_property_schema('posts'), array(
                 'class' => 'Model_Post',
                 'type' => JORK::ONE_TO_MANY,
-                'join_column' => 'user_fk'
+                'join_column' => 'user_fk',
+                'on_delete' => JORK::SET_NULL
             ));
         $schema->get_property_schema('dummy');
     }

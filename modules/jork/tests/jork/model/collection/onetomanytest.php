@@ -53,8 +53,15 @@ class JORK_Model_Collection_OneToManyTest extends JORK_DbTest {
 
         $result = DB::select()->from('t_posts')->where('id', '=', DB::esc(5))->exec('jork_test');
         foreach ($result as $row) {
-            $this->assertEquals(0, $row['user_fk']);
+            $this->assertEquals(NULL, $row['user_fk']);
         }
-        
+    }
+
+    public function testNotifyOwnerDeletion() {
+        Model_User::inst()->delete_by_pk(1);
+
+        $this->assertEquals(2, count(DB::select()->from('t_posts')
+                ->where('user_fk', 'IS', NULL)
+                ->exec('jork_test')->as_array()));
     }
 }

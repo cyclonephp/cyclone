@@ -48,8 +48,36 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
         $this->update_stor_pk($entity);
     }
 
-    public function  notify_owner_deletion() {
-        
+    public function  notify_owner_deletion(DB_Expression_Param $owner_pk) {
+        if ( !array_key_exists('on_delete', $this->_comp_schema))
+            return;
+        $on_delete = $this->_comp_schema['on_delete'];
+        if (JORK::SET_NULL == $on_delete) {
+            $upd_stmt = new DB_Query_Update;
+            $children_schema = JORK_Model_Abstract::schema_by_class($this->_comp_class);
+            $join_atomic = $this->_comp_schema['join_column'];
+
+            $join_atomic_schema = $children_schema->atomics[$join_atomic];
+
+            $join_column = array_key_exists('column', $join_atomic_schema)
+                    ? $join_atomic_schema['column']
+                    : $join_atomic;
+
+            $upd_stmt->table = array_key_exists('table', $join_atomic_schema)
+                    ? $join_atomic_schema['table']
+                    : $children_schema->table;
+
+            $upd_stmt->values = array($join_column => NULL);
+            
+            $upd_stmt->conditions = array(
+                new DB_Expression_Binary($join_column, '='
+                        , $owner_pk)
+            );
+            $upd_stmt->exec($this->_owner->schema()->db_conn);
+        } elseif (JORK::CASCADE == $on_delete) {
+            throw new JORK_Exception('cascade delete is not yet implemented');
+        } else
+            throw new JORK_Exception('invalid value for on_delete');
     }
 
     public function save() {

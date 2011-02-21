@@ -58,7 +58,8 @@ class Model_User extends JORK_Model_Abstract {
             'posts' => array(
                 'class' => 'Model_Post',
                 'type' => JORK::ONE_TO_MANY,
-                'join_column' => 'user_fk'
+                'join_column' => 'user_fk',
+                'on_delete' => JORK::SET_NULL
             ),
             'moderated_category' => array(
                 'class' => 'Model_Category',

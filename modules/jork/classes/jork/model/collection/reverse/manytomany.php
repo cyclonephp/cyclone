@@ -15,7 +15,7 @@ class JORK_Model_Collection_Reverse_ManyToMany extends JORK_Model_Collection {
         $this->save();
     }
 
-    public function  notify_owner_deletion() {
+    public function notify_owner_deletion(DB_Expression_Param $owner_pk) {
         
     }
 

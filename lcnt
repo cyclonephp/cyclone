@@ -12,5 +12,10 @@ done
 echo "$i: $modsum";
 let totalsum=$totalsum+$modsum
 done
+
+for file in index.php build.xml build.properties; do
+linecount=`wc -l $file | sed 's/ [a-zA-Z0-9\./_]*//'`;
+let totalsum=$totalsum+$linecount
+done
 echo "total: $totalsum"
 

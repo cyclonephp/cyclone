@@ -115,9 +115,20 @@ abstract class JORK_Model_Collection extends ArrayObject {
     /**
      * Called if delete() is called on the owner of the collection.
      *
+     * The $owner_pk parameter is not the same as $this->_owner->pk()
+     * in cases when the deletion is called via Model::inst()->delete_by_pk($pk)
+     * since in this cases the singleton doesn't hold any state, but this is the
+     * owner of the collection. The $owner_pk parameter is already put into an
+     * escaped parameter object by JORK_Model_Abstract::delete_by_pk()
+     *
+     * The method throws JORK_Exception if the 'on_delete' key exists in the
+     * component definition but it's value is neither JORK::SET_NULL
+     * nor JORK::CASCADE
+     *
      * @see JORK_Model_Abstract::delete()
+     * @param mixed $owner_pk the primary key of the owner.
      */
-    public abstract function notify_owner_deletion();
+    public abstract function notify_owner_deletion(DB_Expression_Param $owner_pk);
 
     public abstract function save();
 
