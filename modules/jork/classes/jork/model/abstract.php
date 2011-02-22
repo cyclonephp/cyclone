@@ -1,15 +1,41 @@
 <?php
 
 /**
+ * The base class for all JORK model classes.
+ * 
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package JORK
  */
 abstract class JORK_Model_Abstract {
 
+    /**
+     * Mapping schema should be populated in the implementation of this method.
+     *
+     * It will only be called when the singleton instance is created. In the
+     * method the schema object if accessible via <code>$this->_schema</code>.
+     *
+     * @usedby JORK_Model_Abstract::_inst()
+     */
     protected abstract function setup();
 
+    /**
+     * Stores the singleton instances per-class.
+     *
+     * @var array<JORK_Model_Abstract>
+     * @usedby JORK_Model_Abstract::_inst()
+     */
     private static $_instances = array();
 
+    /**
+     * It should be called only by the subclasses. All subclasses should contain
+     * a static method with this code:
+     * <code>pubic static function inst() {
+     *      return parent::_inst(__CLASS__);
+     * }</code>
+     *
+     * @param string $classname
+     * @return JORK_Model_Abstract
+     */
     protected static function _inst($classname) {
         if ( ! array_key_exists($classname, self::$_instances)) {
             $inst = new $classname;
@@ -54,12 +80,41 @@ abstract class JORK_Model_Abstract {
         return self::$_instances[get_class($this)]->_schema;
     }
 
+    /**
+     * Only to be used by the singleton instance. Other instances should use
+     * <code>$this->schema()</code> to get their own mapping schema.
+     *
+     * @var JORK_Mapping_Schema
+     */
     protected $_schema;
 
+    /**
+     * Used to store the atomic properties of the entity. All items are 2-item
+     * arrays with the following keys:
+     * * 'value': the typecasted value of the property
+     * * 'persistent': (boolean) determines if the property has been saved since
+     * it has been loaded from the database of not. Also FALSE if it hasn't been
+     * loaded from the database but it was set by the user.
+     *
+     * @var array
+     */
     protected $_atomics = array();
 
+    /**
+     * Used to store the loaded components of the entity. The items are instances
+     * of JORK_Model_Abstract (for to-one components) or JORK_Model_Collection
+     * (for to-many components).
+     *
+     * @var array
+     */
     protected $_components = array();
 
+    /**
+     * Determines if the properties of the entity are all persistent or not.
+     * If they are, then there is nothing to do when saving the entity.
+     *
+     * @var boolean
+     */
     protected $_persistent = FALSE;
 
     /**
@@ -92,6 +147,17 @@ abstract class JORK_Model_Abstract {
         $this->_pk_change_listeners []= $listener;
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to initialize the component
+     * collections, to be ready when the method calls
+     * <code>JORK_Model_Abstract::add_to_component_collections()</code>.
+     *
+     * @param array $prop_names
+     * @usedby JORK_Mapper_Entity::map_row()
+     * @see JORK_Model_Abstract::add_to_component_collections()
+     */
     public function init_component_collections(&$prop_names) {
         foreach (array_diff_key($prop_names, $this->_components) as $prop => $dummy) {
             if ( ! array_key_exists($prop, $this->_components)) {
@@ -101,6 +167,15 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to quickly load the atomic properties
+     * instead of executing <code>JORK_Model_Abstract::__set()</code> each time.
+     *
+     * @param array<JORK_Model_Abstract> $components
+     * @usedby JORK_Mapper_Entity::map_row()
+     */
     public function populate_atomics($atomics) {
         $schema = $this->schema();
         foreach ($atomics as $k => $v) {
@@ -111,6 +186,15 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to quickly load the to-one components
+     * instead of executing <code>JORK_Model_Abstract::__set()</code> each time.
+     *
+     * @param array<JORK_Model_Abstract> $components
+     * @usedby JORK_Mapper_Entity::map_row()
+     */
     public function set_components($components) {
         foreach ($components as $k => $v) {
             $this->_components[$k] = array(
@@ -120,6 +204,15 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to quickly load the to-many components
+     * instead of executing <code>JORK_Model_Abstract::__set()</code> each time.
+     *
+     * @param array<JORK_Model_Abstract> $components
+     * @usedby JORK_Mapper_Entity::map_row()
+     */
     public function add_to_component_collections($components) {
         foreach ($components as $prop_name => $new_comp) {
             $this->_components[$prop_name]['value'][$new_comp->pk()] = $new_comp;
@@ -180,6 +273,23 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Magic getter implementation for the entity.
+     * 
+     * First checks the atomics in
+     * the schema, if it finds one then returns the value from this entity, or
+     * NULL if not found. Then it checks the components of the schema, and if it
+     * founds one with <code>$key</code> then checks if the component exists in
+     * the entity or not. If it exists, then it returns it, otherwise it returns
+     * NULL or an empty JORK_Model_Collection instance (the latter case happens
+     * if the component is a to-many component).
+     *
+     * If it doesn't find the property in the schema then throws a JORK_Exception.
+     *
+     * @param string $key
+     * @return mixed
+     * @throws JORK_Exception
+     */
     public function  __get($key) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->atomics)) {
@@ -209,6 +319,17 @@ abstract class JORK_Model_Abstract {
         throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
 
+    /**
+     * Used to force typecasting of atomic properties. Used when the entity
+     * is loaded from the database and when the value of the atomic property
+     * is changed.
+     *
+     * @param mixed $val
+     * @param string $type
+     * @return mixed
+     * @see JORK_Model_Abstract::__set()
+     * @see JORK_Model_Abstract::populate_atomics()
+     */
     private function force_type($val, $type) {
         if (NULL === $val) {
             return NULL;
@@ -260,6 +381,17 @@ abstract class JORK_Model_Abstract {
     }
 
     /**
+     * The <code>insert()</code> method should be called explicitly called typically
+     * in one case: if this entity is in one-to-one relation with an other entity
+     * (the owner) and it's joined to the owner by it's primary key, therefore the
+     * primary key is set manually instead of being auto-generated. In this case
+     * you have to call <code>insert()</code> instead of <code>save()</code> since
+     * <code>save()</code> will call <code>update()</code> in this case (since
+     * the primary key exists in the entity).
+     *
+     * The method doesn't do anything if the entity is persistent.
+     *
+     * @usedby JORK_Model_Abstract::save()
      * 
      */
     public function insert() {
@@ -325,6 +457,12 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Typically this method should never be called from outside, just made public
+     * for edge-cases.
+     *
+     * @usedby JORK_Model_Abstract::save()
+     */
     public function update() {
         if ( ! ($this->_persistent  || $this->_save_in_progress)) {
             $this->_save_in_progress = TRUE;
@@ -371,6 +509,16 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Saves the entity. Performs an SQL INSERT statement if the primary key of
+     * the entity is not set, otherwise an SQL UPDATE is executed.
+     *
+     * The <code>update()</code> and <code>insert()</code> methods are also public,
+     * but these should be rarely used.
+     *
+     * @see JORK_Model_Abstract::insert()
+     * @see JORK_Model_Abstract::update()
+     */
     public function save() {
         if ($this->pk() === NULL) {
             $this->insert();
