@@ -211,10 +211,39 @@ abstract class JORK_Model_Abstract {
     public function __set($key, $val) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->atomics)) {
-            $this->_atomics[$key]['value'] = $val;
+            if ( ! array_key_exists($key, $this->_atomics)) {
+                $this->_atomics[$key] = array();
+            }
+            if (NULL === $val) {
+                $this->_atomics[$key]['value'] = NULL;
+            } else {
+                // doing type casts
+                switch ($schema->atomics[$key]['type']) {
+                    case 'string':
+                        $this->_atomics[$key]['value'] = (string) $val;
+                        break;
+                    case 'int':
+                        $this->_atomics[$key]['value'] = (int) $val;
+                        break;
+                    case 'float':
+                        $this->_atomics[$key]['value'] = (float) $val;
+                        break;
+                    case 'bool':
+                        $this->_atomics[$key]['value'] = (bool) $val;
+                        break;
+                    case 'datetime':
+                        $this->_atomics[$key]['value'] = (string) $val;
+                        break;
+                    default:
+                        throw new JORK_Exception("invalid type for atomic propery '$key' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
+                    It must be one of the followings: string, int, float, bool, datetime");
+                }
+            }
             $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
+            if ( ! $val instanceof  $schema->components[$key]['class'])
+                throw new JORK_Exception("value of {$schema->class}::$key must be an instance of {$schema->components[$key]['class']}");
             if ( ! array_key_exists($key, $this->_components)) {
                 $this->_components[$key] = array(
                     'value' => $val,

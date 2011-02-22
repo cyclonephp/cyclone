@@ -158,4 +158,23 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         ));
     }
 
+    public function testAtomicTypeCasts() {
+        $user = new Model_User;
+        $user->id = 1;
+        $this->assertInternalType('int', $user->id);
+        $user->id = '145';
+        $this->assertInternalType('int', $user->id);
+        $user->name = 256;
+        $this->assertEquals(256, $user->name);
+        $this->assertInternalType('string', $user->name);
+    }
+
+    /**
+     * @expectedException JORK_Exception
+     */
+    public function testAtomicTypeCheck() {
+        $user = new Model_User;
+        $user->moderated_category = new Model_Post;
+    }
+
 }
