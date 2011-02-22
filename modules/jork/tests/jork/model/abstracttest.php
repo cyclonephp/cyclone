@@ -167,6 +167,12 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         $user->name = 256;
         $this->assertEquals(256, $user->name);
         $this->assertInternalType('string', $user->name);
+
+        $result = JORK::from('Model_User')->where('id', '=', DB::esc(1))
+                ->exec('jork_test');
+        $user = $result[0];
+        $this->assertInternalType('int', $user->id);
+        $this->assertInternalType('string', $user->name);
     }
 
     /**

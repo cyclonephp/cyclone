@@ -102,9 +102,10 @@ abstract class JORK_Model_Abstract {
     }
 
     public function populate_atomics($atomics) {
+        $schema = $this->schema();
         foreach ($atomics as $k => $v) {
             $this->_atomics[$k] = array(
-                'value' => $v,
+                'value' => $this->force_type($v, $schema->atomics[$k]['type']),
                 'persistent' => TRUE
             );
         }
@@ -208,37 +209,36 @@ abstract class JORK_Model_Abstract {
         throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
 
+    private function force_type($val, $type) {
+        if (NULL === $val) {
+            return NULL;
+        } else {
+            // doing type casts
+            switch ($type) {
+                case 'string':
+                    return (string) $val;
+                case 'int':
+                    return (int) $val;
+                case 'float':
+                    return (float) $val;
+                case 'bool':
+                    return (bool) $val;
+                case 'datetime':
+                    return (string) $val;
+                default:
+                    throw new JORK_Exception("invalid type for atomic propery '$key' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
+                    It must be one of the followings: string, int, float, bool, datetime");
+            }
+        }
+    }
+
     public function __set($key, $val) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->atomics)) {
             if ( ! array_key_exists($key, $this->_atomics)) {
                 $this->_atomics[$key] = array();
             }
-            if (NULL === $val) {
-                $this->_atomics[$key]['value'] = NULL;
-            } else {
-                // doing type casts
-                switch ($schema->atomics[$key]['type']) {
-                    case 'string':
-                        $this->_atomics[$key]['value'] = (string) $val;
-                        break;
-                    case 'int':
-                        $this->_atomics[$key]['value'] = (int) $val;
-                        break;
-                    case 'float':
-                        $this->_atomics[$key]['value'] = (float) $val;
-                        break;
-                    case 'bool':
-                        $this->_atomics[$key]['value'] = (bool) $val;
-                        break;
-                    case 'datetime':
-                        $this->_atomics[$key]['value'] = (string) $val;
-                        break;
-                    default:
-                        throw new JORK_Exception("invalid type for atomic propery '$key' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
-                    It must be one of the followings: string, int, float, bool, datetime");
-                }
-            }
+            $this->_atomics[$key]['value'] = $this->force_type($val, $schema->atomics[$key]['type']);
             $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
