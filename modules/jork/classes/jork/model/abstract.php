@@ -491,7 +491,8 @@ abstract class JORK_Model_Abstract {
                     $this->_atomics[$col_name]['persistent'] = TRUE;
                 }
             }
-
+            //TODO should be improved for proper secondary table handling
+            // (otherwise i'm so fuckin' fed up with secondary tables :P)
             foreach ($values as $tbl_name => $upd_vals) {
                 $update_sqls[$tbl_name]->values = $upd_vals;
                 $update_sqls[$tbl_name]->where($schema->primary_key(), '='
