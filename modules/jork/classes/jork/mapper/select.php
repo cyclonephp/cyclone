@@ -144,8 +144,8 @@ abstract class JORK_Mapper_Select {
         if ( ! ($right_is_array || $right_is_model))
             throw new JORK_Exception('right operator is neither a valid property chain nor a model object');
 
-        if ($expr->operator != '=')
-            throw new JORK_Exception('only equality comparision is possible between objects, operator \''
+        if ( ! ($expr->operator == '=' || strtolower($expr->operator) == 'in'))
+            throw new JORK_Exception('only = or IN is possible between objects, operator \''
                     . $expr->operator . '\' is forbidden');
 
         //holy shit... it's coming -.-
