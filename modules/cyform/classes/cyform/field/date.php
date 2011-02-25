@@ -1,7 +1,10 @@
 <?php
 
-
-class KForm_Field_Date extends KForm_Field {
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package CyForm
+ */
+class CyForm_Field_Date extends KForm_Field {
 
     public $value_format = 'year-month-day';
 

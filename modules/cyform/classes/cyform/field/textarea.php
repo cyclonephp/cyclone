@@ -1,7 +1,10 @@
 <?php
 
-
-class KForm_Field_Textarea extends KForm_Field {
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package CyForm
+ */
+class CyForm_Field_Textarea extends KForm_Field {
 
     public function  __construct(KForm $form, $name, array $model) {
         parent::__construct($form, $name, $model, 'textarea');
