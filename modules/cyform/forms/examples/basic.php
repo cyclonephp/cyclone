@@ -13,12 +13,12 @@ return array(
                     'error' => ':1: invalid number format'
                 ),
                 array(
-                    'callback' => array('KForm_Test', 'custom_callback'),
+                    'callback' => array('CyForm_Test', 'custom_callback'),
                     'params' => array('asd'),
                     'error' => 'username :1 is not unique'
                 ),
                 array(
-                    'callback' => array('KForm_Test', 'custom_callback'),
+                    'callback' => array('CyForm_Test', 'custom_callback'),
                     'error' => 'username :1 is not unique'
                 )
             )

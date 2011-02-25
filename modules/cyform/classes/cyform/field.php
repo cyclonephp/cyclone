@@ -38,7 +38,7 @@ class CyForm_Field {
     /**
      * set at the constructor
      *
-     * @var KForm
+     * @var CyForm
      */
     protected $form;
 
@@ -48,7 +48,7 @@ class CyForm_Field {
      * @param array $model the field definition
      * @param string $type the type of the HTML input
      */
-    public function  __construct(KForm $form, $name, array $model, $type) {
+    public function  __construct(CyForm $form, $name, array $model, $type) {
         $this->form = $form;
         $this->model = $model;
         $this->name = $name;
@@ -99,10 +99,10 @@ class CyForm_Field {
 
     /**
      * if the validation is set up for the field, then executes all of the
-     * validators by calling <code>KForm_Input::exec_basic_validator()</code> and
-     * <code>KForm_Input::exec_callback_validator()</code>.
+     * validators by calling <code>CyForm_Input::exec_basic_validator()</code> and
+     * <code>CyForm_Input::exec_callback_validator()</code>.
      *
-     * Stores the error messages in the <code>KForm_Input::validation_errors</code> array.
+     * Stores the error messages in the <code>CyForm_Input::validation_errors</code> array.
      */
     public function validate() {
         if (array_key_exists('validation', $this->model)) {
@@ -130,7 +130,7 @@ class CyForm_Field {
         $result = call_user_func_array($callback, $params);
         if ( ! $result) {
             if ( ! isset($error)) {
-                $error = __(Kohana::config('kform.default_error_prefix') . $validator);
+                $error = __(Kohana::config('cyform.default_error_prefix') . $validator);
             }
             $this->add_validation_error($validator, $error, $params);
         }
@@ -138,7 +138,7 @@ class CyForm_Field {
 
     protected function exec_callback_validator($validator, $details) {
         if ( ! is_array($details))
-            throw new KForm_Exception($details.' is not an array');
+            throw new CyForm_Exception($details.' is not an array');
 
         if ( ! array_key_exists('params', $details)) {
             $params = array();
@@ -149,7 +149,7 @@ class CyForm_Field {
         $result = call_user_func_array($details['callback'], $params);
         if ( ! $result) {
             if ( ! array_key_exists('error', $details)) {
-                $error = __(Kohana::config('kform.default_error_prefix') . $validator);
+                $error = __(Kohana::config('cyform.default_error_prefix') . $validator);
             } else {
                 $error = $details['error'];
             }

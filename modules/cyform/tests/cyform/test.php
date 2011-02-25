@@ -1,21 +1,21 @@
 <?php
 
 
-class KForm_Test extends Kohana_Unittest_TestCase {
+class CyForm_Test extends Kohana_Unittest_TestCase {
 
     /**
-     * @expectedException KForm_Exception
+     * @expectedException CyForm_Exception
      */
     public function testConstructor() {
-        $form1 = new KForm('examples/basic');
-        $form2 = new KForm(array(
+        $form1 = new CyForm('examples/basic');
+        $form2 = new CyForm(array(
             'fields' => array()
         ));
-        $form3 = new KForm('does not exist');
+        $form3 = new CyForm('does not exist');
     }
 
     public function testBasicInput() {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'basic' => array(
                     
@@ -23,7 +23,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             )
         ));
 
-        $this->assertTrue($form->fields['basic'] instanceof KForm_Field);
+        $this->assertTrue($form->fields['basic'] instanceof CyForm_Field);
     }
 
     /**
@@ -31,7 +31,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
      * @dataProvider providerExplicitInput
      */
     public function testExplicitInput($field_type, $input_class) {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name' => array(
                     'type' => $field_type
@@ -42,7 +42,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testInputCheckbox() {
-        $checkbox = new KForm_Field_Checkbox(new KForm(array(
+        $checkbox = new CyForm_Field_Checkbox(new CyForm(array(
             'fields' => array()
         )), '', array());
         $checkbox->set_data('on');
@@ -59,7 +59,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
      * @dataProvider providerDataSource
      */
     public function testDataSourceLoading($data_source) {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name' => array(
                     'type' => 'list',
@@ -74,7 +74,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testLoadInput() {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name1' => array(),
                 'name2' => array()
@@ -91,7 +91,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testValidation() {
-        $form = new KForm('examples/basic');
+        $form = new CyForm('examples/basic');
         $form->set_input(array('name' => 'hello'));
         $this->assertEquals($form->fields['name']->validation_errors,
                 array(
@@ -102,7 +102,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testResult() {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name1' => array(
                     'type' => 'text',
@@ -137,7 +137,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testOnEmpty() {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name1' => array(
                     'type' => 'text',
@@ -155,7 +155,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
      * @dataProvider providerFieldDate
      */
     public function testFieldDate($date_string, $input, $date_format) {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'mydate' => array(
                     'type' => 'date'
@@ -172,7 +172,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $data = $form->get_data();
         $this->assertEquals($data['mydate'], $date_string);
 
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'mydate' => array(
                     'type' => 'date'
@@ -186,7 +186,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testOnCreate() {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name' => array(
                     'type' => 'text',
@@ -198,7 +198,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $form->render();
         $this->assertFalse(array_key_exists('name', $form->fields));
 
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name' => array(
                     'type' => 'text',
@@ -211,7 +211,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testOnEdit() {
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name' => array(
                     'type' => 'text',
@@ -224,7 +224,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
         $form->render();
         $this->assertFalse(array_key_exists('name', $form->fields));
 
-        $form = new KForm(array(
+        $form = new CyForm(array(
             'fields' => array(
                 'name' => array(
                     'type' => 'text',
@@ -244,9 +244,9 @@ class KForm_Test extends Kohana_Unittest_TestCase {
      */
     public function testEdit(array $fields, array $before_data
             , $progress_id_required, $input, array $after_data) {
-        $cfg = Kohana::config('kform');
+        $cfg = Kohana::config('cyform');
         unset($_SESSION[$cfg['progress_key']]);
-        $form_before_submit = new KForm(array('fields' => $fields));
+        $form_before_submit = new CyForm(array('fields' => $fields));
         $form_before_submit->set_data($before_data);
 
         if ($progress_id_required) {
@@ -259,7 +259,7 @@ class KForm_Test extends Kohana_Unittest_TestCase {
             }
         }
 
-        $form_after_submit = new KForm(array('fields' => $fields));
+        $form_after_submit = new CyForm(array('fields' => $fields));
         if ($progress_id_required) {
             $input[$cfg['progress_key']] = $form_before_submit->fields[$cfg['progress_key']]->get_data();
         }
@@ -333,14 +333,14 @@ class KForm_Test extends Kohana_Unittest_TestCase {
 
     public function providerExplicitInput() {
         return array(
-            array('text', 'KForm_Field'),
-            array('hidden', 'KForm_Field'),
-            array('checkbox', 'KForm_Field_Checkbox'),
-            array('password', 'KForm_Field'),
-            array('list', 'KForm_Field_List'),
-            array('submit', 'KForm_Field'),
-            array('textarea', 'KForm_Field'),
-            array('date', 'KForm_Field_Date')
+            array('text', 'CyForm_Field'),
+            array('hidden', 'CyForm_Field'),
+            array('checkbox', 'CyForm_Field_Checkbox'),
+            array('password', 'CyForm_Field'),
+            array('list', 'CyForm_Field_List'),
+            array('submit', 'CyForm_Field'),
+            array('textarea', 'CyForm_Field'),
+            array('date', 'CyForm_Field_Date')
         );
     }
 

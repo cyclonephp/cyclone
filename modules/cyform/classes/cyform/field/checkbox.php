@@ -4,9 +4,9 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package CyForm
  */
-class CyForm_Field_Checkbox extends KForm_Field {
+class CyForm_Field_Checkbox extends CyForm_Field {
 
-    public function  __construct(KForm $form, $name, array $model) {
+    public function  __construct(CyForm $form, $name, array $model) {
         parent::__construct($form, $name, $model, 'checkbox');
     }
 

@@ -15,7 +15,7 @@ class CyForm {
 
     /**
      *
-     * @var array stores the configuration (config/kform)
+     * @var array stores the configuration (config/cyform)
      */
     protected $config;
 
@@ -37,10 +37,10 @@ class CyForm {
         } else {
             $file = Kohana::find_file('forms', $model);
             if ($file === false)
-                throw new KForm_Exception('form definition not found');
+                throw new CyForm_Exception('form definition not found');
             $this->model = require $file;
         }
-        $this->config = Kohana::config('kform');
+        $this->config = Kohana::config('cyform');
         $this->_init($load_data_sources);
     }
 
@@ -52,11 +52,11 @@ class CyForm {
     protected function _init($load_data_sources) {
         foreach($this->model['fields'] as $name => &$field) {
             $type = Arr::get($field, 'type', 'text');
-            $class = 'KForm_Field_'.ucfirst($type);
+            $class = 'CyForm_Field_'.ucfirst($type);
             if (class_exists($class)) {
                 $field = new $class($this, $name, $field);
             } else  {
-                $field = new KForm_Field($this, $name, $field, $type);
+                $field = new CyForm_Field($this, $name, $field, $type);
             }
             
             if ($load_data_sources) {
@@ -90,9 +90,9 @@ class CyForm {
      * * the form has got a field with this name, but the inputs are disabled
      *      on the client side and the form submit will not contain the value
      *
-     * @see KForm::load_data()
-     * @see KForm::load_input()
-     * @see KForm::result()
+     * @see CyForm::load_data()
+     * @see CyForm::load_input()
+     * @see CyForm::result()
      * @param array $data
      */
     protected function _save_data(array $data) {
@@ -142,7 +142,7 @@ class CyForm {
         $progress_id = sha1($_SESSION[$sess_key]['progress_counter']++);
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
-        $input = new KForm_Field($this, $this->config['progress_key'], array(), 'hidden');
+        $input = new CyForm_Field($this, $this->config['progress_key'], array(), 'hidden');
         $input->set_data($progress_id);
         $this->model['fields'] [$this->config['progress_key']] = $input;
 
@@ -152,7 +152,7 @@ class CyForm {
     /**
      * loads the result of a form submission into the form fields. You will need
      * to use this method every time when you want to handle a form submission
-     * with KForm.
+     * with CyForm.
      *
      * @param array $src
      */
@@ -258,7 +258,7 @@ class CyForm {
             }
         }
         if ( ! array_key_exists('view_root', $this->model)) {
-            $this->model['view_root'] = 'kform';
+            $this->model['view_root'] = 'cyform';
         }
 
         if ( ! array_key_exists('view', $this->model)) {
