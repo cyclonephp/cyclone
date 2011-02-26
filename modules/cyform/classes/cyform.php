@@ -36,12 +36,12 @@ class CyForm {
             $this->model = $model;
         } else {
             $file = Kohana::find_file('forms', $model);
-            if ($file === false)
-                throw new CyForm_Exception('form definition not found');
+            if (FALSE === $file)
+                throw new CyForm_Exception('form definition not found: ' . $model);
             $this->model = require $file;
         }
-        $this->config = Kohana::config('cyform');
-        $this->_init($load_data_sources);
+        $this->config = Config::inst()->get('cyform');
+        $this->init($load_data_sources);
     }
 
     /**
@@ -49,7 +49,7 @@ class CyForm {
      * 
      * @param boolean $load_data_sources if <code>TRUE</code>, then the data sources are loaded after model loading.
      */
-    protected function _init($load_data_sources) {
+    protected function init($load_data_sources) {
         foreach($this->model['fields'] as $name => &$field) {
             $type = Arr::get($field, 'type', 'text');
             $class = 'CyForm_Field_'.ucfirst($type);
@@ -77,7 +77,7 @@ class CyForm {
                 $this->model['fields'][$k]->set_data($v);
             }
         }
-        $save && $this->_save_data($src);
+        $save && $this->save_data($src);
     }
 
     /**
@@ -95,9 +95,9 @@ class CyForm {
      * @see CyForm::result()
      * @param array $data
      */
-    protected function _save_data(array $data) {
+    protected function save_data(array $data) {
         if (null === $this->progress_id) {
-            $this->progress_id = $this->_create_progress_id();
+            $this->progress_id = $this->create_progress_id();
         }
 
         $_SESSION[$this->config['session_key']]['progress'][$this->progress_id] = $data;
@@ -109,7 +109,7 @@ class CyForm {
      * @param string $progress_id
      * @return array
      */
-    protected function _get_saved_data($progress_id) {
+    protected function get_saved_data($progress_id) {
         $sess_key = $this->config['session_key'];
         if (array_key_exists($sess_key, $_SESSION)
                 && array_key_exists($progress_id, $_SESSION[$sess_key]['progress'])) {
@@ -126,7 +126,7 @@ class CyForm {
      *
      * @return string
      */
-    protected function _create_progress_id() {
+    protected function create_progress_id() {
         $sess_key = $this->config['session_key'];
         if ( ! array_key_exists($sess_key, $_SESSION)) {
             $_SESSION[$sess_key] = array(
@@ -135,15 +135,17 @@ class CyForm {
             );
         }
         
-        if ($_SESSION[$sess_key]['progress_counter'] == 32767) {
+        if (32767 == $_SESSION[$sess_key]['progress_counter']) {
             $_SESSION[$sess_key]['progress_counter'] = 0;
         }
 
         $progress_id = sha1($_SESSION[$sess_key]['progress_counter']++);
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
+        // creating hidden input for storing unique form ID
         $input = new CyForm_Field($this, $this->config['progress_key'], array(), 'hidden');
         $input->set_data($progress_id);
+        // and adding it to the form inputs
         $this->model['fields'] [$this->config['progress_key']] = $input;
 
         return $progress_id;
@@ -158,7 +160,7 @@ class CyForm {
      */
     public function set_input($src, $validate = true) {
         if (array_key_exists($this->config['progress_key'], $src)) {
-            $saved_data = $this->_get_saved_data($src[$this->config['progress_key']]);
+            $saved_data = $this->get_saved_data($src[$this->config['progress_key']]);
         } else {
             $saved_data = array();
         }
@@ -195,7 +197,7 @@ class CyForm {
     public function get_data($result_type = 'array') {
         $result_type = Arr::get($this->model, 'result_type', $result_type);
         if ( ! is_null($this->progress_id)) {
-            $saved_data = $this->_get_saved_data($this->progress_id);
+            $saved_data = $this->get_saved_data($this->progress_id);
         }
         if ('array' == $result_type) {
             $result = array();
@@ -205,6 +207,9 @@ class CyForm {
                 }
             }
             foreach ($this->fields as $name => $field) {
+                // if the key is an integer then it's the hidden input created
+                // for storing the form ID. This value shouldn't be presented in
+                // the business data
                 if ( ! is_int($name)) {
                     $result[$name] = $field->get_data();
                 }
@@ -217,6 +222,7 @@ class CyForm {
                 }
             }
             foreach ($this->fields as $name => $field) {
+                // the same here
                 if ( ! is_int($name)) {
                     $result->$name = $field->get_data();
                 }
@@ -225,6 +231,11 @@ class CyForm {
         return $result;
     }
 
+    /**
+     * Checks if the form is currently in edit mode or not.
+     *
+     * @return boolean
+     */
     public function edit_mode() {
         return ! is_null($this->progress_id);
     }

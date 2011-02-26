@@ -55,14 +55,33 @@ class CyForm_Field {
         $this->type = $type;
     }
 
+    /**
+     * Empty method. Can be overriden by subclasses if the input type represented
+     * by the subclass has got data source to be loaded. A CyForm object loads
+     * the data sources of its fields on creation in most cases.
+     *
+     * @usedby CyForm::init()
+     */
     public function load_data_source() {
         
     }
 
+    /**
+     * Default implementation that works for most inputs. It can be overriden by
+     * subclasses.
+     *
+     * @param mixed $val
+     */
     public function set_data($val) {
         $this->value = $val;
     }
 
+    /**
+     * Default implementation that works for most inputs. It can be overriden by
+     * subclasses.
+     * 
+     * @return mixed
+     */
     public function get_data() {
         return $this->value;
     }
@@ -164,6 +183,12 @@ class CyForm_Field {
         $this->validation_errors[$validator] = $error_template;
     }
 
+    /**
+     * Prepares the field model for rendering.
+     *
+     * @return void
+     * @usedby CyForm_Field::render()
+     */
     protected function before_rendering() {
         $this->model['errors'] = $this->validation_errors;
         if ( ! array_key_exists('attributes', $this->model)) {
@@ -185,6 +210,12 @@ class CyForm_Field {
         }
     }
 
+    /**
+     * Renders the field.
+     *
+     * @return string
+     * @uses CyForm_Field::before_rendering()
+     */
     public function render() {
         $this->before_rendering();
         $view = new View($this->form->view_root
