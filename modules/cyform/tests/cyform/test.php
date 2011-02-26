@@ -6,7 +6,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
     /**
      * @expectedException CyForm_Exception
      */
-    public function testConstructor() {
+    public function testConstructor() { 
         $form1 = new CyForm('examples/basic');
         $form2 = new CyForm(array(
             'fields' => array()
@@ -191,6 +191,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
                 'name' => array(
                     'type' => 'text',
                     'on_create' => 'hide',
+                    'label' => ''
                 )
             )
         ));
@@ -203,6 +204,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
                 'name' => array(
                     'type' => 'text',
                     'on_create' => 'disable',
+                    'label' => ''
                 )
             )
         ));
@@ -216,6 +218,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
                 'name' => array(
                     'type' => 'text',
                     'on_edit' => 'hide',
+                    'label' => ''
                 )
             )
         ));
@@ -229,6 +232,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
                 'name' => array(
                     'type' => 'text',
                     'on_edit' => 'disable',
+                    'label' => ''
                 )
             )
         ));

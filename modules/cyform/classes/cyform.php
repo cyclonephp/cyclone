@@ -7,6 +7,15 @@
 class CyForm {
 
     /**
+     * Used as default view root if a requested template is not found
+     * in the view root of the current theme.
+     *
+     * @usedby CyForm::render()
+     * @usedby CyForm_Field::render()
+     */
+    const DEFAULT_THEME = 'cyform/default';
+
+    /**
      *
      * @var array the model passed to the constructor. Current input values and
      * error messages are also stored in this array.
@@ -42,6 +51,7 @@ class CyForm {
         }
         $this->config = Config::inst()->get('cyform');
         $this->init($load_data_sources);
+        $this->add_assets();
     }
 
     /**
@@ -63,6 +73,18 @@ class CyForm {
                 $field->load_data_source();
             }
         }
+    }
+
+    protected function add_assets() {
+        $theme = array_key_exists('theme', $this->model)
+                ? $this->model['theme']
+                : self::DEFAULT_THEME;
+        try {
+            Asset_Pool::inst()->add_asset($theme, 'css');
+        } catch (Exception $ex) {}
+        try {
+            Asset_Pool::inst()->add_asset($theme, 'js');
+        } catch (Exception $ex) {}
     }
 
     /**
@@ -268,8 +290,8 @@ class CyForm {
                 }
             }
         }
-        if ( ! array_key_exists('view_root', $this->model)) {
-            $this->model['view_root'] = 'cyform';
+        if ( ! array_key_exists('theme', $this->model)) {
+            $this->model['theme'] = self::DEFAULT_THEME;
         }
 
         if ( ! array_key_exists('view', $this->model)) {
@@ -291,8 +313,13 @@ class CyForm {
 
     public function render() {
         $this->before_rendering();
-        $view = new View($this->model['view_root']
+        try {
+            $view = new View($this->model['theme']
                 .DIRECTORY_SEPARATOR.$this->model['view'], $this->model);
+        } catch (Kohana_View_Exception $ex) {
+            $view = new View(self::DEFAULT_THEME . DIRECTORY_SEPARATOR
+                    . $this->model['view'], $this->model);
+        }
         return $view->render();
     }
 

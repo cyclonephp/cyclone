@@ -1,6 +1,7 @@
 <?php
 
 return array(
+    'theme' => 'cyform/gray',
     'title' => 'complex form example',
     'fields' => array(
         'name' => array(

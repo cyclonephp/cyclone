@@ -5,7 +5,7 @@ class Controller_Formtest extends Controller_Core {
 
 
     public function action_index() {
-        $form = new KForm('examples/complex');
+        $form = new CyForm('examples/complex');
         $this->params['form'] = $form;
     }
 

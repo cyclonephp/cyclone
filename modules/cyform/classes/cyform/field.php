@@ -218,9 +218,14 @@ class CyForm_Field {
      */
     public function render() {
         $this->before_rendering();
-        $view = new View($this->form->view_root
+        try {
+            $view = new View($this->form->theme
                 .DIRECTORY_SEPARATOR.$this->model['view'],
                 $this->model);
+        } catch (Kohana_View_Exception $ex) {
+            $view = new View(CyForm::DEFAULT_THEME . DIRECTORY_SEPARATOR
+                    . $this->model['view'], $this->model);
+        }
         return $view->render();
     }
 
