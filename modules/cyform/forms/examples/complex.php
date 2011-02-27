@@ -3,6 +3,9 @@
 return array(
     'theme' => 'cyform/gray',
     'title' => 'complex form example',
+    'attributes' => array(
+        'action' => 'formtest/ajaxsave'
+    ),
     'fields' => array(
         'name' => array(
             'type' => 'text',

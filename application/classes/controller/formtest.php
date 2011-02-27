@@ -16,4 +16,10 @@ class Controller_Formtest extends Controller_Core {
             print_r($_POST);
         }
     }
+
+    public function action_ajaxsave() {
+        $this->content = array(
+            'hello' => 'world'
+        );
+    }
 }
