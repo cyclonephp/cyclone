@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 abstract class DB_Query_Result extends ArrayIterator implements Countable, Traversable {
 
     protected $_row_type = 'array';
@@ -22,6 +25,11 @@ abstract class DB_Query_Result extends ArrayIterator implements Countable, Trave
     }
 
 
+    /**
+     * Returns all the result rows as associative arrays.
+     *
+     * @return array
+     */
     public abstract function as_array();
 
 }

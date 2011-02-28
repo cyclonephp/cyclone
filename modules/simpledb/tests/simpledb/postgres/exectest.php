@@ -20,6 +20,13 @@ class SimpleDB_Query_Result_ExecTest extends SimpleDB_Postgres_DbTest {
             $this->assertEquals($exp_result[$cnt], $row);
             ++$cnt;
         }
+        // we iterate again to check if rewind() works properly
+        $cnt = 1;
+        foreach ($result as $id => $row) {
+            $this->assertEquals($cnt, $id);
+            $this->assertEquals($exp_result[$cnt], $row);
+            ++$cnt;
+        }
     }
 
     public function testExecInsert() {

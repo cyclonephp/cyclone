@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Query_Result_Postgres extends DB_Query_Result {
 
     private $_res;
@@ -9,6 +12,9 @@ class DB_Query_Result_Postgres extends DB_Query_Result {
         $this->_res = $res;
     }
 
+    /**
+     * {@inheritdoc }
+     */
     public function  as_array() {
         return pg_fetch_all($this->_res);
     }
