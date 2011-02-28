@@ -15,4 +15,20 @@ class SimpleDB_Query_Result_ExecTest extends SimpleDB_Postgres_DbTest {
         $this->assertNull($id);
     }
 
+    public function testExecDelete() {
+        DB::delete('users')->where('id', '=', DB::esc(1))->exec('postgres');
+        $result = pg_query('select count(1) cnt from users');
+        $row = pg_fetch_assoc($result);
+        $this->assertEquals(1, $row['cnt']);
+    }
+
+    public function testExecUpdate() {
+        DB::update('users')->values(array('name' => 'user2_mod'))
+                ->where('id', '=', DB::esc(2))->exec('postgres');
+
+        $result = pg_query('select name from users where id = 2');
+        $row = pg_fetch_assoc($result);
+        $this->assertEquals('user2_mod', $row['name']);
+    }
+
 }
