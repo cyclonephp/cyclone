@@ -1,8 +1,11 @@
 <?php
 
 /**
+ * The result of a SELECT statement executed on a postgres database.
+ *
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package SimpleDB
+ * @see DB_Adapter_Mysqli::exec_select()
  */
 class DB_Query_Result_Mysqli extends DB_Query_Result {
 

@@ -83,14 +83,20 @@ class DB_Adapter_Postgres extends DB_Adapter {
 
     public function exec_update(DB_Query_Update $query) {
         $sql = $this->compile_update($query);
-        if (pg_query($this->_db_conn, $sql) == FALSE)
+        $result = pg_query($this->_db_conn, $sql);
+        if (FALSE == $result)
             throw new DB_Exception('Failed to execute SQL: ' . pg_last_error($this->_db_conn));
+
+        return pg_affected_rows($result);
     }
 
     public function exec_delete(DB_Query_Delete $query) {
         $sql = $this->compile_delete($query);
-        if (pg_query($this->_db_conn, $sql) == FALSE)
+        $result = pg_query($this->_db_conn, $sql);
+        if (FALSE == $result)
             throw new DB_Exception('Failed to execute SQL: ' . pg_last_error($this->_db_conn));
+
+        return pg_affected_rows($result);
     }
 
     public function exec_custom($sql) {

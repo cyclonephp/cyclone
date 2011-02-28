@@ -1,5 +1,11 @@
 <?php
 /**
+ * Abstract class for DBMS-specific adapters.
+ *
+ * Adapter classes are responsible for compiling DB_Query instances to proper
+ * SQL according to the DBMS and calling the appropriate PHP functions to execute
+ * the SQL. They provide a common, database-independent API.
+ *
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package SimpleDB
  */
@@ -11,15 +17,35 @@ abstract class DB_Adapter {
 
     protected $esc_char;
 
+    /**
+     * DB_Adapter classes are recommended to be created using DB::inst() instead
+     * of direct instantiation.
+     *
+     * @param array $config
+     * @access package
+     * @see DB::inst()
+     */
     public function  __construct($config) {
         $this->config = $config;
         $this->connect();
     }
 
+    /**
+     * Connects to the database.
+     */
     protected abstract function connect();
 
+    /**
+     * Disconnects from the database.
+     */
     public abstract function disconnect();
 
+    /**
+     * Calls a compile_* method according to the class of $query.
+     *
+     * @param DB_Query $query
+     * @return string the generated SQL
+     */
     public function compile($query) {
         switch (get_class($query)) {
             case 'DB_Query_Select':
@@ -35,6 +61,12 @@ abstract class DB_Adapter {
         }
     }
 
+    /**
+     * Calls an exec_* method according to the class of the query.
+     *
+     * @param DB_Query $query
+     * @return mixed it's up to the query type
+     */
     public function exec($query) {
         switch (get_class($query)) {
             case 'DB_Query_Select':
@@ -51,6 +83,14 @@ abstract class DB_Adapter {
     }
 
 
+    /**
+     * Compiles a DB_Query_Select to SQL according to the SQL dialect of the
+     * DBMS. Recommended to use DB_Query_Select::compile() instead.
+     *
+     * @param DB_Query_Select $query
+     * @return string the generated SQL
+     * @usedby DB_Query_Select::compile()
+     */
     public function  compile_select(DB_Query_Select $query) {
         $this->_select_aliases($query->tables, $query->joins);
         $rval = 'SELECT ';
@@ -101,6 +141,14 @@ abstract class DB_Adapter {
         return $rval;
     }
 
+    /**
+     * Compiles a DB_Query_Insert to SQL according to the SQL dialect of the
+     * DBMS. Recommended to use DB_Query_Insert::compile() instead.
+     *
+     * @param DB_Query_Insert $query
+     * @return string the generated SQL
+     * @usedby DB_Query_Insert::compile()
+     */
     public function  compile_insert(DB_Query_Insert $query) {
         $this->_select_aliases($query->table);
         $rval = 'INSERT INTO ';
@@ -116,6 +164,14 @@ abstract class DB_Adapter {
         return $rval;
     }
 
+    /**
+     * Compiles a DB_Query_Update to SQL according to the SQL dialect of the
+     * DBMS. Recommended to use DB_Query_Update::compile() instead.
+     *
+     * @param DB_Query_Update $query
+     * @return string the generated SQL
+     * @usedby DB_Query_Update::compile()
+     */
     public function  compile_update(DB_Query_Update $query) {
         $this->_select_aliases($query->table);
         $rval = 'UPDATE ';
@@ -134,6 +190,14 @@ abstract class DB_Adapter {
         return $rval;
     }
 
+    /**
+     * Compiles a DB_Query_Delete to SQL according to the SQL dialect of the
+     * DBMS. Recommended to use DB_Query_Delete::compile() instead.
+     *
+     * @param DB_Query_Delete $query
+     * @return string the generated SQL
+     * @usedby DB_Query_Delete::compile()
+     */
     public function compile_delete(DB_Query_Delete $query) {
         $this->_select_aliases($query->table);
         $rval = 'DELETE FROM ';
@@ -147,12 +211,55 @@ abstract class DB_Adapter {
         return $rval;
     }
 
+    /**
+     * Compiles and executes an SQL select query.
+     *
+     * Recommended to use DB_Query_Select::exec() instead.
+     *
+     * @param DB_Query_Select $query the query to be executed.
+     * @return DB_Query_Result
+     * @uses DB_Adapter::compile_select()
+     * @usedby DB_Query_Select::exec()
+     */
     abstract function exec_select(DB_Query_Select $query);
 
+    /**
+     * Compiles and executes an SQL insert statement.
+     *
+     * Recommended to use DB_Query_Insert::exec() instead. Returns the primary
+     * key of the last inserted row if $return_insert_id is true. It can come
+     * with significant performance loss for some adapters.
+     *
+     * @param DB_Query_Insert $query the query to be executed.
+     * @param boolean $return_insert_id if FALSE then the return value will be NULL.
+     * @return integer the primary key of the inserted row, or NULL.
+     * @uses DB_Adapter::compile_insert()
+     * @usedby DB_Query_Insert::exec()
+     */
     abstract function exec_insert(DB_Query_Insert $query, $return_insert_id);
 
+    /**
+     * Compiles and executes an SQL update statement.
+     *
+     * Recommended to use DB_Query_Update::exec() instead.
+     *
+     * @param DB_Query_Update $query the query to be executed.
+     * @return integer the number of affected rows.
+     * @uses DB_Adapter::compile_update()
+     * @usedby DB_Query_Update::exec()
+     */
     abstract function exec_update(DB_Query_Update $query);
 
+    /**
+     * Compiles and executes an SQL delete statement.
+     *
+     * Recommended to use DQ_Query_Delete::exec() instead.
+     * 
+     * @param DB_Query_Delete $query the statement to be executed
+     * @return integer the number of deleted rows
+     * @uses DB_Adapter::compile_delete()
+     * @usedby DB_Query_Delete::exec()
+     */
     abstract function exec_delete(DB_Query_Delete $query);
 
     abstract function exec_custom($sql);
