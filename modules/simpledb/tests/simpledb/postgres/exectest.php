@@ -2,6 +2,26 @@
 
 class SimpleDB_Query_Result_ExecTest extends SimpleDB_Postgres_DbTest {
 
+    public function testExecSelect() {
+        $arr = DB::select()->from('users')->exec('postgres')->as_array();
+        $this->assertEquals(array(
+            array('id' => 1, 'name' => 'user1'),
+            array('id' => 2, 'name' => 'user2')
+        ), $arr);
+
+        $result = DB::select()->from('users')->exec('postgres')->index_by('id');
+        $exp_result = array(
+            1 => array('id' => 1, 'name' => 'user1'),
+            2 => array('id' => 2, 'name' => 'user2')
+        );
+        $cnt = 1;
+        foreach ($result as $id => $row) {
+            $this->assertEquals($cnt, $id);
+            $this->assertEquals($exp_result[$cnt], $row);
+            ++$cnt;
+        }
+    }
+
     public function testExecInsert() {
         $id = DB::insert('users')->values(array('name' => 'user3'))->exec('postgres');
         //$count = count(DB::select()->from('users')->exec('postgres')->as_array());
