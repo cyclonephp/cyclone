@@ -21,7 +21,7 @@ class DB_Query_Insert extends DB_Query {
         return DB::inst($database)->compile_insert($this);
     }
 
-    public function exec($database = 'default') {
-        return DB::inst($database)->exec_insert($this);
+    public function exec($database = 'default', $return_insert_id = TRUE) {
+        return DB::inst($database)->exec_insert($this, $return_insert_id);
     }
 }

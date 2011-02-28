@@ -146,7 +146,7 @@ abstract class DB_Adapter {
 
     abstract function exec_select(DB_Query_Select $query);
 
-    abstract function exec_insert(DB_Query_Insert $query);
+    abstract function exec_insert(DB_Query_Insert $query, $return_insert_id);
 
     abstract function exec_update(DB_Query_Update $query);
 

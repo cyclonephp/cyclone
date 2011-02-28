@@ -13,7 +13,7 @@ abstract class SimpleDB_Mysqli_DbTest extends Kohana_Unittest_TestCase {
             }
             $insert->exec();
         } catch (Exception $ex) {
-            echo $ex->getMessage().PHP_EOL;
+            error_log($ex->getMessage());
             $this->markTestSkipped('skipping simpledb tests');
         }
     }

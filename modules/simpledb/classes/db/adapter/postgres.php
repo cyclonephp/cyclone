@@ -7,6 +7,8 @@ class DB_Adapter_Postgres extends DB_Adapter {
 
     protected $esc_char = '"';
 
+    private $_generator_sequences;
+
     public function connect() {
         $conn_params = array();
         if (array_key_exists('persistent', $this->config['connection'])) {
@@ -20,9 +22,17 @@ class DB_Adapter_Postgres extends DB_Adapter {
         }
         $conn_str = implode(' ', $conn_params);
         if ($persistent) {
-            $this->_db_conn = pg_pconnect($conn_str);
+            $this->_db_conn = @pg_pconnect($conn_str);
         } else {
-            $this->_db_conn = pg_connect($conn_str);
+            $this->_db_conn = @pg_connect($conn_str);
+        }
+        if (FALSE == $this->_db_conn)
+            throw new DB_Exception('failed to connect to database: '.$conn_str);
+
+        if (array_key_exists('pk_generator_sequences', $this->config)) {
+            $this->_generator_sequences = $this->config['pk_generator_sequences'];
+        } else {
+            $this->_generator_sequences = array();
         }
     }
 
@@ -36,23 +46,52 @@ class DB_Adapter_Postgres extends DB_Adapter {
     }
 
     public function exec_select(DB_Query_Select $query) {
-        
+        $sql = $this->compile_select($query);
+        $result = pg_query($this->_db_conn, $sql);
+        if (FALSE === $result)
+            throw new DB_Exception("Failed to execute SQL: " . pg_last_error($this->_db_conn));
+
+        return new DB_Query_Result_Postgres($result);
     }
 
-    public function exec_insert(DB_Query_Insert $query) {
+    public function exec_insert(DB_Query_Insert $query, $return_insert_id) {
+        $sql = $this->compile_insert($query);
+        if (pg_query($this->_db_conn, $sql) == FALSE)
+            throw new DB_Exception('Failed to execute SQL: ' . pg_last_error($this->_db_conn));
+
+        if ( ! $return_insert_id)
+            return NULL;
+
+        if (array_key_exists($query->table, $this->_generator_sequences)) {
+            $seq_name = $this->_generator_sequences[$query->table];
+        } else {
+            $seq_name = $query->table . '_id_seq';
+            $this->_generator_sequences[$query->table] = $seq_name;
+        }
+        $result = pg_query($this->_db_conn, 'select currval(\'' . $seq_name
+                . '\') as last_pk');
         
+        if (FALSE === $result)
+            throw new DB_Exception('Failed to retrieve the primary key of the inserted row');
+
+        $row = pg_fetch_assoc($result);
+        return $row['last_pk'];
     }
 
     public function exec_update(DB_Query_Update $query) {
-        
+        $sql = $this->compile_update($query);
+        if (pg_query($this->_db_conn, $sql) == FALSE)
+            throw new DB_Exception('Failed to execute SQL: ' . pg_last_error($this->_db_conn));
     }
 
     public function exec_delete(DB_Query_Delete $query) {
-        
+        $sql = $this->compile_delete($query);
+        if (pg_query($this->_db_conn, $sql) == FALSE)
+            throw new DB_Exception('Failed to execute SQL: ' . pg_last_error($this->_db_conn));
     }
 
     public function exec_custom($sql) {
-        
+        return pg_query($this->_db_conn, $sql);
     }
 
     public function compile_alias($expr, $alias) {

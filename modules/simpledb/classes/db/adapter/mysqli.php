@@ -33,11 +33,15 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         return new DB_Query_Result_Mysqli($result);
     }
 
-    public function  exec_insert(DB_Query_Insert $query) {
+    public function  exec_insert(DB_Query_Insert $query, $return_insert_id) {
         $sql = $this->compile_insert($query);
         if ( ! $this->mysqli->query($sql))
             throw new DB_Exception($this->mysqli->error, $this->mysqli->errno);
-        return $this->mysqli->insert_id;
+
+        if ($return_insert_id)
+            return $this->mysqli->insert_id;
+        
+        return NULL;
     }
 
     public function  exec_update(DB_Query_Update $query) {

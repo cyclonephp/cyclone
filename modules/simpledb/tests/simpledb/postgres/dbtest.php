@@ -4,7 +4,13 @@
 abstract class SimpleDB_Postgres_DbTest extends Kohana_Unittest_TestCase {
 
     public function setUp() {
-        DB::query('delete from user')->exec('postgres');
+        try {
+            $sql = file_get_contents(MODPATH . 'simpledb/tests/pg-test.sql');
+            DB::query($sql)->exec('postgres');
+        } catch (DB_Exception $ex) {
+            error_log($ex->getMessage());
+            $this->markTestSkipped();
+        }
     }
 
     
