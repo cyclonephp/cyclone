@@ -13,7 +13,7 @@ class SimpleDB_Query_Result_ExecTest extends SimpleDB_Postgres_DbTest {
         $exp_result = array(
             1 => array('id' => 1, 'name' => 'user1'),
             2 => array('id' => 2, 'name' => 'user2')
-        );
+        ); 
         $cnt = 1;
         foreach ($result as $id => $row) {
             $this->assertEquals($cnt, $id);
