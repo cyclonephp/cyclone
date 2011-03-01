@@ -92,7 +92,7 @@ abstract class DB_Adapter {
      * @usedby DB_Query_Select::compile()
      */
     public function  compile_select(DB_Query_Select $query) {
-        $this->_select_aliases($query->tables, $query->joins);
+        $this->select_aliases($query->tables, $query->joins);
         $rval = 'SELECT ';
         $rval .= $this->escape_values($query->columns);
         $rval .= ' FROM ';
@@ -150,7 +150,7 @@ abstract class DB_Adapter {
      * @usedby DB_Query_Insert::compile()
      */
     public function  compile_insert(DB_Query_Insert $query) {
-        $this->_select_aliases($query->table);
+        $this->select_aliases($query->table);
         $rval = 'INSERT INTO ';
         $rval .= $this->escape_table($query->table);
         if (empty($query->values))
@@ -173,7 +173,7 @@ abstract class DB_Adapter {
      * @usedby DB_Query_Update::compile()
      */
     public function  compile_update(DB_Query_Update $query) {
-        $this->_select_aliases($query->table);
+        $this->select_aliases($query->table);
         $rval = 'UPDATE ';
         $rval .= $this->escape_table($query->table);
         $rval .= ' SET ';
@@ -199,7 +199,7 @@ abstract class DB_Adapter {
      * @usedby DB_Query_Delete::compile()
      */
     public function compile_delete(DB_Query_Delete $query) {
-        $this->_select_aliases($query->table);
+        $this->select_aliases($query->table);
         $rval = 'DELETE FROM ';
         $rval .= $this->escape_table($query->table);
         if ( ! empty($query->conditions)) {
@@ -262,22 +262,41 @@ abstract class DB_Adapter {
      */
     abstract function exec_delete(DB_Query_Delete $query);
 
+    /**
+     * Executes any kind of SQL statements.
+     *
+     * Executes any kind of SQL statements that are not one of SELECT / INSERT
+     * / UPDATE / DELETE, or can't be put together using the query builder
+     * (DB_Query_*) classes (for example because the statement is very 
+     * DBMS-specific, like MySQL-s TRUNCATE). Different adapters' behavior may
+     * be different.
+     */
     abstract function exec_custom($sql);
 
-    abstract function compile_alias($expr, $alias);
+    protected abstract function compile_alias($expr, $alias);
 
-    abstract function compile_hints($hints);
+    protected abstract function compile_hints($hints);
 
     /**
+     * Sets autocommit mode of the current connection (session).
+     *
+     * This method is not supported by all database adapters.
+     *
      * @param boolean $autocommit
      */
     abstract function autocommit($autocommit);
 
+    /**
+     * Commits the current transaction.
+     */
     abstract function commit();
 
+    /**
+     * Rolls back the current transaction
+     */
     abstract function rollback();
 
-    public function escape_values($columns) {
+    protected function escape_values($columns) {
         foreach ($columns as $column) {
             if (is_array($column)) {
                 $expr = $column[0];
@@ -299,7 +318,7 @@ abstract class DB_Adapter {
         return implode(', ', $escaped_cols);
     }
 
-    public function escape_value($val) {
+    protected function escape_value($val) {
         if (is_array($val)) {
             $expr = $val[0];
             $alias = $val[1];
@@ -318,7 +337,7 @@ abstract class DB_Adapter {
         }
     }
 
-    public function escape_params($params) {
+    protected function escape_params($params) {
         foreach ($params as $param) {
             $escaped_params []= $this->escape_param($param);
         }
@@ -327,6 +346,7 @@ abstract class DB_Adapter {
 
     /**
      * @param string $identifier database table or column name
+     * @access package
      */
     public function escape_identifier($identifier) {
         if ($identifier instanceof DB_Expression)
@@ -357,9 +377,9 @@ abstract class DB_Adapter {
      *
      * @param string $param user parameter that should be escaped
      */
-    public abstract function escape_param($param);
+    protected abstract function escape_param($param);
 
-    public abstract function escape_table($table);
+    protected abstract function escape_table($table);
 
     protected function compile_expressions($expr_list) {
         foreach ($expr_list as $expr) {
@@ -368,7 +388,7 @@ abstract class DB_Adapter {
         return implode(' AND ', $compiled_exprs);
     }
 
-    protected function _select_aliases($tables, $joins = NULL){
+    protected function select_aliases($tables, $joins = NULL){
         if(is_array($tables)){
             foreach($tables as $table){
                 if(is_array($table)){
