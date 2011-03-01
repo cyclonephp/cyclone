@@ -59,7 +59,7 @@ Kohana::modules(array(
             'unittest' => TOOLPATH.'unittest',
             'userguide' => TOOLPATH.'userguide',
             'config' => MODPATH.'config',
-	    'installer' => TOOLPATH.'installer'
+            'cytpl' =>  MODPATH.'cytpl'
         ));
 Session::instance();
 
