@@ -53,13 +53,13 @@ Kohana::modules(array(
             'pagination' => MODPATH . 'pagination',
             'core' => MODPATH . 'core',
             'record' => MODPATH . 'record',
-            'kform' => MODPATH . 'kform',
+            'cyform' => MODPATH . 'cyform',
             'dev' => TOOLPATH . 'dev',
             'captcha' => MODPATH . 'captcha',
             'unittest' => TOOLPATH.'unittest',
             'userguide' => TOOLPATH.'userguide',
             'config' => MODPATH.'config',
-	    'installer' => TOOLPATH.'installer'
+            'cytpl' =>  MODPATH.'cytpl'
         ));
 Session::instance();
 

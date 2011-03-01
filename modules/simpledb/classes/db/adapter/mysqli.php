@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Adapter_Mysqli extends DB_Adapter {
 
     /**
@@ -8,6 +11,8 @@ class DB_Adapter_Mysqli extends DB_Adapter {
      * @var mysqli
      */
     protected $mysqli;
+
+    protected $esc_char = '`';
 
     public function connect() {
         $conn = $this->config['connection'];
@@ -23,122 +28,6 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         $this->mysqli->close();
     }
 
-    protected function _select_aliases($tables, $joins = NULL){
-        if(is_array($tables)){
-            foreach($tables as $table){
-                if(is_array($table)){
-                    $this->_table_aliases[] = $table[1];
-                }
-            }
-        }
-        if (is_array($joins)){
-            foreach($joins as $join){
-                if(is_array($join['table'])){
-                    $this->_table_aliases[] = $join['table'][1];
-                }
-            }
-        }
-    }
-
-    public function  compile_select(DB_Query_Select $query) {
-        $this->_select_aliases($query->tables, $query->joins);
-        $rval = 'SELECT ';
-        $rval .= $this->escape_values($query->columns);
-        $rval .= ' FROM ';
-        $tbl_names = array();
-        foreach ($query->tables as $table) {
-            $tbl_names []= $this->escape_table($table);
-        }
-        $rval .= implode(', ', $tbl_names);
-        if ( ! empty($query->hints)){
-            $rval .= " USE";
-            foreach ($query->hints as $hint) {
-                $rval .= ' '.$hint;
-            }
-        }
-        foreach ($query->joins as $join) {
-            $rval .= ' '.$join['type'].' JOIN '.$this->escape_table($join['table']);
-            $rval .= ' ON '.$this->compile_expressions($join['conditions']);
-        }
-        if ( ! empty($query->where_conditions)) {
-            $rval .= ' WHERE '.$this->compile_expressions($query->where_conditions);
-        }
-        if ( ! empty($query->group_by)) {
-            $rval .= ' GROUP BY '.$this->escape_values($query->group_by);
-        }
-        if ( ! empty($query->having_conditions)) {
-            $rval .= ' HAVING '.$this->compile_expressions($query->having_conditions);
-        }
-        if ( ! empty($query->order_by)) {
-            $rval .= ' ORDER BY ';
-            foreach ($query->order_by as $ord) {
-                $rval .= $this->escape_value($ord['column']).' '.$ord['direction'];
-            }
-        }
-        if ( ! is_null($query->limit)) {
-            $rval .= ' LIMIT '.$query->limit;
-        }
-        if ( ! is_null($query->offset)) {
-            $rval .= ' OFFSET '.$query->offset;
-        }
-        if ( ! empty($query->unions)) {
-            foreach($query->unions as $union) {
-                $rval .= ' UNION ';
-                if ($union['all'] == TRUE) {
-                    $rval .= 'ALL ';
-                }
-                $rval .= $this->compile_select($union['select']);
-            }
-        }
-        return $rval;
-    }
-
-    public function  compile_insert(DB_Query_Insert $query) {
-        $this->_select_aliases($query->table);
-        $rval = 'INSERT INTO ';
-        $rval .= $this->escape_table($query->table);
-        if (empty($query->values))
-            throw new DB_Exception('no value lists to be inserted');
-        $rval .= ' ('.$this->escape_values(array_keys($query->values[0])).') VALUES ';
-        foreach ($query->values as $value_set) {
-            $value_sets []= '('.$this->escape_params($value_set).')';
-        }
-        
-        $rval .= implode(', ', $value_sets);
-        return $rval;
-    }
-
-    public function  compile_update(DB_Query_Update $query) {
-        $this->_select_aliases($query->table);
-        $rval = 'UPDATE ';
-        $rval .= $this->escape_table($query->table);
-        $rval .= ' SET ';
-        foreach ($query->values as $k => $v) {
-            $pieces []= $this->escape_identifier($k).' = '.$this->escape_param($v);
-        }
-        $rval .= implode(', ', $pieces);
-        if ( ! empty($query->conditions)) {
-            $rval .= ' WHERE '.$this->compile_expressions($query->conditions);
-        }
-        if ( ! is_null($query->limit)) {
-            $rval .= ' LIMIT '.$query->limit;
-        }
-        return $rval;
-    }
-
-    public function  compile_delete(DB_Query_Delete $query) {
-        $this->_select_aliases($query->table);
-        $rval = 'DELETE FROM ';
-        $rval .= $this->escape_table($query->table);
-        if ( ! empty($query->conditions)) {
-            $rval .= ' WHERE '.$this->compile_expressions($query->conditions);
-        }
-        if ( ! is_null($query->limit)) {
-            $rval .= ' LIMIT '.$query->limit;
-        }
-        return $rval;
-    }
-
     public function  exec_select(DB_Query_Select $query) {
         $sql = $this->compile_select($query);
         $result = $this->mysqli->query($sql);
@@ -147,11 +36,15 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         return new DB_Query_Result_Mysqli($result);
     }
 
-    public function  exec_insert(DB_Query_Insert $query) {
+    public function  exec_insert(DB_Query_Insert $query, $return_insert_id) {
         $sql = $this->compile_insert($query);
         if ( ! $this->mysqli->query($sql))
             throw new DB_Exception($this->mysqli->error, $this->mysqli->errno);
-        return $this->mysqli->insert_id;
+
+        if ($return_insert_id)
+            return $this->mysqli->insert_id;
+        
+        return NULL;
     }
 
     public function  exec_update(DB_Query_Update $query) {
@@ -177,6 +70,14 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         do {
             $rval []= $this->mysqli->store_result();
         } while ($this->mysqli->more_results() && $this->mysqli->next_result());
+        return $rval;
+    }
+
+    public function compile_hints($hints) {
+        $rval = " USE";
+        foreach ($hints as $hint) {
+            $rval .= ' ' . $hint;
+        };
         return $rval;
     }
 
@@ -211,27 +112,6 @@ class DB_Adapter_Mysqli extends DB_Adapter {
         }
 
         return $rtable;
-    }
-
-    public function escape_identifier($identifier) {
-        if ($identifier instanceof DB_Expression)
-            return $identifier->compile_expr($this);
-        $segments = explode('.', $identifier);
-        $rval = '`'.$segments[0].'`';
-        if(array_key_exists('prefix', $this->config) && count($segments) == 2){
-            if( ! in_array($segments[0], $this->_table_aliases)){
-                $rval =  '`'.$this->config['prefix'].$segments[0].'`';
-            }
-        }
-        
-        if (count($segments) > 1) {
-            if ('*' == $segments[1]) {
-                $rval .= '.*';
-            } else {
-                $rval .= '.`'.$segments[1].'`';
-            }
-        }
-        return $rval;
     }
 
     public function escape_param($param) {

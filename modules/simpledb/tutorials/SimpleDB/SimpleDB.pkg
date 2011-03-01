@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<refentry id="{@id}">
+ <refnamediv>
+  <refname>SimpleDB tutorial</refname>
+  <refpurpose>Quick introduction to SimpleDB</refpurpose>
+ </refnamediv>
+ <refsynopsisdiv>
+  <author>
+   Bence Eros	
+   <authorblurb>
+    {@link mailto:crystal@cyclonephp.com Bence Eros}
+   </authorblurb>
+  </author>
+ </refsynopsisdiv>
+ {@toc}
+ <refsect1 id="{@id intro}">
+ 
+  <title>Getting started</title>
+  
+  <refsect2 id="{@id whatis}">
+	<title>What is SimpleDB?</title>
+	<para>
+		SimpleDB is .  
+		<itemizedlist>
+			<listitem>SimpleDB is the low-level database abstraction layer of the CyclonePHP
+		framework.</listitem>
+			<listitem>It provides a DBMS-independent way of accessing and 
+		manipulating databases.</listitem>
+			<listitem>Similar to Kohana's Database module.</listitem>
+			<listitem>The back-end layer for JORK</listitem>
+			<listitem>Can be used as a stand-alone module.</listitem>
+			<listitem>Supports transactions.</listitem>
+			<listitem>Comes with a minimal active record implementation</listitem>
+		</itemizedlist>
+	</para>
+  </refsect2>
+  
+  <refsect2 id="{@id schema}">
+	<title>Creating a sample database</title>
+	<para>
+	Let's create a sample database in MySQL:
+	<programlisting>
+	CREATE DATABASE simpledb;
+	
+	GRANT ALL ON simpledb.* TO 'simpledb'@'localhost' IDENTIFIED BY 'simpledb';
+	
+	CREATE TABLE users (
+		id INT PRIMARY KEY AUTO_INCREMENT,
+		name VARCHAR(32) NOT NULL
+	);
+	</programlisting>
+	</para>
+  </refsect2>
+  
+  <refsect2 id="{@id connection}">
+	<title>Setting up the database connection</title>
+	<para>
+		Create a file application/config/simpledb/default.php:
+		<programlisting>
+		&lt;?php
+
+	return array(
+		'adapter' => 'mysqli',
+		'connection' => array(
+			'username' => 'simpledb',
+			'password' => 'simpledb',
+			'database' => 'simpledb',
+			'host' => 'localhost',
+		)
+	);
+		</programlisting>
+		So we told SimpleDB that we will have a database connection called
+		'default', and we are going to use the MySQLi adapter for that.
+		It means that the MySQLi extension will be used to communicate
+		with the database.
+		
+		With SimpleDB you can manage multiple connections at the same time.
+		The only thing you have to do you have to tell the module what connection
+		do you want to use every time you execute an SQL query. If you
+		don't then the default connection will be 'default'.
+		More about it later.
+	</para>
+  </refsect2>
+  
+ <refsect1 id="{@id manip}">
+	<title>Data manipulation</title>
+	
+	<refsect2 id="{@id insert}">
+	<title>INSERT statements</title>
+		<para>
+		We are going to load some data into the database, so let's look
+		at the INSERT statements:
+		<programlisting>
+			$id = DB::insert('users')->values(array('name' => 'user 01'))->exec();
+		</programlisting>
+		
+		This piece of code creates an INSERT statement and executes it
+		on the 'default' database connection. If you have wanted to use
+		- for example - a connection set up in 
+		<markup>application/config/simpledb/legacy.php</markup> the you would call 
+		<markup>exec('legacy')</markup> 
+		at the end of the code.
+		
+		In the above example the $id variable stores the primary key of the
+		last inserted row. 			
+		</para>
+		<para>
+		Note: retrieving the ID of the last inserted row goes quickly for
+		MySQL, but it can cause some performance overhead for other DBMSs.
+		You can disable the insert ID retrieval by passing FALSE in the
+		second parameter of the exec() call. In this case the return value 
+		will be NULL.
+		</para>
+	
+		<para>
+		You can insert multiple rows in the same INSERT statement this way:
+		<programlisting>
+		DB::insert('users')->values(array('name' => 'user 02')
+		, array('name' => 'user 03'))->exec();
+		</programlisting>
+		
+		So, the values() method has variable length parameter list, where
+		every parameter should be a column-name => value associative array.
+		
+		</para>
+	</refsect2>
+	
+	<refsect2 id="{@id update}">
+		<title>UPDATE statements</title>
+		
+		<para>
+		The syntax of UPDATE statements is very similar to INSERTs.
+		Example:
+		
+		<programlisting>
+		$id = 1;  // we are going to update the row with id = 1
+		$row_count = DB::update('users')->values(array('name' => 'user 01 updated'))
+			->where('id, '=', DB::esc($id))->exec();
+		</programlisting>
+		
+		We pass the table name to the update() call, then key-value pairs
+		to the values() call, where keys should be column names and values
+		should be the values to be updated. Then we create a WHERE condition.
+		Note that the ID - the parameter of the query is in a DB::esc() call.
+		This method call should be used always when you want to pass
+		any user-entered data to your queries, this way it will be escaped
+		to avoid SQL injection. Furthermore, if you don't use DB::esc()
+		then most times the query execution will result into an SQL error.
+		
+		More about WHERE conditions later. Note that you also have to call
+		exec() for UPDATE statements too, optionally by passing the database
+		connection name.
+		
+		The exec() call for UPDATE statements return the number of affected
+		rows by the SQL UPDATE (it's stored in the $row_count) variable 
+		in this case).		
+		</para>
+	</refsect2>
+	
+	<refsect2 id="{@id delete}">
+		<title>DELETE statements</title>
+		<para>
+		The syntax of DELETE statements is very similar. Example:
+		<programlisting>
+		$id = 1;
+		$row_count = DB::delete('users')->where('id', '=', DB::esc($id))->exec();
+		</programlisting>
+		The return value is the number of rows deleted.
+		</para>
+	</refsect2>
+ </refsect1>
+ <refsect1 id="{@id select}">
+	<title>SELECT queries</title>
+	<para></para>
+ </refsect1>
+  <para>
+   
+  </para>
+ </refsect1>
+</refentry>

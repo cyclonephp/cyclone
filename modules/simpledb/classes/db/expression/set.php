@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Expression_Set implements DB_Expression {
 
     protected $arr;

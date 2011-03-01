@@ -1,6 +1,6 @@
 #!/bin/bash
 totalsum=0;
-for i in application modules/{core,config,kform,simpledb,jork}
+for i in application modules/{core,config,cyform,simpledb,jork}
 do
 modsum=0;
 for file in `find $i -name '*'`; do
