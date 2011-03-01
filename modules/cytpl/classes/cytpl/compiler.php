@@ -15,7 +15,6 @@ class CyTpl_Compiler {
 
     public function compile() {
         preg_match_all('/\{(?P<match>[^\}]+)\}/', $this->_tpl, $matches);
-        print_r($matches);
         foreach ($matches[0] as $idx => $m) {
             $command = $matches['match'][$idx];
             $compiled = $this->compile_command($command);
@@ -37,6 +36,18 @@ class CyTpl_Compiler {
         if (substr($command, 0, 2) == 'if') {
             preg_match_all('/if (?P<condition>.*)/', $command, $matches);
             $condition = $matches['condition'][0];
+            
+            if (preg_match_all('/exists (?P<var>[^\[ ]+)(\[(?P<key>.*)\])?/', $condition, $matches)) {
+                if ($matches['key'][0] == '') {
+                    return '<?php if (isset('.$matches['var'][0].')) : ?>';
+                } else {
+                    $key = $matches['key'][0];
+                    if ($key{0} != '$') {
+                        $key = "'$key'";
+                    }
+                    return '<?php if (array_key_exists(' . $key . ', ' . $matches['var'][0] . ')) : ?>';
+                }
+            }
             return '<?php if (' . $condition . ') : ?>';
         }
 
