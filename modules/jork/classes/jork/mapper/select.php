@@ -217,7 +217,7 @@ abstract class JORK_Mapper_Select {
      *
      * @return array
      */
-    protected abstract function build_offset_limit_subquery($subquery);
+    protected abstract function build_offset_limit_subquery(DB_Query_Select $subquery);
 
     protected function  map_offset_limit() {
         if (NULL == $this->_jork_query->offset

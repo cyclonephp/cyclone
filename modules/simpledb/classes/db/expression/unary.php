@@ -21,4 +21,10 @@ class DB_Expression_Unary implements DB_Expression {
 
         return $this->operator.' '.$this->operand;
     }
+
+    public function  contains_table_name($table_name) {
+        if ($operand instanceof DB_Expression)
+            return $operand->contains_table_name($table_name);
+        return FALSE;
+    }
 }

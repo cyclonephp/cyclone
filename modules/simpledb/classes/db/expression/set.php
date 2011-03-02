@@ -19,4 +19,8 @@ class DB_Expression_Set implements DB_Expression {
         }
         return '('.implode(', ', $escaped_items).')';
     }
+
+    public function  contains_table_name($table_name) {
+        return FALSE;
+    }
 }

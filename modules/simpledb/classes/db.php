@@ -64,6 +64,10 @@ class DB {
         return self::create_expr(func_get_args());
     }
 
+    /**
+     * @param array $args
+     * @return DB_Expression
+     */
     public static function create_expr($args) {
         switch (count($args)) {
             case 1:

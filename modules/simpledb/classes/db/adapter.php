@@ -107,9 +107,11 @@ abstract class DB_Adapter {
         if ( ! empty($query->hints)){
             $rval .= $this->compile_hints($query->hints);
         }
-        foreach ($query->joins as $join) {
-            $rval .= ' '.$join['type'].' JOIN '.$this->escape_table($join['table']);
-            $rval .= ' ON '.$this->compile_expressions($join['conditions']);
+        if ( ! empty($query->joins)) {
+            foreach ($query->joins as $join) {
+                $rval .= ' ' . $join['type'] . ' JOIN ' . $this->escape_table($join['table']);
+                $rval .= ' ON ' . $this->compile_expressions($join['conditions']);
+            }
         }
         if ( ! empty($query->where_conditions)) {
             $rval .= ' WHERE '.$this->compile_expressions($query->where_conditions);

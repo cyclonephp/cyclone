@@ -16,4 +16,8 @@ class DB_Expression_Param implements DB_Expression {
         return $adapter->escape_param($this->val);
     }
 
+    public function  contains_table_name($table_name) {
+        return FALSE;
+    }
+
 }

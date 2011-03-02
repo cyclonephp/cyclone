@@ -14,7 +14,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     /**
      * @var JORK_Mapping_Schema
      */
-    protected $_entity_schema;
+    public $_entity_schema;
 
     /**
      * @var string

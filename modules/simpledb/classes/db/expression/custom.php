@@ -16,4 +16,8 @@ class DB_Expression_Custom implements DB_Expression {
         return $this->str;
     }
 
+    public function  contains_table_name($table_name) {
+        return FALSE;
+    }
+
 }

@@ -187,7 +187,7 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         return FALSE;
     }
 
-    protected function  build_offset_limit_subquery($subquery) {
+    protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
         ;
     }
     
