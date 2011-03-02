@@ -6,6 +6,8 @@
  */
 class DB_Query_Select extends DB_Query implements DB_Expression {
 
+    public $distinct;
+
     public $columns;
 
     public $tables;
