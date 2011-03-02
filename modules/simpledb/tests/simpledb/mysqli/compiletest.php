@@ -28,7 +28,7 @@ class SimpleDB_Mysqli_CompileTest extends SimpleDB_Mysqli_DbTest {
     }
 
     public function testCompileSelect() {
-        $query = DB::select('id', 'name', array(DB::select(DB::expr('count(1)'))->from('posts')
+        $query = DB::select_distinct('id', 'name', array(DB::select(DB::expr('count(1)'))->from('posts')
                 ->where('posts.author_fk', '=', 'user.id'), 'post_count'))->from('users')
                 ->left_join('groups')->on('users.group_fk', '=', 'group.id')
                 ->where(2, '=', DB::expr(1, '+', 1))
@@ -41,7 +41,7 @@ class SimpleDB_Mysqli_CompileTest extends SimpleDB_Mysqli_DbTest {
                 ;
 
         $this->assertEquals($query->compile(),
-                'SELECT `id`, `name`, (SELECT count(1) FROM `cy_posts` WHERE `cy_posts`.`author_fk` = `cy_user`.`id`) AS `post_count` FROM `cy_users` LEFT JOIN `cy_groups` ON `cy_users`.`group_fk` = `cy_group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
+                'SELECT DISTINCT `id`, `name`, (SELECT count(1) FROM `cy_posts` WHERE `cy_posts`.`author_fk` = `cy_user`.`id`) AS `post_count` FROM `cy_users` LEFT JOIN `cy_groups` ON `cy_users`.`group_fk` = `cy_group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
     }
 
     public function testSet() {

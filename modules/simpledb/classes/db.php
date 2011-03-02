@@ -29,7 +29,16 @@ class DB {
 
     public static function select() {
         $query = new DB_Query_Select;
-        $query->columns_arr(func_get_args());
+        $args = func_get_args();
+        $query->columns_arr($args);
+        return $query;
+    }
+
+    public static function select_distinct() {
+        $query = new DB_Query_Select;
+        $query->distinct = TRUE;
+        $args = func_get_args();
+        $query->columns_arr($args);
         return $query;
     }
 
