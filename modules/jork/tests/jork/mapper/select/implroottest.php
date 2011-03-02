@@ -80,5 +80,19 @@ class JORK_Mapper_Select_ImplRootTest extends Kohana_Unittest_TestCase {
         );
     }
 
+    public function testOffsetLimitHasToMany() {
+        $jork_query = JORK::from('Model_Topic')
+            ->with('posts')
+            ->offset(20)->limit(10);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertContains(array(
+            'table' => DB::select('id')->from(array('t_topics', 't_topics_1'))
+                ->offset(20)->limit(10),
+            'type' => 'RIGHT',
+            'condition' => NULL
+        ), $db_query->joins);
+    }
+
 
 }

@@ -241,4 +241,15 @@ class JORK_Mapper_SelectTest extends Kohana_Unittest_TestCase {
 
     }
 
+    public function testOffsetLimitNoToMany() {
+        $jork_query = JORK::from('Model_Post')
+            ->with('author.moderated_category')
+            ->where('id', '>', DB::expr(5))
+            ->offset(20)->limit(10);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals(20, $db_query->offset);
+        $this->assertEquals(10, $db_query->limit);
+    }
+
 }

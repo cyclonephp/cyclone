@@ -212,6 +212,13 @@ abstract class JORK_Mapper_Select {
      */
     protected abstract function has_to_many_child();
 
+    /**
+     * Creates a SimpleDB join condition
+     *
+     * @return array
+     */
+    protected abstract function build_offset_limit_subquery($subquery);
+
     protected function  map_offset_limit() {
         if (NULL == $this->_jork_query->offset
                 && NULL == $this->_jork_query->limit)
@@ -219,7 +226,9 @@ abstract class JORK_Mapper_Select {
             return;
 
         if ($this->has_to_many_child()) {
-
+            $subquery = clone $this->_db_query;
+            $subquery->order_by = NULL;
+            $this->_db_query->joins []= $this->build_offset_limit_subquery($subquery);
         } else { // nothing magic is needed here, the row count in the SQL
             // result will be the same as the record count in the object query results
             $this->_db_query->offset = $this->_jork_query->offset;

@@ -124,5 +124,16 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
     protected function  has_to_many_child() {
         return $this->_mappers[NULL]->has_to_many_child();
     }
+
+    protected function  build_offset_limit_subquery($subquery) {
+        $subquery->columns = array('id');
+        $subquery->offset = $this->_jork_query->offset;
+        $subquery->limit = $this->_jork_query->limit;
+        return array(
+                'table' => $subquery,
+                'type' => 'RIGHT',
+                'condition' => NULL
+            );
+    }
     
 }
