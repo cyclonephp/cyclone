@@ -94,6 +94,9 @@ abstract class DB_Adapter {
     public function  compile_select(DB_Query_Select $query) {
         $this->select_aliases($query->tables, $query->joins);
         $rval = 'SELECT ';
+        if ($query->distinct) {
+            $rval .= 'DISTINCT ';
+        }
         $rval .= $this->escape_values($query->columns);
         $rval .= ' FROM ';
         $tbl_names = array();
