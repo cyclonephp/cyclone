@@ -152,21 +152,30 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
     }
 
     protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
-        $subquery->columns = array('id');
         $ent_schema = $this->_mappers[NULL]->_entity_schema;
+
+        $existing_alias = $this->_naming_srv->table_alias(NULL, $ent_schema->table);
+
+        $primary_key = $ent_schema->primary_key();
+
+        $subquery->columns = array('id');
         $subquery->tables = array(
             array($ent_schema->table
-                , $this->_naming_srv->table_alias($ent_schema->class, $ent_schema->table, TRUE))
+                , $this->_naming_srv->table_alias(NULL, $ent_schema->table, TRUE))
         );
         $subquery->distinct = TRUE;
         $subquery->offset = $this->_jork_query->offset;
         $subquery->limit = $this->_jork_query->limit;
         $this->filter_unneeded_subquery_joins($subquery);
+        $subquery_alias = $this->_naming_srv->offset_limit_subquery_alias();
         return array(
                 'table' => array($subquery
-                    , $this->_naming_srv->table_alias($ent_schema->class, $ent_schema->table, TRUE)),
+                    , $subquery_alias),
                 'type' => 'RIGHT',
-                'conditions' => array()
+                'conditions' => array(
+                    new DB_Expression_Binary($existing_alias.'.'.$primary_key
+                            , '=', $subquery_alias . '.' . $primary_key)
+                )
             );
     }
     

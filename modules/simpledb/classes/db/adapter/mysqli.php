@@ -106,7 +106,12 @@ class DB_Adapter_Mysqli extends DB_Adapter {
                 : '';
 
         if (is_array($table)) {
-            $rtable = '`' . $prefix . $table[0] . '` `' . $table[1] . '`';
+            list($table_name, $alias) = $table;
+            if ($table_name instanceof DB_Expression) {
+                $rtable = '(' . $table_name->compile_expr($this) . ') `' . $table[1] . '`';
+            } else {
+                $rtable = '`' . $prefix . $table[0] . '` `' . $table[1] . '`';
+            }
         } else {
             $rtable = '`' . $prefix . $table . '`';
         }

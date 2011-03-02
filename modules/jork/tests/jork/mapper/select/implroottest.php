@@ -86,13 +86,13 @@ class JORK_Mapper_Select_ImplRootTest extends Kohana_Unittest_TestCase {
             ->offset(20)->limit(10);
         $mapper = JORK_Mapper_Select::for_query($jork_query);
         list($db_query, ) = $mapper->map();
-        var_dump($db_query);
+        //echo $db_query->compile();
         $this->assertEquals(array(
             'table' => array(DB::select_distinct('id')->from(array('t_topics', 't_topics_1'))
-                ->offset(20)->limit(10), 't_topics_2'),
+                ->offset(20)->limit(10), 'jork_offset_limit_subquery_0'),
             'type' => 'RIGHT',
             'conditions' => array(
-                new DB_Expression_Binary('t_topics_0.id', '=', 't_topics_2.id')
+                new DB_Expression_Binary('t_topics_0.id', '=', 'jork_offset_limit_subquery_0.id')
             )
         ), $db_query->joins[1]);
     }

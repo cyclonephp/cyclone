@@ -387,6 +387,7 @@ abstract class DB_Adapter {
     protected abstract function escape_table($table);
 
     protected function compile_expressions($expr_list) {
+        $compiled_exprs = array();
         foreach ($expr_list as $expr) {
             $compiled_exprs []= $expr->compile_expr($this);
         }
