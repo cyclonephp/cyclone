@@ -121,5 +121,8 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         }
     }
 
+    protected function  has_to_many_child() {
+        return $this->_mappers[NULL]->has_to_many_child();
+    }
     
 }

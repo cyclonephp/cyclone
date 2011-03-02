@@ -69,6 +69,8 @@ abstract class JORK_Mapper_Select {
 
         $this->map_order_by();
 
+        $this->map_offset_limit();
+
         return array($this->_db_query, $this->_mappers);
     }
 
@@ -200,5 +202,29 @@ abstract class JORK_Mapper_Select {
     protected abstract function map_group_by();
 
     protected abstract function map_order_by();
+
+    /**
+     * Returns TRUE if any of the mappers has at least one to-many mappers,
+     * recursively.
+     *
+     * @return boolean
+     * @see JORK_Mapper_Entity::has_to_many_child()
+     */
+    protected abstract function has_to_many_child();
+
+    protected function  map_offset_limit() {
+        if (NULL == $this->_jork_query->offset
+                && NULL == $this->_jork_query->limit)
+            // no offset & limit in the jork query, nothing to do here
+            return;
+
+        if ($this->has_to_many_child()) {
+
+        } else { // nothing magic is needed here, the row count in the SQL
+            // result will be the same as the record count in the object query results
+            $this->_db_query->offset = $this->_jork_query->offset;
+            $this->_db_query->limit = $this->_jork_query->limit;
+        }
+    }
 
 }

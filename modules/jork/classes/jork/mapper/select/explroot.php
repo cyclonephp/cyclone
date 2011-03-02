@@ -178,5 +178,13 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         }
     }
 
+    protected function  has_to_many_child() {
+        foreach ($this->_mappers as $mapper) {
+            if ($mapper instanceof JORK_Mapper_Entity
+                    && $mapper->has_to_many_child())
+               return TRUE;
+        }
+        return FALSE;
+    }
     
 }

@@ -376,4 +376,19 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
             return $this->get_component_mapper($root_prop)->resolve_prop_chain($prop_chain);
         }
     }
+
+    /**
+     * @return boolean
+     */
+    public function has_to_many_child() {
+        if ( ! empty($this->_next_to_many_mappers))
+            return TRUE;
+
+        foreach ($this->_next_to_one_mappers as $mapper) {
+            if ($mapper->has_to_many_child())
+                return TRUE;
+        }
+
+        return FALSE;
+    }
 }
