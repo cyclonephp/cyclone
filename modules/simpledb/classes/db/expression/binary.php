@@ -20,7 +20,7 @@ class DB_Expression_Binary implements DB_Expression {
 
     
 
-    public function compile_expr(DB_Adapter $adapter) {
+    public function compile_expr(DB_Compiler $adapter) {
         $left = DB_Expression_Helper::compile_operand($this->left_operand, $adapter);
         $right = DB_Expression_Helper::compile_operand($this->right_operand, $adapter);
         return $left.' '.$this->operator.' '.$right;

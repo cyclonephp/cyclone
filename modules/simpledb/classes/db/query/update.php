@@ -35,11 +35,12 @@ class DB_Query_Update extends DB_Query {
     }
 
     public function compile($database = 'default') {
-        return DB::inst($database)->compile_update($this);
+        return DB::compiler($database)->compile_update($this);
     }
 
     public function exec($database = 'default') {
-        return DB::inst($database)->exec_update($this);
+        $sql = DB::compiler($database)->compile_update($this);
+        return DB::executor($database)->exec_update($sql);
     }
 
 }

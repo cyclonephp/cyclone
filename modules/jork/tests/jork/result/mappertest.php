@@ -5,7 +5,7 @@ class JORK_Result_MapperTest extends JORK_DbTest {
 
     public function testConfig() {
         Config::inst()->get('jork.show_sql');
-        DB::inst('jork_test')->exec_custom('select 1');
+        DB::executor('jork_test')->exec_custom('select 1');
     }
 
     public function testImplRoot() {

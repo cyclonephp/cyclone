@@ -6,7 +6,7 @@
  */
 interface DB_Expression {
 
-    public function compile_expr(DB_Adapter $adapter);
+    public function compile_expr(DB_Compiler $adapter);
 
     /**
      * Returns TRUE if the expression contains the table $table_name,

@@ -12,7 +12,7 @@ class DB_Expression_Custom implements DB_Expression {
         $this->str = $str;
     }
 
-    public function  compile_expr(DB_Adapter $adapter) {
+    public function  compile_expr(DB_Compiler $adapter) {
         return $this->str;
     }
 

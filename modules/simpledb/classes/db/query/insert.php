@@ -21,10 +21,11 @@ class DB_Query_Insert extends DB_Query {
     }
 
     public function compile($database = 'default') {
-        return DB::inst($database)->compile_insert($this);
+        return DB::compiler($database)->compile_insert($this);
     }
 
     public function exec($database = 'default', $return_insert_id = TRUE) {
-        return DB::inst($database)->exec_insert($this, $return_insert_id);
+        $sql = DB::compiler($database)->compile_insert($this);
+        return DB::executor($database)->exec_insert($sql, $return_insert_id, $this->table);
     }
 }

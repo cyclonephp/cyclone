@@ -6,27 +6,79 @@
  */
 class DB {
 
-    protected static $_instances = array();
+    private static $_compilers = array();
+
+    private static $_executors = array();
+
+    private static $_executor_prepareds = array();
+
+    private static $_connectors = array();
 
     /**
-     *
      * @param string $config config file name
-     * @return DB_Adapter
+     * @return DB_Compiler
      */
-    public static function inst($config = 'default') {
-        if ( ! array_key_exists($config, self::$_instances)) {
+    public static function compiler($config = 'default') {
+        if ( ! array_key_exists($config, self::$_compilers)) {
             $cfg = Config::inst()->get('simpledb/'.$config);
-            //var_dump($cfg); echo "itt\n"; die();
-            $class = 'DB_Adapter_'.ucfirst($cfg['adapter']);
-            self::$_instances[$config] = new $class($cfg);
+            $class = 'DB_Compiler_'.ucfirst($cfg['adapter']);
+            self::$_compilers[$config] = new $class($cfg, DB::connector($config)->db_conn);
         }
-        return self::$_instances[$config];
+        return self::$_compilers[$config];
     }
 
+    /**
+     * @param string $config config file name
+     * @return DB_Executor
+     */
+    public static function executor($config = 'default') {
+        if ( ! array_key_exists($config, self::$_executors)) {
+            $cfg = Config::inst()->get('simpledb/'.$config);
+            $class = 'DB_Executor_'.ucfirst($cfg['adapter']);
+            self::$_executors[$config] = new $class($cfg, DB::connector($config)->db_conn);
+        }
+        return self::$_executors[$config];
+    }
+
+    /**
+     * @param string $config config file name
+     * @return DB_Executor
+     */
+    public static function executor_prepared($config = 'default') {
+        if ( ! array_key_exists($config, self::$_executor_prepareds)) {
+            $cfg = Config::inst()->get('simpledb/'.$config);
+            $class = 'DB_Executor_Prepared_'.ucfirst($cfg['adapter']);
+            self::$_executor_prepareds[$config] = new $class($cfg, DB::connector($config)->db_conn);
+        }
+        return self::$_executor_prepareds[$config];
+    }
+
+    public static function connector($config = 'default') {
+        if ( ! array_key_exists($config, self::$_connectors)) {
+            $cfg = Config::inst()->get('simpledb/'.$config);
+            $class = 'DB_Connector_'.ucfirst($cfg['adapter']);
+            $connector = new $class($cfg);
+            $connector->connect();
+            self::$_connectors[$config] = $connector;
+        }
+        return self::$_connectors[$config];
+    }
+
+    /**
+     * Helper factory method for custom SQL queries.
+     *
+     * @param string $sql
+     * @return DB_Query_Custom
+     */
     public static function query($sql) {
         return new DB_Query_Custom($sql);
     }
 
+    /**
+     * Helper factory method for SQL SELECT queries.
+     *
+     * @return DB_Query_Select
+     */
     public static function select() {
         $query = new DB_Query_Select;
         $args = func_get_args();
@@ -34,6 +86,11 @@ class DB {
         return $query;
     }
 
+    /**
+     * Helper factory method for SQL SELECT DISTINCT queries.
+     *
+     * @return DB_Query_Select
+     */
     public static function select_distinct() {
         $query = new DB_Query_Select;
         $query->distinct = TRUE;
@@ -42,18 +99,36 @@ class DB {
         return $query;
     }
 
+    /**
+     * Helper factory method for SQL UPDATE statements.
+     *
+     * @param string $table the table name to be updated
+     * @return DB_Query_Update
+     */
     public static function update($table = null) {
         $query = new DB_Query_Update;
         $query->table = $table;
         return $query;
     }
 
+    /**
+     * Helper factory method for SQL INSERT statements.
+     *
+     * @param string $table the table to insert into
+     * @return DB_Query_Insert
+     */
     public static function insert($table = null) {
         $query = new DB_Query_Insert;
         $query->table = $table;
         return $query;
     }
 
+    /**
+     * Helper factory method for SQL DELETE statements.
+     *
+     * @param string $table the table to delete from
+     * @return DB_Query_Delete
+     */
     public static function delete($table = null) {
         $query = new DB_Query_Delete;
         $query->table = $table;
@@ -93,7 +168,9 @@ class DB {
     }
 
     public static function clear_connections() {
-        self::$_instances = array();
+        self::$_compilers =
+        self::$_connectors =
+        self::$_executor_prepareds = array();
     }
 
     public static function esc($param) {

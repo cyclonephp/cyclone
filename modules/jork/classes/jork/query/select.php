@@ -255,10 +255,12 @@ class JORK_Query_Select {
     public function exec($adapter = 'default') {
         $mapper = JORK_Mapper_Select::for_query($this);
         list($db_query, $mappers) = $mapper->map();
+        
         if (Config::inst()->get('jork.show_sql')) {
             echo $db_query->compile($adapter).PHP_EOL;
         }
-        $db_result = DB::inst($adapter)->exec_select($db_query);
+        $sql = DB::compiler($adapter)->compile_select($db_query);
+        $db_result = DB::executor($adapter)->exec_select($sql);
         
         $result_mapper = new JORK_Mapper_Result($db_result
                 , $mapper->has_implicit_root, $mappers);

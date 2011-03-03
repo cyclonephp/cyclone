@@ -12,7 +12,7 @@ class DB_Expression_Param implements DB_Expression {
         $this->val = $val;
     }
 
-    public function compile_expr(DB_Adapter $adapter) {
+    public function compile_expr(DB_Compiler $adapter) {
         return $adapter->escape_param($this->val);
     }
 
