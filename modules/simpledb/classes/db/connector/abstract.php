@@ -8,6 +8,7 @@ abstract class DB_Connector_Abstract implements DB_Connector {
 
     public function  __construct($config) {
         $this->_config = $config;
+        $this->connect();
     }
 
 }

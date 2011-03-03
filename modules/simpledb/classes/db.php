@@ -57,9 +57,7 @@ class DB {
         if ( ! array_key_exists($config, self::$_connectors)) {
             $cfg = Config::inst()->get('simpledb/'.$config);
             $class = 'DB_Connector_'.$cfg['adapter'];
-            $connector = new $class($cfg);
-            $connector->connect();
-            self::$_connectors[$config] = $connector;
+            self::$_connectors[$config] = new $class($cfg);
         }
         return self::$_connectors[$config];
     }
