@@ -90,15 +90,18 @@ class SimpleDB_Mysqli_ExecTest extends SimpleDB_MySQLi_DbTest {
     }
 
     public function testCommitRollback() {
-        DB::connector()->autocommit(false);
-        $deleted_rows = DB::delete('user')->exec();
-        $this->assertEquals(2, $deleted_rows);
-        DB::connector()->rollback();
         $existing_rows = DB::select()->from('user')->exec()->count();
         $this->assertEquals(2, $existing_rows);
+        $conn = DB::connector();
+        $conn->autocommit(false);
         $deleted_rows = DB::delete('user')->exec();
         $this->assertEquals(2, $deleted_rows);
-        DB::connector()->commit();
+        $conn->rollback();
+        $existing_rows = DB::select()->from('user')->exec()->count();
+        $this->assertEquals(2, $existing_rows); 
+        $deleted_rows = DB::delete('user')->exec();
+        $this->assertEquals(2, $deleted_rows);
+        $conn->commit();
         $existing_rows = DB::select()->from('user')->exec()->count();
         $this->assertEquals(0, $existing_rows);
     }

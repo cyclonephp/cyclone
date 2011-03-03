@@ -21,7 +21,7 @@ class DB {
     public static function compiler($config = 'default') {
         if ( ! array_key_exists($config, self::$_compilers)) {
             $cfg = Config::inst()->get('simpledb/'.$config);
-            $class = 'DB_Compiler_'.ucfirst($cfg['adapter']);
+            $class = 'DB_Compiler_'.$cfg['adapter'];
             self::$_compilers[$config] = new $class($cfg, DB::connector($config)->db_conn);
         }
         return self::$_compilers[$config];
@@ -34,7 +34,7 @@ class DB {
     public static function executor($config = 'default') {
         if ( ! array_key_exists($config, self::$_executors)) {
             $cfg = Config::inst()->get('simpledb/'.$config);
-            $class = 'DB_Executor_'.ucfirst($cfg['adapter']);
+            $class = 'DB_Executor_'.$cfg['adapter'];
             self::$_executors[$config] = new $class($cfg, DB::connector($config)->db_conn);
         }
         return self::$_executors[$config];
@@ -47,7 +47,7 @@ class DB {
     public static function executor_prepared($config = 'default') {
         if ( ! array_key_exists($config, self::$_executor_prepareds)) {
             $cfg = Config::inst()->get('simpledb/'.$config);
-            $class = 'DB_Executor_Prepared_'.ucfirst($cfg['adapter']);
+            $class = 'DB_Executor_Prepared_'.$cfg['adapter'];
             self::$_executor_prepareds[$config] = new $class($cfg, DB::connector($config)->db_conn);
         }
         return self::$_executor_prepareds[$config];
@@ -56,7 +56,7 @@ class DB {
     public static function connector($config = 'default') {
         if ( ! array_key_exists($config, self::$_connectors)) {
             $cfg = Config::inst()->get('simpledb/'.$config);
-            $class = 'DB_Connector_'.ucfirst($cfg['adapter']);
+            $class = 'DB_Connector_'.$cfg['adapter'];
             $connector = new $class($cfg);
             $connector->connect();
             self::$_connectors[$config] = $connector;
