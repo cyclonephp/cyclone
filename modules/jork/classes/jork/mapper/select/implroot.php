@@ -129,32 +129,6 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         return $this->_mappers[NULL]->has_to_many_child();
     }
 
-    private function filter_unneeded_subquery_joins(DB_Query_Select $subquery) {
-        if (NULL == $subquery->where_conditions) {
-            // if there are no WHERE conditions, then no joined tables are needed
-            // in the WHERE clause.
-            $subquery->joins = NULL;
-            return;
-        }
-        
-        foreach ($subquery->joins as $k => &$join) {
-            // join tables are two item arrays where 0. item is the table name
-            // and 1. item is the alias
-            // the alias name may appear in the where conditions
-            $join_tbl_alias = $join['table'][1];
-            $needed = FALSE;
-            foreach ($subquery->where_conditions as $where) {
-                if ($where->contains_table_name($join_tbl_alias)) {
-                    $needed = TRUE;
-                    break;
-                }
-            }
-            if ( ! $needed) {
-                unset($subquery->joins[$k]);
-            }
-        }
-    }
-
     protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
         $ent_schema = $this->_mappers[NULL]->_entity_schema;
 
@@ -162,14 +136,11 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
 
         $primary_key = $ent_schema->primary_key();
 
-        $subquery->columns = array('id');
+        $subquery->columns = array($primary_key);
         $subquery->tables = array(
             array($ent_schema->table
                 , $this->_naming_srv->table_alias(NULL, $ent_schema->table, TRUE))
         );
-        $subquery->distinct = TRUE;
-        $subquery->offset = $this->_jork_query->offset;
-        $subquery->limit = $this->_jork_query->limit;
         $this->filter_unneeded_subquery_joins($subquery);
         $subquery_alias = $this->_naming_srv->offset_limit_subquery_alias();
         return array(

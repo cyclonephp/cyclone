@@ -1,4 +1,5 @@
 <?php
+
 return array(
     'adapter' => 'mysqli',
     'connection' => array(

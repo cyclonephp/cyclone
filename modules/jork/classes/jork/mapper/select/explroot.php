@@ -42,12 +42,15 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
 
     protected function map_with() {
         foreach ($this->_jork_query->with_list as $with_item) {
-            $prop_chain = $with_item->as_array();
-                $root_entity = array_shift($prop_chain);
-                if ( ! array_key_exists($root_entity, $this->_mappers))
-                    throw new JORK_Syntax_Exception('invalid root entity in WITH clause: '.$root_entity);
+            if (array_key_exists('alias', $with_item)) {
+                $this->_naming_srv->set_alias($with_item['prop_chain'], $with_item['alias']);
+            }
+            $prop_chain = $with_item['prop_chain']->as_array();
+            $root_entity = array_shift($prop_chain);
+            if (!array_key_exists($root_entity, $this->_mappers))
+                throw new JORK_Syntax_Exception('invalid root entity in WITH clause: ' . $root_entity);
 
-                $this->_mappers[$root_entity]->merge_prop_chain($prop_chain, TRUE, TRUE);
+            $this->_mappers[$root_entity]->merge_prop_chain($prop_chain, TRUE, TRUE);
         }
     }
 
@@ -211,7 +214,38 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
     }
 
     protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
-        ;
+        $subquery_alias = $this->_naming_srv->offset_limit_subquery_alias();
+
+        $subquery->columns = array();
+        $subquery->tables = array();
+        $join_conditions = array();
+        
+        foreach ($this->_jork_query->from_list as $from_itm) {
+            $ent_schema = JORK_Model_Abstract::schema_by_class($from_itm['class']);
+
+            $existing_table_alias = $this->_naming_srv->table_alias($from_itm['alias'], $ent_schema->table);
+            
+            $table_alias = $this->_naming_srv->table_alias($from_itm['class']
+                    , $ent_schema->table, TRUE);
+            $subquery->tables []= array($ent_schema->table, $table_alias);
+
+            $primary_key = $ent_schema->primary_key();
+            $column_alias = $table_alias . '_' . $primary_key;
+
+            $subquery->columns []= array($table_alias . '.' . $primary_key
+                , $column_alias);
+
+            $join_conditions []= new DB_Expression_Binary($existing_table_alias . '.' . $primary_key
+                    , '=', $subquery_alias . '.' . $column_alias);
+        }
+
+        $this->filter_unneeded_subquery_joins($subquery);
+
+        return array(
+            'table' => array($subquery, $subquery_alias),
+            'type' => 'RIGHT',
+            'conditions' => $join_conditions
+        );
     }
     
 }

@@ -203,6 +203,34 @@ abstract class JORK_Mapper_Select {
 
     protected abstract function map_order_by();
 
+
+    protected function filter_unneeded_subquery_joins(DB_Query_Select $subquery) {
+        if (NULL == $subquery->where_conditions) {
+            // if there are no WHERE conditions, then no joined tables are needed
+            // in the WHERE clause.
+            $subquery->joins = NULL;
+            return;
+        }
+
+        foreach ($subquery->joins as $k => &$join) {
+            // join tables are two item arrays where 0. item is the table name
+            // and 1. item is the alias
+            // the alias name may appear in the where conditions
+            $join_tbl_alias = $join['table'][1];
+            $needed = FALSE;
+            foreach ($subquery->where_conditions as $where) {
+                if ($where->contains_table_name($join_tbl_alias)) {
+                    $needed = TRUE;
+                    break;
+                }
+            }
+            if ( ! $needed) {
+                unset($subquery->joins[$k]);
+            }
+        }
+    }
+    
+
     /**
      * Returns TRUE if any of the mappers has at least one to-many mappers,
      * recursively.
@@ -227,7 +255,12 @@ abstract class JORK_Mapper_Select {
 
         if ($this->has_to_many_child()) {
             $subquery = clone $this->_db_query;
+
             $subquery->order_by = NULL;
+            $subquery->distinct = TRUE;
+            $subquery->offset = $this->_jork_query->offset;
+            $subquery->limit = $this->_jork_query->limit;
+            
             $this->_db_query->joins []= $this->build_offset_limit_subquery($subquery);
         } else { // nothing magic is needed here, the row count in the SQL
             // result will be the same as the record count in the object query results
