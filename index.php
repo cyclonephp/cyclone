@@ -82,26 +82,27 @@ Route::set('default', '(<controller>(/<action>(/<id>)))')
             'action' => 'index',
         ));
 
-
-$request = Request::instance();
-
-if ( ! defined('SUPPRESS_REQUEST'))
-if (Kohana::$environment != Kohana::DEVELOPMENT) {
-    try {
+if (!defined('SUPPRESS_REQUEST')) {
+    $request = Request::instance();
+    if (Kohana::$environment != Kohana::DEVELOPMENT) {
+        try {
+            $request->execute();
+        } catch (ReflectionException $ex) {
+            Log::warning('404 not found: ' . $_SERVER['PATH_INFO']);
+            $request->redirect(URL::base(), 404);
+        } catch (Exception_BadRequest $ex) {
+            Log::warning('500 bad request: ' . $_SERVER['PATH_INFO']);
+            $request->redirect(URL::base(), 500);
+        } catch (Exception $ex) {
+            Log::error('500 internal error: ' . $_SERVER['PATH_INFO']);
+            $request->redirect(URL::base(), 500);
+        }
+    } else {
         $request->execute();
-    } catch (ReflectionException $ex) {
-        Log::warning('404 not found: '.$_SERVER['PATH_INFO']);
-        $request->redirect(URL::base(), 404);
-    } catch (Exception_BadRequest $ex) {
-        Log::warning('500 bad request: '.$_SERVER['PATH_INFO']);
-        $request->redirect(URL::base(), 500);
-    } catch (Exception $ex) {
-        Log::error('500 internal error: '.$_SERVER['PATH_INFO']);
-        $request->redirect(URL::base(), 500);
     }
-} else {
-    $request->execute();
+
+
+    echo $request->send_headers()->response;
+} elseif (Kohana::$is_cli && 'by_cyphp' == SUPPRESS_REQUEST) {
+    Cyclone_CLI::bootstrap();
 }
-
-
-echo $request->send_headers()->response;
