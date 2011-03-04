@@ -16,6 +16,11 @@ class JORK_Mapper_Result_Simple extends JORK_Mapper_Result {
         $this->_mapper = $mapper;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @return array<JORK_Model_Abstract>
+     */
     public function map() {
         $obj_result = array();
         foreach ($this->_db_result as $row) {
