@@ -25,12 +25,22 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
     /**
      * @var array<JORK_Mapper_Row>
      */
-    private $_mappers;
+    private $_root_mappers;
 
     /**
      * @var array<JORK_Mapper_Row>
      */
-    private $_root_mappers;
+    private $_entity_mappers = array();
+
+    /**
+     * @var array<JORK_Mapper_Row>
+     */
+    private $_atomic_mappers = array();
+
+    /**
+     * @var array<string>
+     */
+    private $_atomic_props = array();
 
     public function  __construct(JORK_Query_Select $jork_query
             , DB_Query_Result $db_result, $has_implicit_root
@@ -39,17 +49,21 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
         $this->_db_result = $db_result;
         $this->_has_implicit_root = $has_implicit_root;
         $this->_root_mappers = $mappers;
-        $this->_mappers = $this->extract_mappers($mappers);
+        $this->extract_mappers($mappers);
     }
 
     private function extract_mappers($mappers) {
-        $rval = array();
         foreach ($this->_jork_query->select_list as $select_itm) {
             if (array_key_exists('expr', $select_itm)) { // database expression
                 $alias = $select_itm['alias'];
                 $rval[$alias] = $mappers[$alias];
                 continue;
             }
+
+            $alias = array_key_exists('alias', $select_itm)
+                    ? $select_itm['alias']
+                    : $select_itm['prop_chain']->as_string();
+            
             $prop_chain = $select_itm['prop_chain']->as_array();
             if ($this->_has_implicit_root) {
                 $root_mapper = $mappers[NULL];
@@ -60,14 +74,16 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
             if (empty($prop_chain)) {
                 $itm_mapper = $root_mapper;
             } else {
-                $itm_mapper = $root_mapper->get_mapper_for_propchain($prop_chain);
+                list($itm_mapper, $atomic_prop) = $root_mapper
+                        ->get_mapper_for_propchain($prop_chain);
+                if (FALSE === $atomic_prop) {
+                    $this->_entity_mappers[$alias] = $itm_mapper;
+                } else {
+                    $this->_atomic_mappers[$alias] = $itm_mapper;
+                    $this->_atomic_props[$alias] = $atomic_prop;
+                }
             }
-            $alias = array_key_exists('alias', $select_itm)
-                    ? $select_itm['alias']
-                    : $select_itm['prop_chain']->as_string();
-            $rval[$alias] = $itm_mapper;
         }
-        return $rval;
     }
 
     public function map() {
@@ -84,8 +100,12 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
 
                 if ($is_new_row) {
                     $obj_result_row = array();
-                    foreach ($this->_mappers as $alias => $mapper) {
+                    foreach ($this->_entity_mappers as $alias => $mapper) {
                         $obj_result_row[$alias] = $mapper->get_last_entity();
+                    }
+                    foreach ($this->_atomic_mappers as $alias => $mapper) {
+                        $obj_result_row[$alias] = $mapper->get_last_entity()
+                                ->{$this->_atomic_props[$alias]};
                     }
                     $obj_result []= $obj_result_row;
                 }

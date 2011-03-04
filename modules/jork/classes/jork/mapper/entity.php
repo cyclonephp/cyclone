@@ -150,9 +150,9 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $root_prop = array_shift($prop_chain);
         if (empty ($prop_chain)) {
             if (array_key_exists($root_prop, $this->_entity_schema->atomics)) 
-                return NULL;
+                return array($this, $root_prop);
 
-            return $this->_next_mappers[$root_prop];
+            return array($this->_next_mappers[$root_prop], FALSE);
         }
         return $this->_next_mappers[$root_prop]->get_mapper_for_propchain($prop_chain);
     }

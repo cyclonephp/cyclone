@@ -30,6 +30,6 @@ class JORK_Mapper_Expression implements JORK_Mapper_Row {
     }
 
     public function  get_last_entity() {
-        return $this->_last_value;
+        return array($this->_last_value, FALSE);
     }
 }

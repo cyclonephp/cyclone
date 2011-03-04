@@ -63,9 +63,10 @@ class JORK_Result_MapperTest extends JORK_DbTest {
     }
 
     public function testSelectType() {
-        $result = JORK::select('author')->from('Model_Post')->exec('jork_test');
+        $result = JORK::select('name', 'author')->from('Model_Post')->exec('jork_test');
         foreach ($result as $row) {
             $this->assertInstanceOf('Model_User', $row['author']);
+            $this->assertInternalType('string', $row['name']);
         }
     }
 
