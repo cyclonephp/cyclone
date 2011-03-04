@@ -100,6 +100,7 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
                 $expr_mapper = new JORK_Mapper_Expression($resolved);
                 $select_item['alias'] = $expr_mapper->col_name;
                 $this->_mappers[$expr_mapper->col_name] = $expr_mapper;
+                $this->_db_query->columns []= new DB_Expression_Custom($resolved);
                 continue;
             }
             $prop_chain = $select_item['prop_chain']->as_array();

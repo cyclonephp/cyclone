@@ -89,29 +89,25 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
     public function map() {
         $obj_result = array();
         $prev_row = NULL;
-        if ($this->_has_implicit_root) {
-            foreach ($this->_db_result as $row) {
-                $is_new_row = FALSE;
+        foreach ($this->_db_result as $row) {
+            $is_new_row = FALSE;
 
-                foreach ($this->_root_mappers as $mapper) {
-                    list($entity, $is_new) = $mapper->map_row($row);
-                    $is_new_row = $is_new_row || $is_new;
-                }
-
-                if ($is_new_row) {
-                    $obj_result_row = array();
-                    foreach ($this->_entity_mappers as $alias => $mapper) {
-                        $obj_result_row[$alias] = $mapper->get_last_entity();
-                    }
-                    foreach ($this->_atomic_mappers as $alias => $mapper) {
-                        $obj_result_row[$alias] = $mapper->get_last_entity()
-                                ->{$this->_atomic_props[$alias]};
-                    }
-                    $obj_result []= $obj_result_row;
-                }
+            foreach ($this->_root_mappers as $mapper) {
+                list($entity, $is_new) = $mapper->map_row($row);
+                $is_new_row = $is_new_row || $is_new;
             }
-        } else {
 
+            if ($is_new_row) {
+                $obj_result_row = array();
+                foreach ($this->_entity_mappers as $alias => $mapper) {
+                    $obj_result_row[$alias] = $mapper->get_last_entity();
+                }
+                foreach ($this->_atomic_mappers as $alias => $mapper) {
+                    $obj_result_row[$alias] = $mapper->get_last_entity()
+                            ->{$this->_atomic_props[$alias]};
+                }
+                $obj_result [] = &$obj_result_row;
+            }
         }
         return $obj_result;
     }

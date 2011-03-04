@@ -17,8 +17,7 @@ class JORK_Mapper_Expression implements JORK_Mapper_Row {
 
     public function  __construct($resolved_db_expr) {
         $this->_db_expr = $resolved_db_expr;
-        $this->col_name = substr($this->_db_expr, strrpos($this->_db_expr, ' ')+1
-                , strlen($this->_db_expr));
+        $this->col_name = substr($this->_db_expr, strrpos($this->_db_expr, ' ') + 1);
     }
 
     public function  map_row(&$row) {

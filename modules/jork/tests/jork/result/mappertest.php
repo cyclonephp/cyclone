@@ -62,10 +62,9 @@ class JORK_Result_MapperTest extends JORK_DbTest {
         }
     }
 
-    public function testSelectType() {
+    public function testSelectTypeImplRoot() {
         $query = JORK::select('id uid', 'name', 'author.moderated_category ctg'
                 , 'modinfo', DB::expr('{id} - 5 cnt'))->from('Model_Post');
-        echo $query->compile('jork_test');
         $result = $query->exec('jork_test');
         $this->assertEquals(4, count($result));
         foreach ($result as $row) {
@@ -75,6 +74,23 @@ class JORK_Result_MapperTest extends JORK_DbTest {
             $this->assertInternalType('string', $row['name']);
             $this->assertInternalType('int', $row['uid']);
             $this->assertInstanceOf('Model_ModInfo', $row['modinfo']);
+            $this->assertArrayHasKey('cnt', $row);
+        }
+    }
+
+    public function testSelectTypeExplRoot() {
+        $query = JORK::select('p.id uid', 'p.name', 'p.author.moderated_category ctg'
+                , 'p.modinfo', DB::expr('{p.id} - 5 cnt'))->from('Model_Post p');
+
+        $result = $query->exec('jork_test');
+        $this->assertEquals(4, count($result));
+        foreach ($result as $row) {
+            if ($row['ctg'] != NULL) {
+                $this->assertInstanceOf('Model_Category', $row['ctg']);
+            }
+            $this->assertInternalType('string', $row['p.name']);
+            $this->assertInternalType('int', $row['uid']);
+            $this->assertInstanceOf('Model_ModInfo', $row['p.modinfo']);
             $this->assertArrayHasKey('cnt', $row);
         }
     }
