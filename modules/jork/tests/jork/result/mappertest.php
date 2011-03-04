@@ -62,6 +62,37 @@ class JORK_Result_MapperTest extends JORK_DbTest {
         }
     }
 
+    public function testSelectType() {
+        $this->markTestSkipped('not yet implemented');
+        $result = JORK::select('modinfo')->from('Model_Topic')->exec('jork_test');
+        foreach ($result as $modinfo) {
+            $this->assertInstanceOf('Model_ModInfo', $modinfo);
+        }
+    }
+
+    /**
+     * @dataProvider providerForQuery
+     */
+    public function testForQuery($jork_query, $exp_result_mapper_type) {
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, $mappers) = $mapper->map();
+
+        $sql = DB::compiler('jork_test')->compile_select($db_query);
+        $db_result = DB::executor('jork_test')->exec_select($sql);
+
+        $result_mapper = JORK_Mapper_Result::for_query($jork_query, $db_result
+                , $mapper->has_implicit_root, $mappers);
+        $this->assertInstanceOf($exp_result_mapper_type, $result_mapper);
+    }
+
+    public function providerForQuery() {
+        return array(
+            array(JORK::from('Model_User'), 'JORK_Mapper_Result_Simple'),
+            array(JORK::from('Model_User u'), 'JORK_Mapper_Result_Default'),
+            array(JORK::select('name')->from('Model_User'), 'JORK_Mapper_Result_Default'),
+        );
+    }
+
     public function testEmbedded() {
         $result = JORK::from('Model_Topic')->with('modinfo')
                 ->where('id', '=', DB::esc(4))

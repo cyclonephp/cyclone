@@ -262,7 +262,7 @@ class JORK_Query_Select {
         $sql = DB::compiler($adapter)->compile_select($db_query);
         $db_result = DB::executor($adapter)->exec_select($sql);
         
-        $result_mapper = new JORK_Mapper_Result($db_result
+        $result_mapper = JORK_Mapper_Result::for_query($this, $db_result
                 , $mapper->has_implicit_root, $mappers);
         //var_dump($result_mapper->map());
         return new JORK_Result_Iterator($result_mapper->map());
