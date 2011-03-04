@@ -79,7 +79,7 @@ class JORK_Query_Select {
      * @see JORK::select()
      */
     public function select_array($args) {
-        static $pattern = '/^(?<prop_chain>[a-zA-z\.]+)(\{(?<projection>[a-z,]+)\})?( +(?<alias>[a-zA-Z_]+))?$/';
+        static $pattern = '/^(?<prop_chain>[a-zA-Z_\.]+)(\{(?<projection>[a-zA-Z_,]+)\})?( +(?<alias>[a-zA-Z_]+))?$/';
         foreach ($args as $arg) {
             if ($arg instanceof DB_Expression) {
                 $this->select_list []= array(
@@ -93,7 +93,7 @@ class JORK_Query_Select {
             $select_item = array(
                 'prop_chain' => JORK_Query_PropChain::from_string($matches['prop_chain']),
             );
-            if (array_key_exists('projection', $matches)) {
+            if (array_key_exists('projection', $matches) && $matches['projection'] != '') {
                 $select_item['projection'] = explode(',', $matches['projection']);
             }
             if (array_key_exists('alias', $matches)) {

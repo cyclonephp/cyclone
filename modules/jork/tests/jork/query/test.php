@@ -8,7 +8,7 @@ class JORK_Query_Test extends Kohana_Unittest_TestCase {
      */
     public function testSelect() {
         $query = new JORK_Query_Select;
-        $query->select('user{id,name} u', 'user', 'user{id,name}');
+        $query->select('user{id,name} u', 'user', 'user{id,name}', 'user.posts posts');
         $this->assertEquals($query->select_list, array(
             array(
                 'prop_chain' => JORK_Query_PropChain::from_string('user'),
@@ -21,6 +21,10 @@ class JORK_Query_Test extends Kohana_Unittest_TestCase {
             array(
                 'prop_chain' => JORK_Query_PropChain::from_string('user'),
                 'projection' => array('id', 'name')
+            ),
+            array(
+                'prop_chain' => JORK_Query_PropChain::from_string('user.posts'),
+                'alias' => 'posts'
             )
         ));
         $query->select('asdasd x sad');
