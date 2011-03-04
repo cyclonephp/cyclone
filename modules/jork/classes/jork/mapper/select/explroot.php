@@ -7,6 +7,26 @@
 class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
 
     protected function map_from() {
+        if (empty($this->_jork_query->select_list)) {
+            $this->_jork_query->select_list = array();
+            foreach ($this->_jork_query->from_list as $from_item) {
+                //fail early
+                if ( ! array_key_exists('alias', $from_item))
+                    throw new JORK_Syntax_Exception('if the query hasn\'t got an
+                            implicit root entity, then all explicit root entities must
+                            have an alias name');
+
+                $this->_naming_srv->set_alias($from_item['class'], $from_item['alias']);
+                $this->_mappers[$from_item['alias']] =
+                $this->create_entity_mapper($from_item['alias']);
+
+                $this->_jork_query->select_list []= array(
+                    'prop_chain' => JORK_Query_PropChain::from_string($from_item['alias'])
+                );
+            }
+            return;
+        }
+
         foreach ($this->_jork_query->from_list as $from_item) {
             //fail early
             if ( ! array_key_exists('alias', $from_item))
@@ -22,12 +42,15 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
 
     protected function map_with() {
         foreach ($this->_jork_query->with_list as $with_item) {
-            $prop_chain = $with_item->as_array();
-                $root_entity = array_shift($prop_chain);
-                if ( ! array_key_exists($root_entity, $this->_mappers))
-                    throw new JORK_Syntax_Exception('invalid root entity in WITH clause: '.$root_entity);
+            if (array_key_exists('alias', $with_item)) {
+                $this->_naming_srv->set_alias($with_item['prop_chain'], $with_item['alias']);
+            }
+            $prop_chain = $with_item['prop_chain']->as_array();
+            $root_entity = array_shift($prop_chain);
+            if (!array_key_exists($root_entity, $this->_mappers))
+                throw new JORK_Syntax_Exception('invalid root entity in WITH clause: ' . $root_entity);
 
-                $this->_mappers[$root_entity]->merge_prop_chain($prop_chain, TRUE, TRUE);
+            $this->_mappers[$root_entity]->merge_prop_chain($prop_chain, TRUE, TRUE);
         }
     }
 
@@ -74,10 +97,13 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
             }
             return;
         }
-        foreach ($this->_jork_query->select_list as $select_item) {
+        foreach ($this->_jork_query->select_list as &$select_item) {
             if (array_key_exists('expr', $select_item)) { //database expression
                 $resolved = $this->map_db_expression($select_item['expr']);
-                $this->_mappers[$select_item['expr']] = new JORK_Mapper_Expression($resolved);
+                $expr_mapper = new JORK_Mapper_Expression($resolved);
+                $select_item['alias'] = $expr_mapper->col_name;
+                $this->_mappers[$expr_mapper->col_name] = $expr_mapper;
+                $this->_db_query->columns []= new DB_Expression_Custom($resolved);
                 continue;
             }
             $prop_chain = $select_item['prop_chain']->as_array();
@@ -178,5 +204,48 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         }
     }
 
+    protected function  has_to_many_child() {
+        foreach ($this->_mappers as $mapper) {
+            if ($mapper instanceof JORK_Mapper_Entity
+                    && $mapper->has_to_many_child())
+               return TRUE;
+        }
+        return FALSE;
+    }
+
+    protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
+        $subquery_alias = $this->_naming_srv->offset_limit_subquery_alias();
+
+        $subquery->columns = array();
+        $subquery->tables = array();
+        $join_conditions = array();
+        
+        foreach ($this->_jork_query->from_list as $from_itm) {
+            $ent_schema = JORK_Model_Abstract::schema_by_class($from_itm['class']);
+
+            $existing_table_alias = $this->_naming_srv->table_alias($from_itm['alias'], $ent_schema->table);
+            
+            $table_alias = $this->_naming_srv->table_alias($from_itm['class']
+                    , $ent_schema->table, TRUE);
+            $subquery->tables []= array($ent_schema->table, $table_alias);
+
+            $primary_key = $ent_schema->primary_key();
+            $column_alias = $table_alias . '_' . $primary_key;
+
+            $subquery->columns []= array($table_alias . '.' . $primary_key
+                , $column_alias);
+
+            $join_conditions []= new DB_Expression_Binary($existing_table_alias . '.' . $primary_key
+                    , '=', $subquery_alias . '.' . $column_alias);
+        }
+
+        $this->filter_unneeded_subquery_joins($subquery);
+
+        return array(
+            'table' => array($subquery, $subquery_alias),
+            'type' => 'RIGHT',
+            'conditions' => $join_conditions
+        );
+    }
     
 }

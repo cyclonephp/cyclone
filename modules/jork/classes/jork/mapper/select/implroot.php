@@ -48,10 +48,14 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
             }
             return;
         }
-        foreach ($this->_jork_query->select_list as $select_item) {
+        foreach ($this->_jork_query->select_list as &$select_item) {
             if (array_key_exists('expr', $select_item)) { //database expression
                 $resolved = $this->map_db_expression($select_item['expr']);
-                $this->_mappers[$select_item['expr']] = new JORK_Mapper_Expression($resolved);
+
+                $expr_mapper = new JORK_Mapper_Expression($resolved);
+                $select_item['alias'] = $expr_mapper->col_name;
+                $this->_mappers[$expr_mapper->col_name] = $expr_mapper;
+                $this->_db_query->columns []= new DB_Expression_Custom($resolved);
                 continue;
             }
             $prop_chain = $select_item['prop_chain']->as_array();
@@ -121,5 +125,33 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         }
     }
 
+    protected function  has_to_many_child() {
+        return $this->_mappers[NULL]->has_to_many_child();
+    }
+
+    protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
+        $ent_schema = $this->_mappers[NULL]->_entity_schema;
+
+        $existing_alias = $this->_naming_srv->table_alias(NULL, $ent_schema->table);
+
+        $primary_key = $ent_schema->primary_key();
+
+        $subquery->columns = array($primary_key);
+        $subquery->tables = array(
+            array($ent_schema->table
+                , $this->_naming_srv->table_alias(NULL, $ent_schema->table, TRUE))
+        );
+        $this->filter_unneeded_subquery_joins($subquery);
+        $subquery_alias = $this->_naming_srv->offset_limit_subquery_alias();
+        return array(
+                'table' => array($subquery
+                    , $subquery_alias),
+                'type' => 'RIGHT',
+                'conditions' => array(
+                    new DB_Expression_Binary($existing_alias.'.'.$primary_key
+                            , '=', $subquery_alias . '.' . $primary_key)
+                )
+            );
+    }
     
 }

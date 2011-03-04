@@ -3,10 +3,11 @@
 
 class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
-    public function testInstance() {
-        $inst = DB::inst();
-        $this->assertTrue($inst instanceof DB_Adapter_Mysqli);
-        $inst->disconnect();
+    public function testPools() {
+        $this->assertInstanceOf('DB_Compiler', DB::compiler());
+        $this->assertInstanceOf('DB_Executor', DB::executor());
+        $this->assertInstanceOf('DB_Connector', DB::connector());
+        DB::connector()->disconnect();
     }
 
     public function testQueryFactory() {
