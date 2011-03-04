@@ -26,10 +26,10 @@ class JORK_Mapper_Expression implements JORK_Mapper_Row {
                 throw new JORK_Exception('failed to detect column name for database expression "'
                         .$this->_db_expr.'"');
         
-        return $this->_last_value = $row[$this->col_name];
+        return array($this->_last_value = $row[$this->col_name], TRUE);
     }
 
     public function  get_last_entity() {
-        return array($this->_last_value, FALSE);
+        return $this->_last_value;
     }
 }

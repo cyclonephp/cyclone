@@ -249,23 +249,33 @@ class JORK_Query_Select {
     }
 
     /**
-     * @param string $adapter
+     * @param string $database
      * @return JORK_Result_Iterator 
      */
-    public function exec($adapter = 'default') {
+    public function exec($database = 'default') {
         $mapper = JORK_Mapper_Select::for_query($this);
         list($db_query, $mappers) = $mapper->map();
         
         if (Config::inst()->get('jork.show_sql')) {
-            echo $db_query->compile($adapter).PHP_EOL;
+            echo $db_query->compile($database).PHP_EOL;
         }
-        $sql = DB::compiler($adapter)->compile_select($db_query);
-        $db_result = DB::executor($adapter)->exec_select($sql);
+        $sql = DB::compiler($database)->compile_select($db_query);
+        $db_result = DB::executor($database)->exec_select($sql);
         
         $result_mapper = JORK_Mapper_Result::for_query($this, $db_result
                 , $mapper->has_implicit_root, $mappers);
         //var_dump($result_mapper->map());
         return new JORK_Result_Iterator($result_mapper->map());
+    }
+
+    public function compile($database = 'default') {
+        $mapper = JORK_Mapper_Select::for_query($this);
+        list($db_query, $mappers) = $mapper->map();
+
+        if (Config::inst()->get('jork.show_sql')) {
+            echo $db_query->compile($database).PHP_EOL;
+        }
+        return DB::compiler($database)->compile_select($db_query);
     }
 
     

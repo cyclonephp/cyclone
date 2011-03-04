@@ -51,9 +51,11 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         foreach ($this->_jork_query->select_list as &$select_item) {
             if (array_key_exists('expr', $select_item)) { //database expression
                 $resolved = $this->map_db_expression($select_item['expr']);
+
                 $expr_mapper = new JORK_Mapper_Expression($resolved);
                 $select_item['alias'] = $expr_mapper->col_name;
                 $this->_mappers[$expr_mapper->col_name] = $expr_mapper;
+                $this->_db_query->columns []= new DB_Expression_Custom($resolved);
                 continue;
             }
             $prop_chain = $select_item['prop_chain']->as_array();

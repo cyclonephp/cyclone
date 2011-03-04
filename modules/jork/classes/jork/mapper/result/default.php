@@ -56,7 +56,7 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
         foreach ($this->_jork_query->select_list as $select_itm) {
             if (array_key_exists('expr', $select_itm)) { // database expression
                 $alias = $select_itm['alias'];
-                $rval[$alias] = $mappers[$alias];
+                $this->_entity_mappers[$alias] = $mappers[$alias];
                 continue;
             }
 
@@ -95,7 +95,7 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
 
                 foreach ($this->_root_mappers as $mapper) {
                     list($entity, $is_new) = $mapper->map_row($row);
-                    $is_new_row |= $is_new;
+                    $is_new_row = $is_new_row || $is_new;
                 }
 
                 if ($is_new_row) {

@@ -64,7 +64,8 @@ class JORK_Result_MapperTest extends JORK_DbTest {
 
     public function testSelectType() {
         $query = JORK::select('id uid', 'name', 'author.moderated_category ctg'
-                , 'modinfo')->from('Model_Post');
+                , 'modinfo', DB::expr('{id} - 5 cnt'))->from('Model_Post');
+        echo $query->compile('jork_test');
         $result = $query->exec('jork_test');
         $this->assertEquals(4, count($result));
         foreach ($result as $row) {
@@ -74,6 +75,7 @@ class JORK_Result_MapperTest extends JORK_DbTest {
             $this->assertInternalType('string', $row['name']);
             $this->assertInternalType('int', $row['uid']);
             $this->assertInstanceOf('Model_ModInfo', $row['modinfo']);
+            $this->assertArrayHasKey('cnt', $row);
         }
     }
 
