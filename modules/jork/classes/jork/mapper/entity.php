@@ -136,6 +136,22 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         $entity->add_to_component_collections($to_many_comps);
         return array($entity, $is_new_entity);
     }
+
+    /**
+     *
+     * @param array $prop_chain
+     * @usedby JORK_Mapper_Result_Default::extract_mappers()
+     */
+    public function get_mapper_for_propchain($prop_chain) {
+        $root_prop = array_shift($prop_chain);
+        if (empty ($prop_chain)) {
+            if (array_key_exists($root_prop, $this->_entity_schema->atomics)) 
+                return NULL;
+
+            return $this->_next_mappers[$root_prop];
+        }
+        return $this->_next_mappers[$root_prop]->get_mapper_for_propchain($prop_chain);
+    }
     
 
     public function  __construct(JORK_Naming_Service $naming_srv

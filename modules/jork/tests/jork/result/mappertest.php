@@ -63,7 +63,6 @@ class JORK_Result_MapperTest extends JORK_DbTest {
     }
 
     public function testSelectType() {
-        $this->markTestSkipped('not yet implemented');
         $result = JORK::select('modinfo')->from('Model_Topic')->exec('jork_test');
         foreach ($result as $modinfo) {
             $this->assertInstanceOf('Model_ModInfo', $modinfo);

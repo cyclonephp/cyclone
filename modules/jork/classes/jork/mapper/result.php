@@ -29,7 +29,7 @@ abstract class JORK_Mapper_Result {
         if ($has_implicit_root && empty($query->select_list)) 
             return new JORK_Mapper_Result_Simple($db_result, $mappers[NULL]);
         
-        return new JORK_Mapper_Result_Default($db_result, $has_implicit_root, $mappers);
+        return new JORK_Mapper_Result_Default($query, $db_result, $has_implicit_root, $mappers);
     }
 
     /**
