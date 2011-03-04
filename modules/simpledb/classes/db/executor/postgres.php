@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Executor_Postgres extends DB_Executor_Abstract {
 
     private $_generator_sequences;

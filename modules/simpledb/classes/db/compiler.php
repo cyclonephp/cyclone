@@ -3,6 +3,9 @@
 /**
  * Interface for classes that are able to compile DB_Query_* query builder
  * objects to SQL queries for a given SQL dialect.
+ * 
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
  */
 interface DB_Compiler {
 

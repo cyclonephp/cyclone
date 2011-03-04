@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Connector_Postgres extends DB_Connector_Abstract {
 
     public function connect() {

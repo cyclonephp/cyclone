@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 interface DB_Executor_Prepared {
 
     public function prepare($sql);

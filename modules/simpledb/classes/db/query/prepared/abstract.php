@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 abstract class DB_Query_Prepared_Abstract implements DB_Query_Prepared {
 
     protected $_params = array();
