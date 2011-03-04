@@ -27,15 +27,9 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
      */
     protected $_prev_result_row;
 
-    /**
-     *
-     * @var JORK_Model_Embeddable
-     */
-    protected $_prev_result_entity;
-
     public function map_row(&$db_row) {
         if ($db_row == $this->_prev_result_row)
-            return array($this->_prev_result_entity, false);
+            return array($this->_previous_result_entity, false);
 
         $class = $this->_entity_schema->class;
         $entity = new $class;
@@ -47,7 +41,7 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
         
         $entity->populate_atomics($atomics);
 
-        $this->_prev_result_entity = $entity;
+        $this->_previous_result_entity = $entity;
         
         return array($entity, true);
     }
