@@ -137,6 +137,10 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         return array($entity, $is_new_entity);
     }
 
+    public function  get_last_entity() {
+        return $this->_previous_result_entity;
+    }
+
     /**
      *
      * @param array $prop_chain

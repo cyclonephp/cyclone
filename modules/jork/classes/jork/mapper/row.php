@@ -20,5 +20,10 @@ interface JORK_Mapper_Row {
      * @param array $row a row of the database query result
      */
     public function map_row(&$row);
+
+    /**
+     * Returns the last mapped object created by map_row()
+     */
+    public function get_last_entity();
     
 }

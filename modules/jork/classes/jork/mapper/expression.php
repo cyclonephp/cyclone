@@ -13,6 +13,8 @@ class JORK_Mapper_Expression implements JORK_Mapper_Row {
 
     public $col_name;
 
+    private $_last_value;
+
     public function  __construct($resolved_db_expr) {
         $this->_db_expr = $resolved_db_expr;
         $this->col_name = substr($this->_db_expr, strrpos($this->_db_expr, ' ')+1
@@ -24,6 +26,10 @@ class JORK_Mapper_Expression implements JORK_Mapper_Row {
                 throw new JORK_Exception('failed to detect column name for database expression "'
                         .$this->_db_expr.'"');
         
-        return $row[$this->col_name];
+        return $this->_last_value = $row[$this->col_name];
+    }
+
+    public function  get_last_entity() {
+        return $this->_last_value;
     }
 }
