@@ -47,6 +47,8 @@ class JORK_Mapper_Component_Embedded extends JORK_Mapper_Entity {
         
         $entity->populate_atomics($atomics);
 
+        $this->_prev_result_entity = $entity;
+        
         return array($entity, true);
     }
 

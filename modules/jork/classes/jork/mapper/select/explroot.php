@@ -7,6 +7,26 @@
 class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
 
     protected function map_from() {
+        if (empty($this->_jork_query->select_list)) {
+            $this->_jork_query->select_list = array();
+            foreach ($this->_jork_query->from_list as $from_item) {
+                //fail early
+                if ( ! array_key_exists('alias', $from_item))
+                    throw new JORK_Syntax_Exception('if the query hasn\'t got an
+                            implicit root entity, then all explicit root entities must
+                            have an alias name');
+
+                $this->_naming_srv->set_alias($from_item['class'], $from_item['alias']);
+                $this->_mappers[$from_item['alias']] =
+                $this->create_entity_mapper($from_item['alias']);
+
+                $this->_jork_query->select_list []= array(
+                    'prop_chain' => JORK_Query_PropChain::from_string($from_item['alias'])
+                );
+            }
+            return;
+        }
+
         foreach ($this->_jork_query->from_list as $from_item) {
             //fail early
             if ( ! array_key_exists('alias', $from_item))
