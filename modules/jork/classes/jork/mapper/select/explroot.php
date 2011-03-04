@@ -204,6 +204,9 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         }
     }
 
+    /**
+     * {@inheritdoc }
+     */
     protected function  has_to_many_child() {
         foreach ($this->_mappers as $mapper) {
             if ($mapper instanceof JORK_Mapper_Entity
@@ -213,6 +216,9 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
         return FALSE;
     }
 
+    /**
+     * {@inheritdoc }
+     */
     protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
         $subquery_alias = $this->_naming_srv->offset_limit_subquery_alias();
 

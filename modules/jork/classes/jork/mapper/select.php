@@ -9,11 +9,17 @@
 abstract class JORK_Mapper_Select {
 
     /**
+     * The JORK query to be mapped. This query instance will be passed to the
+     * created JORK_Mapper_Entity instances.
+     *
      * @var JORK_Query_Select
      */
     protected $_jork_query;
 
     /**
+     * The DB query to be populated by the mapper methods. This query instance
+     * will be passed to the created JORK_Mapper_Entity instances.
+     *
      * @var DB_Query_Select
      */
     protected $_db_query;
@@ -111,6 +117,14 @@ abstract class JORK_Mapper_Select {
      */
     protected abstract function map_select();
 
+    /**
+     * Merges the property projections of a select item using the already created
+     * mappers.
+     *
+     * @param JORK_Query_PropChain $prop_chain
+     * @param <type> $projections
+     * @usedby JORK_Mapper_Select::map_select()
+     */
     protected abstract function add_projections(JORK_Query_PropChain $prop_chain, $projections);
 
 
@@ -204,6 +218,16 @@ abstract class JORK_Mapper_Select {
     protected abstract function map_order_by();
 
 
+    /**
+     * Removes the join conditions from an offset-limit subquery which tables
+     * are not needed by any WHERE conditions.
+     *
+     * These joined tables are not used to filter the number of the rows so
+     * they are unnecessarily make the query slower.
+     *
+     * @param DB_Query_Select $subquery the subquery which join clauses will be filtered
+     * @usedby JORK_Mapper_Select::build_offset_limit_subquery()
+     */
     protected function filter_unneeded_subquery_joins(DB_Query_Select $subquery) {
         if (NULL == $subquery->where_conditions) {
             // if there are no WHERE conditions, then no joined tables are needed
@@ -241,12 +265,35 @@ abstract class JORK_Mapper_Select {
     protected abstract function has_to_many_child();
 
     /**
-     * Creates a SimpleDB join condition
+     * Creates a SimpleDB join condition that joins a subquery that properly
+     * controls the offset-limit clauses.
+     *
+     * This method is invoked by JORK_Mapper_Select::map_offset_limit() if the
+     * JORK query generated at least one to-many component mapper. Otherwise
+     * no offset-limit subquery is needed, the offset and limit clauses are
+     * simply copied from the JORK query to the DB query.
      *
      * @return array
+     * @usedby JORK_Mapper_Select::map_offset_limit()
+     * @uses JORK_Mapper_Select::filter_unneeded_subquery_joins()
      */
     protected abstract function build_offset_limit_subquery(DB_Query_Select $subquery);
 
+    /**
+     * Maps the offset and limit clauses of the JORK query to the DB query.
+     *
+     * If there is no offset and limit clause in the JORK query then returns
+     * immediately. If there is at least one to-many component mapper in
+     * $this->_mappers then creates an offset-limit subquery. Before calling
+     * $this->build_offset_limit_subquery() it clones $this->_db_query and sets
+     * its following properties: order_by, distinct, offset and limit. Then it passes
+     * the cloned query to build_offset_limit_subquery(). If no offset-limit
+     * subquery is needed then simply copies the offset and limit clauses from
+     * the JORK query to the DB query.
+     *
+     * @uses JORK_Mapper_Select::has_to_many_child();
+     * @uses JORK_Mapper_Select::build_offset_limit_subquery();
+     */
     protected function  map_offset_limit() {
         if (NULL == $this->_jork_query->offset
                 && NULL == $this->_jork_query->limit)
