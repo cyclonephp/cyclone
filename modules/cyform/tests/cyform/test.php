@@ -248,7 +248,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
      */
     public function testEdit(array $fields, array $before_data
             , $progress_id_required, $input, array $after_data) {
-        $cfg = Kohana::config('cyform');
+        $cfg = Config::inst()->get('cyform');
         unset($_SESSION[$cfg['progress_key']]);
         $form_before_submit = new CyForm(array('fields' => $fields));
         $form_before_submit->set_data($before_data);

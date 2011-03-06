@@ -54,7 +54,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 //-- environment setup ------------------------
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
-Kohana::$config->attach(new Kohana_Config_File);
+//Kohana::$config->attach(new Kohana_Config_File);
 
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.

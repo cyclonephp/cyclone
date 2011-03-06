@@ -12,10 +12,11 @@
  * - boolean  profile     enable or disable internal profiling               TRUE
  * - boolean  caching     enable or disable internal caching                 FALSE
  */
-Kohana::init(array(
+/*Kohana::init(array(
     'base_url' => 'http://local.cyclonephp/',
     'index_file' => '',
     'profile' => true,
     'caching' => false
 ));
 
+*/

@@ -5,5 +5,8 @@ return array(
         'js' => false
     ),
     'asset_path' => 'assets'.DIRECTORY_SEPARATOR,
-    'index_file' => FALSE
+    'uri' => array(
+        'index_file' => FALSE,
+        'base_url' => 'http://local.cyclonephp'
+    )
 );

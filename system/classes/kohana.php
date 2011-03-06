@@ -734,28 +734,7 @@ class Kohana {
 	 */
 	public static function config($group)
 	{
-		static $config;
-
-		if (strpos($group, '.') !== FALSE)
-		{
-			// Split the config group and path
-			list ($group, $path) = explode('.', $group, 2);
-		}
-
-		if ( ! isset($config[$group]))
-		{
-			// Load the config group into the cache
-			$config[$group] = Kohana::$config->load($group);
-		}
-
-		if (isset($path))
-		{
-			return Arr::path($config[$group], $path);
-		}
-		else
-		{
-			return $config[$group];
-		}
+		return Config::inst()->get($group);
 	}
 
 	/**

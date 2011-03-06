@@ -75,7 +75,7 @@ class Kohana_Tests
 
 		$config = Kohana::config('unittest');
 
-		if ($do_whitelist AND $config->use_whitelist)
+		if ($do_whitelist AND $config['use_whitelist'])
 		{
 			self::whitelist();
 		}

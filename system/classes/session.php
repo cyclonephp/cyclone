@@ -43,10 +43,10 @@ abstract class Session {
 		if ( ! isset(Session::$instances[$type]))
 		{
 			// Load the configuration for this type
-			$config = Kohana::config('session')->get($type);
+			$config = Config::inst()->get('session');
 
 			// Set the session class name
-			$class = 'Session_'.ucfirst($type);
+			$class = 'Session_' . $type;
 
 			// Create a new session instance
 			Session::$instances[$type] = $session = new $class($config, $id);
