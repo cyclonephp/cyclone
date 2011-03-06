@@ -22,15 +22,33 @@ if (file_exists('install'.EXT))
 require SYSPATH.'base'.EXT;
 
 // Load the core Kohana class
-require SYSPATH.'classes/kohana/core'.EXT;
+//require SYSPATH.'classes/kohana/core'.EXT;
 
-require SYSPATH.'classes/kohana'.EXT;
+//require SYSPATH.'classes/kohana'.EXT;
 
 date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
 
-spl_autoload_register(array('Kohana', 'auto_load'));
+include MODPATH . 'core/classes/filesystem.php';
+spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
+
+FileSystem::bootstrap(array(
+    'application' => APPPATH,
+    'simpledb' => MODPATH . 'simpledb' . DIRECTORY_SEPARATOR,
+    'jork' => MODPATH . 'jork' . DIRECTORY_SEPARATOR,
+    'pagination' => MODPATH . 'pagination' . DIRECTORY_SEPARATOR,
+    'core' => MODPATH . 'core' . DIRECTORY_SEPARATOR,
+    'record' => MODPATH . 'record' . DIRECTORY_SEPARATOR,
+    'cyform' => MODPATH . 'cyform' . DIRECTORY_SEPARATOR,
+    'dev' => TOOLPATH . 'dev' . DIRECTORY_SEPARATOR,
+    'captcha' => MODPATH . 'captcha' . DIRECTORY_SEPARATOR,
+    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
+    'userguide' => TOOLPATH . 'userguide' . DIRECTORY_SEPARATOR,
+    'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
+    'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
+    'system' => SYSPATH
+));
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
@@ -61,6 +79,9 @@ Kohana::modules(array(
             'config' => MODPATH.'config',
             'cytpl' =>  MODPATH.'cytpl'
         ));
+
+
+
 Session::instance();
 
 Config::setup();

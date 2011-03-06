@@ -1,29 +1,31 @@
 <?php
+
+/**
+ * @author Lajos Pajger <pajla@cyclonephp.com>
+ */
 class FileSystem {
 
-    public static function find_file($rel_filename){
-        if(is_file(APPPATH.$rel_filename)){
-            return APPPATH.$rel_filename;
-        }
-        
-        $dir_handle = opendir(MODPATH);
-        if($dir_handle){
-            while(FALSE !== ($fname = readdir($dir_handle))){
-                if(($fname != '.') && ($fname != '..')){
-                    if(file_exists(MODPATH.$fname.DIRECTORY_SEPARATOR.$rel_filename)){
-                        closedir($dir_handle);
-                        return MODPATH.$fname.DIRECTORY_SEPARATOR.$rel_filename;
-                    }
-                }
-            }
-            closedir($dir_handle);
-        }
+    private static $_roots;
 
-        if(is_file(SYSPATH.$rel_filename)){
-            return SYSPATH.$rel_filename;
+    const MODULE_BOOTSTRAP_FILE = 'init.php';
+
+    public static function bootstrap($roots) {
+        self::$_roots = $roots;
+//        foreach ($roots as $module_name => $root_path) {
+//            if (file_exists($fname =
+//                    ($root_path . DIRECTORY_SEPARATOR . self::MODULE_BOOTSTRAP_FILE))) {
+//                include $fname;
+//            }
+//        }
+    }
+
+    public static function find_file($rel_filename){
+        foreach (self::$_roots as $root_path) {
+            $candidate = $root_path . $rel_filename;
+            if (file_exists($candidate))
+                return $candidate;
         }
-        
-        // throw exception if couldn't find the file
+        return FALSE;
     }
 
     public static function autoloader_kohana($classname){
@@ -38,7 +40,7 @@ class FileSystem {
        return FALSE;
     }
 
-    public static function camelcase($classname){
+    public static function autoloader_camelcase($classname){
         $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
 
         $result = FileSystem::find_file($rel_filename);
