@@ -2,6 +2,7 @@
 
 /**
  * @author Lajos Pajger <pajla@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.com>
  */
 class FileSystem {
 
@@ -20,7 +21,6 @@ class FileSystem {
             if ( ! is_writable(self::$_path_cache_file))
                 throw new Exception(self::$_path_cache_file . " is not writable");
             self::$_abs_file_paths = unserialize(file_get_contents(self::$_path_cache_file));
-            var_dump(self::$_abs_file_paths);
             register_shutdown_function(array('FileSystem', 'save_cache'));
         } else {
             self::$_abs_file_paths = array();
@@ -51,16 +51,36 @@ class FileSystem {
         return FALSE;
     }
 
-    public static function autoloader_kohana($classname){
-       $classname = strtolower($classname);
-       $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
-       
-       $result = FileSystem::find_file($rel_filename);
-       if($result){
-        include_once $result;
-        return TRUE;
-       }
-       return FALSE;
+    public static function list_files($rel_filename, $array_merge = FALSE) {
+        $rval = array();
+        if ($array_merge) {
+            foreach (self::$_roots as $module => $root_path) {
+                $candidate = $root_path . $rel_filename;
+                if (file_exists($candidate)) {
+                    Arr::merge($rval, require $candidate);
+                }
+            }
+        } else {
+            foreach (self::$_roots as $module => $root_path) {
+                $candidate = $root_path . $rel_filename;
+                if (file_exists($candidate)) {
+                    $rval[$module] = $candidate;
+                }
+            }
+        }
+        return $rval;
+    }
+
+    public static function autoloader_kohana($classname) {
+        $classname = strtolower($classname);
+        $rel_filename = 'classes/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
+
+        $result = FileSystem::find_file($rel_filename);
+        if ($result) {
+            include_once $result;
+            return TRUE;
+        }
+        return FALSE;
     }
 
     public static function autoloader_camelcase($classname){
