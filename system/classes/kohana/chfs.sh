@@ -1,6 +1,15 @@
 #/bin/bash
-dir=`pwd`
+logfile='/tmp/chfs.log'
+rm $logfile
 for i in `find . -name '*.php'`; do 
-	cat $i | sed 's/class Kohana_//g' > ../$i
-done; 
-cd $dir
+	path=${i%/*}
+	#echo $path
+	if [ -d ../$path ]; then
+		cat $i | sed 's/class Kohana_/class /g' > ../$i
+		echo "removing $i" >> $logfile;
+	else
+		echo "skipping $i" >> $logfile
+	fi
+done;
+
+cat $logfile
