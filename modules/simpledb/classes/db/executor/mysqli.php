@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Executor_Mysqli extends DB_Executor_Abstract {
 
     public function  exec_select($sql) {

@@ -125,10 +125,16 @@ class JORK_Mapper_Select_ImplRoot extends JORK_Mapper_Select {
         }
     }
 
+    /**
+     * {@inheritdoc }
+     */
     protected function  has_to_many_child() {
         return $this->_mappers[NULL]->has_to_many_child();
     }
 
+    /**
+     * {@inheritdoc }
+     */
     protected function  build_offset_limit_subquery(DB_Query_Select $subquery) {
         $ent_schema = $this->_mappers[NULL]->_entity_schema;
 
