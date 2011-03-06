@@ -48,7 +48,7 @@ FileSystem::bootstrap(array(
     'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
     'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
     'system' => SYSPATH
-));
+), SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
