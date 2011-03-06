@@ -32,7 +32,11 @@ class Env {
         Kohana::$is_cli = self::$is_cli;
         Kohana::$magic_quotes = self::$magic_quotes;
         Kohana::$is_windows = self::$is_windows;
-        Kohana::$index_file = Config::inst()->get('core.index_file');
+        
+        $uri_settings = Config::inst()->get('core.uri');
+        Kohana::$index_file = $uri_settings['index_file'];
+        Kohana::$base_url = $uri_settings['base_url'];
+        
         Kohana::$config = Config::inst();
     }
 }

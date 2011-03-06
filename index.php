@@ -51,9 +51,6 @@ Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-//-- environment setup ------------------------
-require APPPATH . 'env/' . Kohana::$environment . EXT;
-
 //Kohana::$config->attach(new Kohana_Config_File);
 
 /**
