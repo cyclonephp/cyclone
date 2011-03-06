@@ -1,3 +1,4 @@
 .htaccess
+system/.cache
 phpunit-report
 docs

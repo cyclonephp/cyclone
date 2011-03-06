@@ -12,6 +12,8 @@ class FileSystem {
 
     private static $_path_cache_file;
 
+    private static $_cache_invalid;
+
     const MODULE_BOOTSTRAP_FILE = 'init.php';
 
     public static function bootstrap($roots, $cache_dir = FALSE) {
@@ -34,7 +36,9 @@ class FileSystem {
     }
 
     public static function save_cache() {
-        file_put_contents(self::$_path_cache_file, serialize(self::$_abs_file_paths));
+        if (self::$_cache_invalid) {
+            file_put_contents(self::$_path_cache_file, serialize(self::$_abs_file_paths));
+        }
     }
 
     public static function find_file($rel_filename){
@@ -44,6 +48,7 @@ class FileSystem {
         foreach (self::$_roots as $root_path) {
             $candidate = $root_path . $rel_filename;
             if (file_exists($candidate)) {
+                self::$_cache_invalid = TRUE;
                 self::$_abs_file_paths[$rel_filename] = $candidate;
                 return $candidate;
             }
@@ -57,7 +62,7 @@ class FileSystem {
             foreach (self::$_roots as $module => $root_path) {
                 $candidate = $root_path . $rel_filename;
                 if (file_exists($candidate)) {
-                    Arr::merge($rval, require $candidate);
+                    $rval = Arr::merge($rval, require $candidate);
                 }
             }
         } else {

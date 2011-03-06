@@ -4,5 +4,6 @@ return array(
         'css' => TRUE,
         'js' => false
     ),
-    'asset_path' => 'assets'.DIRECTORY_SEPARATOR
+    'asset_path' => 'assets'.DIRECTORY_SEPARATOR,
+    'index_file' => FALSE
 );

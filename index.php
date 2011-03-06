@@ -21,11 +21,6 @@ if (file_exists('install'.EXT))
 // Load the base, low-level functions
 require SYSPATH.'base'.EXT;
 
-// Load the core Kohana class
-//require SYSPATH.'classes/kohana/core'.EXT;
-
-//require SYSPATH.'classes/kohana'.EXT;
-
 date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
@@ -50,14 +45,13 @@ FileSystem::bootstrap(array(
     'system' => SYSPATH
 ), SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
+Config::setup();
+
+Env::init_legacy();
+
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-//-- environment setup -----------------------------------------
-Kohana::$environment = getenv('CYCLONEPHP_ENV');
-if( ! Kohana::$environment){
-    Kohana::$environment = 'development';
-}
-
+//-- environment setup ------------------------
 require APPPATH . 'env/' . Kohana::$environment . EXT;
 
 Kohana::$config->attach(new Kohana_Config_File);
@@ -83,8 +77,6 @@ Kohana::modules(array(
 
 
 Session::instance();
-
-Config::setup();
 
 //Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
 
