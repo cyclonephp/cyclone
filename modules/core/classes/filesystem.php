@@ -80,6 +80,35 @@ class FileSystem {
         return $rval;
     }
 
+    public static function list_directory($dir, $modules = NULL) {
+        if (NULL === $modules) {
+            $modules = self::$_roots;
+        }
+        $rval = array();
+        foreach ($modules as $root_dir) {
+            $candidate = $root_dir . $dir;
+            if (is_dir($candidate)) {
+                $handle = opendir($candidate);
+                while( ($file = readdir($handle)) !== FALSE) {
+                    $abs_path = $candidate . DIRECTORY_SEPARATOR . $file;
+                    $rel_path = $dir . DIRECTORY_SEPARATOR . $file;
+                    if (is_dir($abs_path)) {
+                        if ($file == '.' || $file == '..') 
+                            continue;
+                        if (isset($rval[$rel_path])) {
+                            $rval[$rel_path] += self::list_directory($rel_path);
+                        } else {
+                            $rval[$rel_path] = self::list_directory($rel_path);
+                        }
+                    } elseif ( ! isset($rval[$rel_path])) {
+                        $rval[$rel_path] = $abs_path;
+                    }
+                }
+            }
+        }
+        return $rval;
+    }
+
     public static function autoloader_kohana($classname) {
         $classname = strtolower($classname);
         $rel_filename = 'classes/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';

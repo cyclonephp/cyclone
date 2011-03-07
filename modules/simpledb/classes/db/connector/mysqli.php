@@ -17,7 +17,8 @@ class DB_Connector_Mysqli extends DB_Connector_Abstract {
     }
 
     public function disconnect() {
-        $this->db_conn->close();
+        // safely disconnecting to avoid errors caused by double disconnects
+        @$this->db_conn->close();
     }
 
     public function  autocommit($autocommit) {

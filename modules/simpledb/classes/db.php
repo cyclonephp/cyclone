@@ -166,8 +166,12 @@ class DB {
     }
 
     public static function clear_connections() {
-        self::$_compilers =
-        self::$_connectors =
+        foreach (self::$_connectors as $connector) {
+            $connector->disconnect();
+        }
+        self::$_compilers = array();
+        self::$_connectors = array();
+        self::$_executors = array();
         self::$_executor_prepareds = array();
     }
 
