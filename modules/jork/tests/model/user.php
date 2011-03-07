@@ -63,7 +63,8 @@ class Model_User extends JORK_Model_Abstract {
             ),
             'moderated_category' => array(
                 'class' => 'Model_Category',
-                'mapped_by' => 'moderator'
+                'mapped_by' => 'moderator',
+                'on_delete' => JORK::SET_NULL
             )
         );
     }

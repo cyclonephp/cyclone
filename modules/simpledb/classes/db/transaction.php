@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Transaction extends ArrayObject {
 
     protected $queries;
@@ -38,7 +41,7 @@ class DB_Transaction extends ArrayObject {
     }
 
     public function exec($database = 'default') {
-        $db = DB::inst($database);
+        $db = DB::connector($database);
         $db->autocommit(false);
         foreach ($this->queries as $query) {
             try {

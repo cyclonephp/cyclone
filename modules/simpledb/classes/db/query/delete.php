@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Query_Delete extends DB_Query {
 
     public $table;
@@ -24,10 +27,11 @@ class DB_Query_Delete extends DB_Query {
     }
 
     public function compile($database = 'default') {
-        return DB::inst($database)->compile_delete($this);
+        return DB::compiler($database)->compile_delete($this);
     }
 
     public function exec($database = 'default') {
-        return DB::inst($database)->exec_delete($this);
+        $sql = DB::compiler($database)->compile_delete($this);
+        return DB::executor($database)->exec_delete($sql);
     }
 }

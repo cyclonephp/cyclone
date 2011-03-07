@@ -1,16 +1,24 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Query_Select extends DB_Query implements DB_Expression {
+
+    public $distinct;
 
     public $columns;
 
     public $tables;
 
-    public $joins = array();
+    public $joins = NULL;
 
     protected $_last_join;
 
+    /**
+     * @var array<DB_Expression>
+     */
     public $where_conditions;
 
     public $group_by;
@@ -111,7 +119,7 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
     }
 
     public function compile($database = 'default') {
-        return DB::inst($database)->compile_select($this);
+        return DB::compiler($database)->compile_select($this);
     }
 
     /**
@@ -120,11 +128,47 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
      * @return DB_Query_Result
      */
     public function exec($database = 'default') {
-        return DB::inst($database)->exec_select($this);
+        $sql = DB::compiler($database)->compile_select($this);
+        return DB::executor($database)->exec_select($sql);
     }
 
-    public function  compile_expr(DB_Adapter $adapter) {
+    public function  compile_expr(DB_Compiler $adapter) {
         return $adapter->compile_select($this);
+    }
+
+    public function  contains_table_name($table_name) {
+        $tbl_name_len = strlen($table_name);
+        foreach ($this->tables as $tbl) {
+            if (is_array($tbl)) {
+                $tbl = $tbl[0];
+            }
+            // if it's a string, then check if it starts with the table name
+            if (is_string($tbl) && substr($tbl, 0, $tbl_name_len) == $table_name)
+                return TRUE;
+
+            // if it's not a string then it must be a DB_Query_Select
+            if ($tbl->contains_table_name($table_name))
+                return TRUE;
+        }
+        foreach ($this->joins as $join) {
+            if (is_array($join['table'])) {
+                $join_tbl = $join['table'][0];
+            } else {
+                $join_tbl = $join['table'];
+            }
+            if (is_string($join_tbl)
+                    && substr($join_tbl, 0, $tbl_name_len) == $table_name)
+                return TRUE;
+            if ($join_tbl->contains_table_name($table_name))
+                return TRUE;
+
+            // for joins, we also have to check join conditions
+            foreach($join['conditions'] as $join_cond) {
+                if ($join_cond->contains_table_name($table_name))
+                    return TRUE;
+            }
+        }
+        return FALSE;
     }
 
     public function union(DB_Query_Select $select, $all = TRUE){

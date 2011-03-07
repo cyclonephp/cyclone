@@ -20,6 +20,8 @@ class JORK_Naming_Service {
      */
     private $_entity_aliases = array();
 
+    private $_offset_limit_subquery_count = 0;
+
     /**
      * @var JORK_Mapping_Schema
      */
@@ -123,12 +125,15 @@ class JORK_Naming_Service {
         }
     }
 
-    public function table_alias($prop_chain, $table_name) {
+    public function table_alias($prop_chain, $table_name, $needs_unique = FALSE) {
         if ( ! array_key_exists($prop_chain, $this->_table_aliases)) {
             $this->_table_aliases[$prop_chain] = array();
         }
-        if ( ! array_key_exists($table_name, $this->_table_aliases[$prop_chain])) {
-            if ( !array_key_exists($table_name, $this->_table_usage)) {
+
+        // doesn't work if called with needs_unique = TRUE then with
+        // needs_unique = TRUE with the same table name        
+        if ( $needs_unique || ! array_key_exists($table_name, $this->_table_aliases[$prop_chain])) {
+            if ( ! array_key_exists($table_name, $this->_table_usage)) {
                 $this->_table_usage[$table_name] = 0;
             }
             $this->_table_aliases[$prop_chain][$table_name] = $table_name . '_'
@@ -136,6 +141,10 @@ class JORK_Naming_Service {
         }
         
         return $this->_table_aliases[$prop_chain][$table_name];
+    }
+
+    public function offset_limit_subquery_alias() {
+        return 'jork_offset_limit_subquery_'.$this->_offset_limit_subquery_count++;
     }
 
     

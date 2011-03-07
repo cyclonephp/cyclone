@@ -21,33 +21,44 @@ if (file_exists('install'.EXT))
 // Load the base, low-level functions
 require SYSPATH.'base'.EXT;
 
-// Load the core Kohana class
-require SYSPATH.'classes/kohana/core'.EXT;
-
-require SYSPATH.'classes/kohana'.EXT;
-
 date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
 
-spl_autoload_register(array('Kohana', 'auto_load'));
+include MODPATH . 'core/classes/filesystem.php';
+spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
+
+FileSystem::bootstrap(array(
+    'application' => APPPATH,
+    'simpledb' => MODPATH . 'simpledb' . DIRECTORY_SEPARATOR,
+    'jork' => MODPATH . 'jork' . DIRECTORY_SEPARATOR,
+    'pagination' => MODPATH . 'pagination' . DIRECTORY_SEPARATOR,
+    'core' => MODPATH . 'core' . DIRECTORY_SEPARATOR,
+    'record' => MODPATH . 'record' . DIRECTORY_SEPARATOR,
+    'cyform' => MODPATH . 'cyform' . DIRECTORY_SEPARATOR,
+    'dev' => TOOLPATH . 'dev' . DIRECTORY_SEPARATOR,
+    'captcha' => MODPATH . 'captcha' . DIRECTORY_SEPARATOR,
+    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
+    'userguide' => TOOLPATH . 'userguide' . DIRECTORY_SEPARATOR,
+    'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
+    'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
+    'system' => SYSPATH
+), SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
+
+Config::setup();
+
+FileSystem::run_init_scripts();
+
+Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-//-- environment setup -----------------------------------------
-Kohana::$environment = getenv('CYCLONEPHP_ENV');
-if( ! Kohana::$environment){
-    Kohana::$environment = 'development';
-}
-
-require APPPATH . 'env/' . Kohana::$environment . EXT;
-
-Kohana::$config->attach(new Kohana_Config_File);
+//Kohana::$config->attach(new Kohana_Config_File);
 
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
-Kohana::modules(array(
+/**Kohana::modules(array(
             'simpledb' => MODPATH.'simpledb',
             'jork' => MODPATH.'jork',
             'pagination' => MODPATH . 'pagination',
@@ -59,11 +70,12 @@ Kohana::modules(array(
             'unittest' => TOOLPATH.'unittest',
             'userguide' => TOOLPATH.'userguide',
             'config' => MODPATH.'config',
-	    'installer' => TOOLPATH.'installer'
+            'cytpl' =>  MODPATH.'cytpl'
         ));
-Session::instance();
+/**/
 
-Config::setup();
+
+Session::instance();
 
 //Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
 
@@ -82,26 +94,27 @@ Route::set('default', '(<controller>(/<action>(/<id>)))')
             'action' => 'index',
         ));
 
-
-$request = Request::instance();
-
-if ( ! defined('SUPPRESS_REQUEST'))
-if (Kohana::$environment != Kohana::DEVELOPMENT) {
-    try {
+if (!defined('SUPPRESS_REQUEST')) {
+    $request = Request::instance();
+    if (Kohana::$environment != Kohana::DEVELOPMENT) {
+        try {
+            $request->execute();
+        } catch (ReflectionException $ex) {
+            Log::warning('404 not found: ' . $_SERVER['PATH_INFO']);
+            $request->redirect(URL::base(), 404);
+        } catch (Exception_BadRequest $ex) {
+            Log::warning('500 bad request: ' . $_SERVER['PATH_INFO']);
+            $request->redirect(URL::base(), 500);
+        } catch (Exception $ex) {
+            Log::error('500 internal error: ' . $_SERVER['PATH_INFO']);
+            $request->redirect(URL::base(), 500);
+        }
+    } else {
         $request->execute();
-    } catch (ReflectionException $ex) {
-        Log::warning('404 not found: '.$_SERVER['PATH_INFO']);
-        $request->redirect(URL::base(), 404);
-    } catch (Exception_BadRequest $ex) {
-        Log::warning('500 bad request: '.$_SERVER['PATH_INFO']);
-        $request->redirect(URL::base(), 500);
-    } catch (Exception $ex) {
-        Log::error('500 internal error: '.$_SERVER['PATH_INFO']);
-        $request->redirect(URL::base(), 500);
     }
-} else {
-    $request->execute();
+
+
+    echo $request->send_headers()->response;
+} elseif (Kohana::$is_cli && 'by_cyphp' == SUPPRESS_REQUEST) {
+    Cyclone_CLI::bootstrap();
 }
-
-
-echo $request->send_headers()->response;

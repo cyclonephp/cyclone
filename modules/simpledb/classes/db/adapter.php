@@ -1,19 +1,51 @@
 <?php
-
+/**
+ * Abstract class for DBMS-specific adapters.
+ *
+ * Adapter classes are responsible for compiling DB_Query instances to proper
+ * SQL according to the DBMS and calling the appropriate PHP functions to execute
+ * the SQL. They provide a common, database-independent API.
+ *
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 abstract class DB_Adapter {
 
     protected $config;
+    
     protected $_table_aliases = array();
 
+    protected $esc_char;
+
+    /**
+     * DB_Adapter classes are recommended to be created using DB::inst() instead
+     * of direct instantiation.
+     *
+     * @param array $config
+     * @access package
+     * @see DB::inst()
+     */
     public function  __construct($config) {
         $this->config = $config;
         $this->connect();
     }
 
+    /**
+     * Connects to the database.
+     */
     protected abstract function connect();
 
+    /**
+     * Disconnects from the database.
+     */
     public abstract function disconnect();
 
+    /**
+     * Calls a compile_* method according to the class of $query.
+     *
+     * @param DB_Query $query
+     * @return string the generated SQL
+     */
     public function compile($query) {
         switch (get_class($query)) {
             case 'DB_Query_Select':
@@ -29,6 +61,12 @@ abstract class DB_Adapter {
         }
     }
 
+    /**
+     * Calls an exec_* method according to the class of the query.
+     *
+     * @param DB_Query $query
+     * @return mixed it's up to the query type
+     */
     public function exec($query) {
         switch (get_class($query)) {
             case 'DB_Query_Select':
@@ -45,100 +83,93 @@ abstract class DB_Adapter {
     }
 
 
-    abstract function compile_select(DB_Query_Select $query);
-
-    abstract function compile_insert(DB_Query_Insert $query);
-
-    abstract function compile_update(DB_Query_Update $query);
-
-    abstract function compile_delete(DB_Query_Delete $query);
-
+    /**
+     * Compiles and executes an SQL select query.
+     *
+     * Recommended to use DB_Query_Select::exec() instead.
+     *
+     * @param DB_Query_Select $query the query to be executed.
+     * @return DB_Query_Result
+     * @uses DB_Adapter::compile_select()
+     * @usedby DB_Query_Select::exec()
+     */
     abstract function exec_select(DB_Query_Select $query);
 
-    abstract function exec_insert(DB_Query_Insert $query);
-
-    abstract function exec_update(DB_Query_Update $query);
-
-    abstract function exec_delete(DB_Query_Delete $query);
-
-    abstract function exec_custom($sql);
-
-    abstract function compile_alias($expr, $alias);
+    /**
+     * Compiles and executes an SQL insert statement.
+     *
+     * Recommended to use DB_Query_Insert::exec() instead. Returns the primary
+     * key of the last inserted row if $return_insert_id is true. It can come
+     * with significant performance loss for some adapters.
+     *
+     * @param DB_Query_Insert $query the query to be executed.
+     * @param boolean $return_insert_id if FALSE then the return value will be NULL.
+     * @return integer the primary key of the inserted row, or NULL.
+     * @uses DB_Adapter::compile_insert()
+     * @usedby DB_Query_Insert::exec()
+     */
+    abstract function exec_insert(DB_Query_Insert $query, $return_insert_id);
 
     /**
+     * Compiles and executes an SQL update statement.
+     *
+     * Recommended to use DB_Query_Update::exec() instead.
+     *
+     * @param DB_Query_Update $query the query to be executed.
+     * @return integer the number of affected rows.
+     * @uses DB_Adapter::compile_update()
+     * @usedby DB_Query_Update::exec()
+     */
+    abstract function exec_update(DB_Query_Update $query);
+
+    /**
+     * Compiles and executes an SQL delete statement.
+     *
+     * Recommended to use DQ_Query_Delete::exec() instead.
+     * 
+     * @param DB_Query_Delete $query the statement to be executed
+     * @return integer the number of deleted rows
+     * @uses DB_Adapter::compile_delete()
+     * @usedby DB_Query_Delete::exec()
+     */
+    abstract function exec_delete(DB_Query_Delete $query);
+
+    /**
+     * Executes any kind of SQL statements.
+     *
+     * Executes any kind of SQL statements that are not one of SELECT / INSERT
+     * / UPDATE / DELETE, or can't be put together using the query builder
+     * (DB_Query_*) classes (for example because the statement is very 
+     * DBMS-specific, like MySQL-s TRUNCATE). Different adapters' behavior may
+     * be different.
+     */
+    abstract function exec_custom($sql);
+
+    /**
+     * Sets autocommit mode of the current connection (session).
+     *
+     * This method is not supported by all database adapters.
+     *
      * @param boolean $autocommit
      */
     abstract function autocommit($autocommit);
 
+    /**
+     * Commits the current transaction.
+     */
     abstract function commit();
 
+    /**
+     * Rolls back the current transaction
+     */
     abstract function rollback();
 
-    public function escape_values($columns) {
-        foreach ($columns as $column) {
-            if (is_array($column)) {
-                $expr = $column[0];
-                $alias = $column[1];
-                if ($expr instanceof DB_Expression) {
-                    $expr = '('.$expr->compile_expr($this).')';
-                } else {
-                    $expr = $this->escape_identifier($expr);
-                }
-                $escaped_cols []= $this->compile_alias($expr, $alias);
-            } else {
-                if ($column instanceof DB_Expression) {
-                    $escaped_cols []= $column->compile_expr($this);
-                } else {
-                    $escaped_cols []= $this->escape_identifier($column);
-                }
-            }
-        }
-        return implode(', ', $escaped_cols);
-    }
+    public abstract function prepare_select($sql);
 
-    public function escape_value($val) {
-        if (is_array($val)) {
-            $expr = $val[0];
-            $alias = $val[1];
-            if ($expr instanceof DB_Expression) {
-                $expr = '(' . $expr->compile_expr($this) . ')';
-            } else {
-                $expr = $this->escape_identifier($expr);
-            }
-            return $this->compile_alias($expr, $alias);
-        } else {
-            if ($val instanceof DB_Expression) {
-                return $val->compile_expr($this);
-            } else {
-                return $this->escape_identifier($val);
-            }
-        }
-    }
+    public abstract function prepare_insert($sql);
 
-    public function escape_params($params) {
-        foreach ($params as $param) {
-            $escaped_params []= $this->escape_param($param);
-        }
-        return implode(', ', $escaped_params);
-    }
+    public abstract function prepare_update($sql);
 
-    /**
-     * @param string $identifier database table or column name
-     */
-    public abstract function escape_identifier($identifier);
-
-    /**
-     * This method is responsible for prventing SQL injection.
-     *
-     * @param string $param user parameter that should be escaped
-     */
-    public abstract function escape_param($param);
-
-    protected function compile_expressions($expr_list) {
-        foreach ($expr_list as $expr) {
-            $compiled_exprs []= $expr->compile_expr($this);
-        }
-        return implode(' AND ', $compiled_exprs);
-    }
+    public abstract function prepare_delete($sql);
 
 }

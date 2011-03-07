@@ -9,11 +9,17 @@
 abstract class JORK_Mapper_Select {
 
     /**
+     * The JORK query to be mapped. This query instance will be passed to the
+     * created JORK_Mapper_Entity instances.
+     *
      * @var JORK_Query_Select
      */
     protected $_jork_query;
 
     /**
+     * The DB query to be populated by the mapper methods. This query instance
+     * will be passed to the created JORK_Mapper_Entity instances.
+     *
      * @var DB_Query_Select
      */
     protected $_db_query;
@@ -69,6 +75,8 @@ abstract class JORK_Mapper_Select {
 
         $this->map_order_by();
 
+        $this->map_offset_limit();
+
         return array($this->_db_query, $this->_mappers);
     }
 
@@ -109,6 +117,14 @@ abstract class JORK_Mapper_Select {
      */
     protected abstract function map_select();
 
+    /**
+     * Merges the property projections of a select item using the already created
+     * mappers.
+     *
+     * @param JORK_Query_PropChain $prop_chain
+     * @param <type> $projections
+     * @usedby JORK_Mapper_Select::map_select()
+     */
     protected abstract function add_projections(JORK_Query_PropChain $prop_chain, $projections);
 
 
@@ -144,8 +160,8 @@ abstract class JORK_Mapper_Select {
         if ( ! ($right_is_array || $right_is_model))
             throw new JORK_Exception('right operator is neither a valid property chain nor a model object');
 
-        if ($expr->operator != '=')
-            throw new JORK_Exception('only equality comparision is possible between objects, operator \''
+        if ( ! ($expr->operator == '=' || strtolower($expr->operator) == 'in'))
+            throw new JORK_Exception('only = or IN is possible between objects, operator \''
                     . $expr->operator . '\' is forbidden');
 
         //holy shit... it's coming -.-
@@ -200,5 +216,104 @@ abstract class JORK_Mapper_Select {
     protected abstract function map_group_by();
 
     protected abstract function map_order_by();
+
+
+    /**
+     * Removes the join conditions from an offset-limit subquery which tables
+     * are not needed by any WHERE conditions.
+     *
+     * These joined tables are not used to filter the number of the rows so
+     * they are unnecessarily make the query slower.
+     *
+     * @param DB_Query_Select $subquery the subquery which join clauses will be filtered
+     * @usedby JORK_Mapper_Select::build_offset_limit_subquery()
+     */
+    protected function filter_unneeded_subquery_joins(DB_Query_Select $subquery) {
+        if (NULL == $subquery->where_conditions) {
+            // if there are no WHERE conditions, then no joined tables are needed
+            // in the WHERE clause.
+            $subquery->joins = NULL;
+            return;
+        }
+
+        foreach ($subquery->joins as $k => &$join) {
+            // join tables are two item arrays where 0. item is the table name
+            // and 1. item is the alias
+            // the alias name may appear in the where conditions
+            $join_tbl_alias = $join['table'][1];
+            $needed = FALSE;
+            foreach ($subquery->where_conditions as $where) {
+                if ($where->contains_table_name($join_tbl_alias)) {
+                    $needed = TRUE;
+                    break;
+                }
+            }
+            if ( ! $needed) {
+                unset($subquery->joins[$k]);
+            }
+        }
+    }
+    
+
+    /**
+     * Returns TRUE if any of the mappers has at least one to-many mappers,
+     * recursively.
+     *
+     * @return boolean
+     * @see JORK_Mapper_Entity::has_to_many_child()
+     */
+    protected abstract function has_to_many_child();
+
+    /**
+     * Creates a SimpleDB join condition that joins a subquery that properly
+     * controls the offset-limit clauses.
+     *
+     * This method is invoked by JORK_Mapper_Select::map_offset_limit() if the
+     * JORK query generated at least one to-many component mapper. Otherwise
+     * no offset-limit subquery is needed, the offset and limit clauses are
+     * simply copied from the JORK query to the DB query.
+     *
+     * @return array
+     * @usedby JORK_Mapper_Select::map_offset_limit()
+     * @uses JORK_Mapper_Select::filter_unneeded_subquery_joins()
+     */
+    protected abstract function build_offset_limit_subquery(DB_Query_Select $subquery);
+
+    /**
+     * Maps the offset and limit clauses of the JORK query to the DB query.
+     *
+     * If there is no offset and limit clause in the JORK query then returns
+     * immediately. If there is at least one to-many component mapper in
+     * $this->_mappers then creates an offset-limit subquery. Before calling
+     * $this->build_offset_limit_subquery() it clones $this->_db_query and sets
+     * its following properties: order_by, distinct, offset and limit. Then it passes
+     * the cloned query to build_offset_limit_subquery(). If no offset-limit
+     * subquery is needed then simply copies the offset and limit clauses from
+     * the JORK query to the DB query.
+     *
+     * @uses JORK_Mapper_Select::has_to_many_child();
+     * @uses JORK_Mapper_Select::build_offset_limit_subquery();
+     */
+    protected function  map_offset_limit() {
+        if (NULL == $this->_jork_query->offset
+                && NULL == $this->_jork_query->limit)
+            // no offset & limit in the jork query, nothing to do here
+            return;
+
+        if ($this->has_to_many_child()) {
+            $subquery = clone $this->_db_query;
+
+            $subquery->order_by = NULL;
+            $subquery->distinct = TRUE;
+            $subquery->offset = $this->_jork_query->offset;
+            $subquery->limit = $this->_jork_query->limit;
+            
+            $this->_db_query->joins []= $this->build_offset_limit_subquery($subquery);
+        } else { // nothing magic is needed here, the row count in the SQL
+            // result will be the same as the record count in the object query results
+            $this->_db_query->offset = $this->_jork_query->offset;
+            $this->_db_query->limit = $this->_jork_query->limit;
+        }
+    }
 
 }

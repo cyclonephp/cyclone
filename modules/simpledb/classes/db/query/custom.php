@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 class DB_Query_Custom extends DB_Query {
 
     protected $sql;
@@ -14,6 +17,6 @@ class DB_Query_Custom extends DB_Query {
     }
 
     public function exec($database = 'default') {
-        DB::inst($database)->exec_custom($this->sql);
+        DB::executor($database)->exec_custom($this->sql);
     }
 }
