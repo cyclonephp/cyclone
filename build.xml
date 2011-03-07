@@ -95,7 +95,17 @@
 				<exclude name="*/tests/**"/>
 			</fileset>
 		</phpdoc>
-                <copy file=".docs.stylesheet.css" tofile="docs/media/stylesheet.css" overwrite="true"/>
+        <copy file=".docs.stylesheet.css" tofile="docs/media/stylesheet.css" overwrite="true"/>
+	</target>
+	
+	<target name="docs-internal">
+		<phpdoc title="CyclonePHP documentation" destdir="docs" output="HTML:frames:earthli" parseprivate="true" sourcecode="true">
+			<fileset dir="${modpath}">
+				<include name="*/"/>
+				<exclude name="*/tests/**"/>
+			</fileset>
+		</phpdoc>
+        <copy file=".docs.stylesheet.css" tofile="docs/media/stylesheet.css" overwrite="true"/>
 	</target>
 	
 </project>

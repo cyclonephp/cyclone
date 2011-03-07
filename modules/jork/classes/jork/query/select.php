@@ -79,7 +79,7 @@ class JORK_Query_Select {
      * @see JORK::select()
      */
     public function select_array($args) {
-        static $pattern = '/^(?<prop_chain>[a-zA-z\.]+)(\{(?<projection>[a-z,]+)\})?( +(?<alias>[a-zA-Z_]+))?$/';
+        static $pattern = '/^(?<prop_chain>[a-zA-Z_\.]+)(\{(?<projection>[a-zA-Z_,]+)\})?( +(?<alias>[a-zA-Z_]+))?$/';
         foreach ($args as $arg) {
             if ($arg instanceof DB_Expression) {
                 $this->select_list []= array(
@@ -93,7 +93,7 @@ class JORK_Query_Select {
             $select_item = array(
                 'prop_chain' => JORK_Query_PropChain::from_string($matches['prop_chain']),
             );
-            if (array_key_exists('projection', $matches)) {
+            if (array_key_exists('projection', $matches) && $matches['projection'] != '') {
                 $select_item['projection'] = explode(',', $matches['projection']);
             }
             if (array_key_exists('alias', $matches)) {
@@ -249,21 +249,33 @@ class JORK_Query_Select {
     }
 
     /**
-     * @param string $adapter
+     * @param string $database
      * @return JORK_Result_Iterator 
      */
-    public function exec($adapter = 'default') {
+    public function exec($database = 'default') {
         $mapper = JORK_Mapper_Select::for_query($this);
         list($db_query, $mappers) = $mapper->map();
-        if (Config::inst()->get('jork.show_sql')) {
-            echo $db_query->compile($adapter).PHP_EOL;
-        }
-        $db_result = DB::inst($adapter)->exec_select($db_query);
         
-        $result_mapper = new JORK_Mapper_Result($db_result
+        if (Config::inst()->get('jork.show_sql')) {
+            echo $db_query->compile($database).PHP_EOL;
+        }
+        $sql = DB::compiler($database)->compile_select($db_query);
+        $db_result = DB::executor($database)->exec_select($sql);
+        
+        $result_mapper = JORK_Mapper_Result::for_query($this, $db_result
                 , $mapper->has_implicit_root, $mappers);
         //var_dump($result_mapper->map());
         return new JORK_Result_Iterator($result_mapper->map());
+    }
+
+    public function compile($database = 'default') {
+        $mapper = JORK_Mapper_Select::for_query($this);
+        list($db_query, $mappers) = $mapper->map();
+
+        if (Config::inst()->get('jork.show_sql')) {
+            echo $db_query->compile($database).PHP_EOL;
+        }
+        return DB::compiler($database)->compile_select($db_query);
     }
 
     

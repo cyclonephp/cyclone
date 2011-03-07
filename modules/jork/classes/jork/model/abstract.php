@@ -1,15 +1,41 @@
 <?php
 
 /**
+ * The base class for all JORK model classes.
+ * 
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package JORK
  */
 abstract class JORK_Model_Abstract {
 
+    /**
+     * Mapping schema should be populated in the implementation of this method.
+     *
+     * It will only be called when the singleton instance is created. In the
+     * method the schema object if accessible via <code>$this->_schema</code>.
+     *
+     * @usedby JORK_Model_Abstract::_inst()
+     */
     protected abstract function setup();
 
+    /**
+     * Stores the singleton instances per-class.
+     *
+     * @var array<JORK_Model_Abstract>
+     * @usedby JORK_Model_Abstract::_inst()
+     */
     private static $_instances = array();
 
+    /**
+     * It should be called only by the subclasses. All subclasses should contain
+     * a static method with this code:
+     * <code>pubic static function inst() {
+     *      return parent::_inst(__CLASS__);
+     * }</code>
+     *
+     * @param string $classname
+     * @return JORK_Model_Abstract
+     */
     protected static function _inst($classname) {
         if ( ! array_key_exists($classname, self::$_instances)) {
             $inst = new $classname;
@@ -54,12 +80,41 @@ abstract class JORK_Model_Abstract {
         return self::$_instances[get_class($this)]->_schema;
     }
 
+    /**
+     * Only to be used by the singleton instance. Other instances should use
+     * <code>$this->schema()</code> to get their own mapping schema.
+     *
+     * @var JORK_Mapping_Schema
+     */
     protected $_schema;
 
+    /**
+     * Used to store the atomic properties of the entity. All items are 2-item
+     * arrays with the following keys:
+     * * 'value': the typecasted value of the property
+     * * 'persistent': (boolean) determines if the property has been saved since
+     * it has been loaded from the database of not. Also FALSE if it hasn't been
+     * loaded from the database but it was set by the user.
+     *
+     * @var array
+     */
     protected $_atomics = array();
 
+    /**
+     * Used to store the loaded components of the entity. The items are instances
+     * of JORK_Model_Abstract (for to-one components) or JORK_Model_Collection
+     * (for to-many components).
+     *
+     * @var array
+     */
     protected $_components = array();
 
+    /**
+     * Determines if the properties of the entity are all persistent or not.
+     * If they are, then there is nothing to do when saving the entity.
+     *
+     * @var boolean
+     */
     protected $_persistent = FALSE;
 
     /**
@@ -92,6 +147,17 @@ abstract class JORK_Model_Abstract {
         $this->_pk_change_listeners []= $listener;
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to initialize the component
+     * collections, to be ready when the method calls
+     * <code>JORK_Model_Abstract::add_to_component_collections()</code>.
+     *
+     * @param array $prop_names
+     * @usedby JORK_Mapper_Entity::map_row()
+     * @see JORK_Model_Abstract::add_to_component_collections()
+     */
     public function init_component_collections(&$prop_names) {
         foreach (array_diff_key($prop_names, $this->_components) as $prop => $dummy) {
             if ( ! array_key_exists($prop, $this->_components)) {
@@ -101,15 +167,34 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to quickly load the atomic properties
+     * instead of executing <code>JORK_Model_Abstract::__set()</code> each time.
+     *
+     * @param array<JORK_Model_Abstract> $components
+     * @usedby JORK_Mapper_Entity::map_row()
+     */
     public function populate_atomics($atomics) {
+        $schema = $this->schema();
         foreach ($atomics as $k => $v) {
             $this->_atomics[$k] = array(
-                'value' => $v,
+                'value' => $this->force_type($v, $schema->atomics[$k]['type']),
                 'persistent' => TRUE
             );
         }
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to quickly load the to-one components
+     * instead of executing <code>JORK_Model_Abstract::__set()</code> each time.
+     *
+     * @param array<JORK_Model_Abstract> $components
+     * @usedby JORK_Mapper_Entity::map_row()
+     */
     public function set_components($components) {
         foreach ($components as $k => $v) {
             $this->_components[$k] = array(
@@ -119,6 +204,15 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Only for internal usage.
+     *
+     * Used by <code>JORK_Mapper_Entity::map_row()</code> to quickly load the to-many components
+     * instead of executing <code>JORK_Model_Abstract::__set()</code> each time.
+     *
+     * @param array<JORK_Model_Abstract> $components
+     * @usedby JORK_Mapper_Entity::map_row()
+     */
     public function add_to_component_collections($components) {
         foreach ($components as $prop_name => $new_comp) {
             $this->_components[$prop_name]['value'][$new_comp->pk()] = $new_comp;
@@ -179,6 +273,23 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Magic getter implementation for the entity.
+     * 
+     * First checks the atomics in
+     * the schema, if it finds one then returns the value from this entity, or
+     * NULL if not found. Then it checks the components of the schema, and if it
+     * founds one with <code>$key</code> then checks if the component exists in
+     * the entity or not. If it exists, then it returns it, otherwise it returns
+     * NULL or an empty JORK_Model_Collection instance (the latter case happens
+     * if the component is a to-many component).
+     *
+     * If it doesn't find the property in the schema then throws a JORK_Exception.
+     *
+     * @param string $key
+     * @return mixed
+     * @throws JORK_Exception
+     */
     public function  __get($key) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->atomics)) {
@@ -208,13 +319,52 @@ abstract class JORK_Model_Abstract {
         throw new JORK_Exception("class '{$schema->class}' has no property '$key'");
     }
 
+    /**
+     * Used to force typecasting of atomic properties. Used when the entity
+     * is loaded from the database and when the value of the atomic property
+     * is changed.
+     *
+     * @param mixed $val
+     * @param string $type
+     * @return mixed
+     * @see JORK_Model_Abstract::__set()
+     * @see JORK_Model_Abstract::populate_atomics()
+     */
+    private function force_type($val, $type) {
+        if (NULL === $val) {
+            return NULL;
+        } else {
+            // doing type casts
+            switch ($type) {
+                case 'string':
+                    return (string) $val;
+                case 'int':
+                    return (int) $val;
+                case 'float':
+                    return (float) $val;
+                case 'bool':
+                    return (bool) $val;
+                case 'datetime':
+                    return (string) $val;
+                default:
+                    throw new JORK_Exception("invalid type for atomic propery '$key' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
+                    It must be one of the followings: string, int, float, bool, datetime");
+            }
+        }
+    }
+
     public function __set($key, $val) {
         $schema = $this->schema();
         if (array_key_exists($key, $schema->atomics)) {
-            $this->_atomics[$key]['value'] = $val;
+            if ( ! array_key_exists($key, $this->_atomics)) {
+                $this->_atomics[$key] = array();
+            }
+            $this->_atomics[$key]['value'] = $this->force_type($val, $schema->atomics[$key]['type']);
             $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
+            if ( ! $val instanceof  $schema->components[$key]['class'])
+                throw new JORK_Exception("value of {$schema->class}::$key must be an instance of {$schema->components[$key]['class']}");
             if ( ! array_key_exists($key, $this->_components)) {
                 $this->_components[$key] = array(
                     'value' => $val,
@@ -231,6 +381,17 @@ abstract class JORK_Model_Abstract {
     }
 
     /**
+     * The <code>insert()</code> method should be called explicitly called typically
+     * in one case: if this entity is in one-to-one relation with an other entity
+     * (the owner) and it's joined to the owner by it's primary key, therefore the
+     * primary key is set manually instead of being auto-generated. In this case
+     * you have to call <code>insert()</code> instead of <code>save()</code> since
+     * <code>save()</code> will call <code>update()</code> in this case (since
+     * the primary key exists in the entity).
+     *
+     * The method doesn't do anything if the entity is persistent.
+     *
+     * @usedby JORK_Model_Abstract::save()
      * 
      */
     public function insert() {
@@ -296,6 +457,12 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Typically this method should never be called from outside, just made public
+     * for edge-cases.
+     *
+     * @usedby JORK_Model_Abstract::save()
+     */
     public function update() {
         if ( ! ($this->_persistent  || $this->_save_in_progress)) {
             $this->_save_in_progress = TRUE;
@@ -324,7 +491,8 @@ abstract class JORK_Model_Abstract {
                     $this->_atomics[$col_name]['persistent'] = TRUE;
                 }
             }
-
+            //TODO should be improved for proper secondary table handling
+            // (otherwise i'm so fuckin' fed up with secondary tables :P)
             foreach ($values as $tbl_name => $upd_vals) {
                 $update_sqls[$tbl_name]->values = $upd_vals;
                 $update_sqls[$tbl_name]->where($schema->primary_key(), '='
@@ -342,6 +510,16 @@ abstract class JORK_Model_Abstract {
         }
     }
 
+    /**
+     * Saves the entity. Performs an SQL INSERT statement if the primary key of
+     * the entity is not set, otherwise an SQL UPDATE is executed.
+     *
+     * The <code>update()</code> and <code>insert()</code> methods are also public,
+     * but these should be rarely used.
+     *
+     * @see JORK_Model_Abstract::insert()
+     * @see JORK_Model_Abstract::update()
+     */
     public function save() {
         if ($this->pk() === NULL) {
             $this->insert();
@@ -374,16 +552,81 @@ abstract class JORK_Model_Abstract {
                     //$component['value']->delete();
                 } elseif (JORK::SET_NULL == $on_delete) {
                     if ($schema->is_to_many_component($comp_name)) {
+                        // to-many component
                         if ( ! array_key_exists($comp_name, $this->_components)) {
                             $this->_components[$comp_name] = array(
                                 'value' => JORK_Model_Collection::for_component($this, $comp_name)
                             );
                         }
                         $this->_components[$comp_name]['value']->notify_owner_deletion($pk);
+                    } elseif (array_key_exists('mapped_by', $comp_def)) {
+                        // we handle reverse one-to-one components here
+                        $remote_class_schema = self::schema_by_class($comp_def['class']);
+                        if (JORK::ONE_TO_ONE == $remote_class_schema
+                                ->components[$comp_def['mapped_by']]['type']) {
+                            $this->set_null_fk_for_reverse_one_to_one($remote_class_schema
+                                    , $comp_def, $pk);
+                        }
                     }
                 }
+            } 
+        }
+    }
+
+    private function set_null_fk_for_reverse_one_to_one(JORK_Mapping_Schema $remote_class_schema
+            , $comp_def, DB_Expression_Param $pk) {
+        $remote_comp_schema = $remote_class_schema
+                                ->components[$comp_def['mapped_by']];
+        $schema = $this->schema();
+
+        $upd_stmt = new DB_Query_Update;
+
+        $remote_atomic_schema = $remote_class_schema->atomics[$remote_comp_schema['join_column']];
+
+        $remote_join_col = array_key_exists('column', $remote_atomic_schema) ? $remote_atomic_schema['column'] : $remote_comp_schema['join_column'];
+
+        $upd_stmt->values = array(
+            $remote_join_col => NULL
+        );
+
+        $local_join_atomic = array_key_exists('inverse_join_column'
+                        , $remote_comp_schema) ? $remote_comp_schema['join_column'] : $schema->primary_key();
+
+        $local_join_col = array_key_exists('column'
+                        , $schema->atomics[$local_join_atomic]) ? $schema->atomics[$local_join_atomic]['column'] : $local_join_atomic;
+
+        $upd_stmt->table = array_key_exists('table', $remote_atomic_schema) ? $remote_atomic_schema['table'] : $remote_class_schema->table;
+
+        if ($local_join_atomic == $schema->primary_key()) {
+            // we are simply happy, the primary key is the
+            // join column and we have it
+            $local_join_cond = $pk;
+        } else {
+            // the local join column is not the primary key
+            if (array_key_exists($local_join_atomic, $this->_atomics)) {
+                // but if it's loaded then we are still happy
+                $local_join_cond = new DB_Expression_Param($this->_atomics[$local_join_atomic]);
+            } else {
+                // otherwise we have to create a subselect to
+                // get the value of the local join column based on the primary key
+                // and we hope that the local join column is unique
+                $local_join_cond = new DB_Query_Select;
+                $local_join_cond->columns = array($local_join_col);
+                $local_join_cond->tables = array(
+                    array_key_exists('table', $schema->atomics[$local_join_atomic]) ? $schema->atomics[$local_join_atomic]['table'] : $schema->table
+                );
+                $local_join_cond->where_conditions = array(
+                    new DB_Expression_Binary($schema->primary_key()
+                            , '=', $pk)
+                );
             }
         }
+
+        $upd_stmt->conditions = array(
+            new DB_Expression_Binary($remote_join_col, '=', $local_join_cond)
+        );
+
+        $upd_stmt->exec($schema->db_conn);
     }
 
 }

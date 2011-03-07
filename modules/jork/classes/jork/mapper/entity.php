@@ -14,7 +14,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     /**
      * @var JORK_Mapping_Schema
      */
-    protected $_entity_schema;
+    public $_entity_schema;
 
     /**
      * @var string
@@ -135,6 +135,26 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         }
         $entity->add_to_component_collections($to_many_comps);
         return array($entity, $is_new_entity);
+    }
+
+    public function  get_last_entity() {
+        return $this->_previous_result_entity;
+    }
+
+    /**
+     *
+     * @param array $prop_chain
+     * @usedby JORK_Mapper_Result_Default::extract_mappers()
+     */
+    public function get_mapper_for_propchain($prop_chain) {
+        $root_prop = array_shift($prop_chain);
+        if (empty ($prop_chain)) {
+            if (array_key_exists($root_prop, $this->_entity_schema->atomics)) 
+                return array($this, $root_prop);
+
+            return array($this->_next_mappers[$root_prop], FALSE);
+        }
+        return $this->_next_mappers[$root_prop]->get_mapper_for_propchain($prop_chain);
     }
     
 
@@ -375,5 +395,20 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
                         .' has no component '.$root_prop);
             return $this->get_component_mapper($root_prop)->resolve_prop_chain($prop_chain);
         }
+    }
+
+    /**
+     * @return boolean
+     */
+    public function has_to_many_child() {
+        if ( ! empty($this->_next_to_many_mappers))
+            return TRUE;
+
+        foreach ($this->_next_to_one_mappers as $mapper) {
+            if ($mapper->has_to_many_child())
+                return TRUE;
+        }
+
+        return FALSE;
     }
 }

@@ -1,31 +1,35 @@
 <?php
 
 /**
+ * Abstract class that is able to map a database query result to an object query result.
+ * 
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package JORK
  */
-class JORK_Mapper_Result {
+abstract class JORK_Mapper_Result {
 
     /**
-     * @var DB_Query_Result
+     * Static factory method for result mapper implementations.
+     *
+     * If the JORK SELECT query has an implicit root and it's select list is empty,
+     * (it's typically the case when the JORK SELECT was created using JORK::from())
+     * then it returns a JORK_Mapper_Result_Simple instance. Otherwise it returns
+     * a JORK_Mapper_Result_Default instance.
+     *
+     * @param JORK_Query_Select $query the JORK SELECT query that's result wil be mapped
+     * @param DB_Query_Result $db_result the database query result to map
+     * @param boolean $has_implicit_root
+     * @param array $mappers
+     * @return JORK_Mapper_Result
+     * @usedby JORK_Query_Select::exec()
      */
-    private $_db_result;
-
-    /**
-     * @var boolean
-     */
-    private $_has_implicit_root;
-
-    /**
-     * @var array<JORK_Mapper_Row>
-     */
-    private $_mappers;
-
-    public function  __construct(DB_Query_Result $db_result, $has_implicit_root
-            , $mappers) {
-        $this->_db_result = $db_result;
-        $this->_has_implicit_root = $has_implicit_root;
-        $this->_mappers = $mappers;
+    public static function for_query(JORK_Query_Select $query
+            , DB_Query_Result $db_result
+            , $has_implicit_root, $mappers) {
+        if ($has_implicit_root && empty($query->select_list)) 
+            return new JORK_Mapper_Result_Simple($db_result, $mappers[NULL]);
+        
+        return new JORK_Mapper_Result_Default($query, $db_result, $has_implicit_root, $mappers);
     }
 
     /**
@@ -38,18 +42,6 @@ class JORK_Mapper_Result {
      *
      * @return array
      */
-    public function map() {
-        $obj_result = array();
-        if ($this->_has_implicit_root) {
-            foreach ($this->_db_result as $row) {
-                list($entity, $is_new) = $this->_mappers[NULL]->map_row($row);
-                if ($is_new) {
-                    $obj_result []= $entity;
-                }
-            }
-        } else {
-            
-        }
-        return $obj_result;
-    }
+    public abstract function map();
+
 }

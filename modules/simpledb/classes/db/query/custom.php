@@ -17,6 +17,6 @@ class DB_Query_Custom extends DB_Query {
     }
 
     public function exec($database = 'default') {
-        DB::inst($database)->exec_custom($this->sql);
+        DB::executor($database)->exec_custom($this->sql);
     }
 }

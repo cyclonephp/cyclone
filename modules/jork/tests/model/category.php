@@ -35,7 +35,7 @@ class Model_Category extends JORK_Model_Abstract {
             'moderator' => array(
                 'class' => 'Model_User',
                 'type' => JORK::ONE_TO_ONE,
-                'join_column' => 'moderator_fk',
+                'join_column' => 'moderator_fk'
             ),
             'modinfo' => 'Model_ModInfo'
         );

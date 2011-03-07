@@ -4,7 +4,7 @@ require_once MODPATH.'simpledb/tests/simpledb/postgres/dbtest.php';
 class SimpleDB_Postgres_CompileTest extends SimpleDB_Postgres_DbTest {
 
     public function testConnection() {
-        DB::inst('postgres')->connect();
+        DB::connector('postgres')->connect();
     }
 
     public function testCompileInsert() {

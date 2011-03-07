@@ -66,16 +66,16 @@ class SimpleDB_Mysqli_ExecTest extends SimpleDB_MySQLi_DbTest {
 
         }
 
-        DB::inst()->exec_custom('select 2');
+        DB::executor()->exec_custom('select 2');
 
-        DB::inst()->exec_custom('drop table if exists t_posts; create table t_posts(id int);');
-        DB::inst()->disconnect();
-        DB::inst()->connect();
+        DB::executor()->exec_custom('drop table if exists t_posts; create table t_posts(id int);');
+        DB::connector()->disconnect();
+        DB::connector()->connect();
         //DB::select()->from('t_posts')->exec();
     }
 
     public function testExecCustom() {
-        DB::inst()->exec_custom('create table if not exists tmp (id int)');
+        DB::executor()->exec_custom('create table if not exists tmp (id int)');
     }
 
     public function testAsArray() {
@@ -90,17 +90,20 @@ class SimpleDB_Mysqli_ExecTest extends SimpleDB_MySQLi_DbTest {
     }
 
     public function testCommitRollback() {
-        DB::inst()->autocommit(false);
-        $deleted_rows = DB::delete('user')->exec();
-        $this->assertEquals($deleted_rows, 2);
-        DB::inst()->rollback();
         $existing_rows = DB::select()->from('user')->exec()->count();
-        $this->assertEquals($existing_rows, 2);
+        $this->assertEquals(2, $existing_rows);
+        $conn = DB::connector();
+        $conn->autocommit(false);
         $deleted_rows = DB::delete('user')->exec();
-        $this->assertEquals($deleted_rows, 2);
-        DB::inst()->commit();
+        $this->assertEquals(2, $deleted_rows);
+        $conn->rollback();
         $existing_rows = DB::select()->from('user')->exec()->count();
-        $this->assertEquals($existing_rows, 0);
+        $this->assertEquals(2, $existing_rows); 
+        $deleted_rows = DB::delete('user')->exec();
+        $this->assertEquals(2, $deleted_rows);
+        $conn->commit();
+        $existing_rows = DB::select()->from('user')->exec()->count();
+        $this->assertEquals(0, $existing_rows);
     }
 
     public function testTransactionSuccess() {

@@ -67,5 +67,26 @@ class JORK_Mapper_ExplRootTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($db_query->group_by, array('t_users_0.name'));
     }
 
+    public function testOffsetLimitHasToMany() {
+        $jork_query = JORK::from('Model_Topic t', 'Model_Category c')
+            ->with('t.posts')
+            ->offset(20)->limit(10);
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        //echo $db_query->compile('jork_test');
+        $this->assertEquals(array(
+            'table' => array(DB::select_distinct(array('t_topics_1.id', 't_topics_1_id')
+                    , array('t_categories_1.id', 't_categories_1_id'))
+                ->from(array('t_topics', 't_topics_1'))
+                ->from(array('t_categories', 't_categories_1'))
+                ->offset(20)->limit(10), 'jork_offset_limit_subquery_0'),
+            'type' => 'RIGHT',
+            'conditions' => array(
+                new DB_Expression_Binary('t_topics_0.id', '=', 'jork_offset_limit_subquery_0.t_topics_1_id'),
+                new DB_Expression_Binary('t_categories_0.id', '=', 'jork_offset_limit_subquery_0.t_categories_1_id')
+            )
+        ), $db_query->joins[1]);
+    }
+
     
 }

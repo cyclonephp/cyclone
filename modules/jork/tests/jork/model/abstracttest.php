@@ -142,6 +142,45 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
 
         $this->assertEquals(2, count(DB::select()->from('t_posts')
                 ->where('topic_fk', 'is', NULL)->exec('jork_test')));
-        
+
     }
+
+    public function testSetNullFkForReverseOneToOne() {
+        $result = JORK::from('Model_User')->where('id', '=', DB::esc(1))
+                ->exec('jork_test');
+        $user = $result[0];
+
+        $user->delete();
+
+        $this->assertEquals(2, count(
+            DB::select()->from('t_categories')->where('moderator_fk', 'is', NULL)
+                ->exec('jork_test')->as_array()
+        ));
+    }
+
+    public function testAtomicTypeCasts() {
+        $user = new Model_User;
+        $user->id = 1;
+        $this->assertInternalType('int', $user->id);
+        $user->id = '145';
+        $this->assertInternalType('int', $user->id);
+        $user->name = 256;
+        $this->assertEquals(256, $user->name);
+        $this->assertInternalType('string', $user->name);
+
+        $result = JORK::from('Model_User')->where('id', '=', DB::esc(1))
+                ->exec('jork_test');
+        $user = $result[0];
+        $this->assertInternalType('int', $user->id);
+        $this->assertInternalType('string', $user->name);
+    }
+
+    /**
+     * @expectedException JORK_Exception
+     */
+    public function testAtomicTypeCheck() {
+        $user = new Model_User;
+        $user->moderated_category = new Model_Post;
+    }
+
 }

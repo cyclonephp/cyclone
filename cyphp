@@ -1,0 +1,7 @@
+#!/usr/bin/php
+<?php
+
+define('SUPPRESS_REQUEST', 'by_cyphp');
+
+
+require realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'index.php';
