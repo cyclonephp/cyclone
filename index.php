@@ -58,7 +58,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
-/**/Kohana::modules(array(
+/**Kohana::modules(array(
             'simpledb' => MODPATH.'simpledb',
             'jork' => MODPATH.'jork',
             'pagination' => MODPATH . 'pagination',
