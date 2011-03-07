@@ -47,6 +47,8 @@ FileSystem::bootstrap(array(
 
 Config::setup();
 
+FileSystem::run_init_scripts();
+
 Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
@@ -56,7 +58,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
-Kohana::modules(array(
+/**/Kohana::modules(array(
             'simpledb' => MODPATH.'simpledb',
             'jork' => MODPATH.'jork',
             'pagination' => MODPATH . 'pagination',
@@ -70,7 +72,7 @@ Kohana::modules(array(
             'config' => MODPATH.'config',
             'cytpl' =>  MODPATH.'cytpl'
         ));
-
+/**/
 
 
 Session::instance();

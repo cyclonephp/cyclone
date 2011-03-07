@@ -427,37 +427,6 @@ class Kohana {
 	}
 
 	/**
-	 * Provides auto-loading support of Kohana classes, as well as transparent
-	 * extension of classes that have a _Core suffix.
-	 *
-	 * Class names are converted to file names by making the class name
-	 * lowercase and converting underscores to slashes:
-	 *
-	 *     // Loads classes/my/class/name.php
-	 *     Kohana::auto_load('My_Class_Name');
-	 *
-	 * @param   string   class name
-	 * @return  boolean
-	 */
-	public static function auto_load($class)
-	{
-		// Transform the class name into a path
-		$file = str_replace('_', '/', strtolower($class));
-
-		if ($path = Kohana::find_file('classes', $file))
-		{
-			// Load the class file
-			require $path;
-
-			// Class has been found
-			return TRUE;
-		}
-
-		// Class is not in the filesystem
-		return FALSE;
-	}
-
-	/**
 	 * Changes the currently enabled modules. Module paths may be relative
 	 * or absolute, but must point to a directory:
 	 *
@@ -566,6 +535,12 @@ class Kohana {
 
 		// Create a partial path of the filename
 		$path = $dir.DIRECTORY_SEPARATOR.$file.$ext;
+
+                if ($array) {
+                    return FileSystem::list_files($path);
+                } else {
+                    return FileSystem::find_file($path);
+                }
 
 		if (Kohana::$caching === TRUE AND isset(Kohana::$_files[$path]))
 		{

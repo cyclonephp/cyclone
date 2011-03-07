@@ -18,6 +18,7 @@ class FileSystem {
 
     public static function bootstrap($roots, $cache_dir = FALSE) {
         self::$_roots = $roots;
+        
         if ($cache_dir) {
             self::$_path_cache_file = $cache_dir . 'filepaths.txt';
             if ( ! is_writable(self::$_path_cache_file))
@@ -27,12 +28,15 @@ class FileSystem {
         } else {
             self::$_abs_file_paths = array();
         }
-//        foreach ($roots as $module_name => $root_path) {
-//            if (file_exists($fname =
-//                    ($root_path . DIRECTORY_SEPARATOR . self::MODULE_BOOTSTRAP_FILE))) {
-//                include $fname;
-//            }
-//        }
+    }
+
+    public static function run_init_scripts() {
+         foreach (self::$_roots as $module_name => $root_path) {
+            if (file_exists($fname =
+                    ($root_path . DIRECTORY_SEPARATOR . self::MODULE_BOOTSTRAP_FILE))) {
+                include $fname;
+            }
+        }
     }
 
     public static function save_cache() {
