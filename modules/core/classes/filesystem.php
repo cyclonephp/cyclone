@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Helper class to handle the Cascading File System.
+ *
  * @author Lajos Pajger <pajla@cyclonephp.com>
  * @author Bence Eros <crystal@cyclonephp.com>
  */
