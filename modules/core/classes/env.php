@@ -6,14 +6,43 @@
  */
 class Env {
 
+    /**
+     * Constant for marking a development environment.
+     *
+     * @usedby Env::$current
+     */
     const DEV = 'dev';
 
+    /**
+     * Constant for marking a testing environment.
+     *
+     * @usedby Env::$current
+     */
     const TEST = 'test';
 
+    /**
+     * Constant for marking a production environment.
+     *
+     * @usedby Env::$current
+     */
     const PROD = 'prod';
 
+    /**
+     * TRUE if CyclonePHP is executed from the CLI. It doesn't always mean that
+     * the cyphp script has been called.
+     *
+     * The value is detected by Env::init()
+     *
+     * @var boolean
+     */
     public static $is_cli;
 
+    /**
+     * TRUE if we are on windows. Detected by Env::init() based in the
+     * DIRECTORY_SEPARATOR constant.
+     *
+     * @var boolean
+     */
     public static $is_windows;
 
     /**
@@ -53,6 +82,8 @@ class Env {
     /**
      * Calls Env::init(), then populates the corresponding static variables in
      * the Kohana class.
+     *
+     * @uses Env::init()
      */
     public static function init_legacy() {
         self::init();
