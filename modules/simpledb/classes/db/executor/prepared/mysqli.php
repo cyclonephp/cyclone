@@ -10,8 +10,50 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
         return $rval;
     }
 
-    public function exec_select($prepared_stmt, array $params) {
-        
+    private function get_type_string(array &$params) {
+        $rval = '';
+        foreach ($params as &$param) {
+            switch (gettype($param)) {
+                case 'integer' :
+                    $rval .= 'i';
+                    break;
+                case 'float' :
+                    $rval .= 'd';
+                    break;
+                case 'string' :
+                    $rval .= 's';
+                    break;
+                case 'boolean' :
+                    $rval .= 'i';
+                    // converting booleans to 0 / 1
+                    $param = $param ? '1' : '0';
+                    break;
+                default:
+                    if (is_array($param))
+                        throw new DB_Exception('prepared statement parameters cannot be arrays');
+                    // converting objects to their string representation
+                    if (is_object($param)) {
+                        $rval .= 's';
+                        $param = $param->__toString();
+                    }
+            }
+        }
+        return $rval;
+    }
+
+    /**
+     *
+     * @param MySQLi_Stmt $prepared_stmt
+     * @param array $params
+     */
+    public function exec_select($prepared_stmt, array $params
+            , DB_Query_Select $orig_query) {
+        if ( ! empty($params)) {
+            $type_str = $this->get_type_string($params);
+            array_unshift($params, $type_str);
+            call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
+        }
+        $prepared_stmt->execute();
     }
 
     public function exec_insert($prepared_stmt, array $params) {

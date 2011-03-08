@@ -134,7 +134,7 @@ class DB_Query_Select implements DB_Query, DB_Expression {
 
     public function  prepare($database = 'default') {
         $sql = DB::compiler($database)->compile_select($this);
-        return new DB_Query_Prepared_Select($sql, $database);
+        return new DB_Query_Prepared_Select($sql, $database, $this);
     }
 
     public function  compile_expr(DB_Compiler $adapter) {

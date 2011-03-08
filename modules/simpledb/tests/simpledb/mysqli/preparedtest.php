@@ -16,4 +16,10 @@ class SimpleDB_Mysqli_PreparedTest extends SimpleDB_Mysqli_DbTest {
     public function testPrepareFailure() {
         $stmt = DB::executor_prepared()->prepare('select * from dummy');
     }
+
+
+    public function testExecSelect() {
+        $result = DB::select()->from('user')->prepare()->exec();
+        //$this->assertEquals(2, count($result));
+    }
 }
