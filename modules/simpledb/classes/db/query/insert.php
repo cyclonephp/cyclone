@@ -30,6 +30,7 @@ class DB_Query_Insert implements DB_Query {
     }
 
     public function  prepare($database = 'default') {
-        ;
+        $sql = DB::compiler($database)->compile_insert($this);
+        return new DB_Query_Prepared_Insert($sql, $database);
     }
 }

@@ -62,8 +62,8 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testExecutorPrepared() {
-        /*$exec_prep = DB::executor_prepared();
-        $this->assertInstanceOf('DB_Executor_Prepared_Mysqli', $exec_prep);*/
+        $exec_prep = DB::executor_prepared();
+        $this->assertInstanceOf('DB_Executor_Prepared_Mysqli', $exec_prep);
     }
 
 }

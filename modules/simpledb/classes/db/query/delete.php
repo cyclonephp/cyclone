@@ -36,6 +36,7 @@ class DB_Query_Delete implements DB_Query {
     }
 
     public function  prepare($database = 'default') {
-        ;
+        $sql = DB::compiler($database)->compile_delete($this);
+        return new DB_Query_Prepared_Delete($sql, $database);
     }
 }

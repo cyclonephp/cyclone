@@ -44,7 +44,8 @@ class DB_Query_Update implements DB_Query {
     }
 
     public function  prepare($database = 'default') {
-        ;
+        $sql = DB::compiler($database)->compile_update($this);
+        return new DB_Query_Prepared_Update($sql, $database);
     }
 
 }

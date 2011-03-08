@@ -21,6 +21,6 @@ class DB_Query_Custom implements DB_Query {
     }
 
     public function  prepare($database = 'default') {
-        ;
+        return new DB_Query_Prepared_Custom($this->sql, $database);
     }
 }
