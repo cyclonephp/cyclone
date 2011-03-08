@@ -11,16 +11,16 @@ abstract class DB_Query_Prepared_Abstract implements DB_Query_Prepared {
 
     protected $_params = array();
 
-    private $_sql;
+    protected $_sql;
 
-    private $_prepared_stmt;
+    protected $_prepared_stmt;
 
-    private $_executor;
+    protected  $_executor;
 
     public function  __construct($sql, $database) {
         $this->_sql = $sql;
         $this->_executor = DB::executor_prepared($database);
-        $this->_prepared_stmt = $this->_executor->prepare($sql);
+        $this->_prepared_stmt = $this->_executor->prepare($sql, $database);
     }
 
     /**
