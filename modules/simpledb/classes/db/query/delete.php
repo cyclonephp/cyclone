@@ -4,7 +4,7 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package SimpleDB
  */
-class DB_Query_Delete extends DB_Query {
+class DB_Query_Delete implements DB_Query {
 
     public $table;
 
@@ -33,5 +33,9 @@ class DB_Query_Delete extends DB_Query {
     public function exec($database = 'default') {
         $sql = DB::compiler($database)->compile_delete($this);
         return DB::executor($database)->exec_delete($sql);
+    }
+
+    public function  prepare($database = 'default') {
+        ;
     }
 }
