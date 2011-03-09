@@ -28,6 +28,8 @@ date_default_timezone_set('Europe/Budapest');
 include MODPATH . 'core/classes/filesystem.php';
 spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
 
+spl_autoload_register(array('FileSystem', 'autoloader_tests'));
+
 FileSystem::bootstrap(array(
     'application' => APPPATH,
     'simpledb' => MODPATH . 'simpledb' . DIRECTORY_SEPARATOR,
