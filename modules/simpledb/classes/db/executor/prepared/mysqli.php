@@ -10,21 +10,21 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
         return $rval;
     }
 
-    private function get_type_string(array &$params) {
-        $rval = '';
+    private function add_type_string(array &$params) {
+        $type_str = '';
         foreach ($params as &$param) {
             switch (gettype($param)) {
                 case 'integer' :
-                    $rval .= 'i';
+                    $type_str .= 'i';
                     break;
                 case 'float' :
-                    $rval .= 'd';
+                    $type_str .= 'd';
                     break;
                 case 'string' :
-                    $rval .= 's';
+                    $type_str .= 's';
                     break;
                 case 'boolean' :
-                    $rval .= 'i';
+                    $type_str .= 'i';
                     // converting booleans to 0 / 1
                     $param = $param ? '1' : '0';
                     break;
@@ -33,12 +33,12 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
                         throw new DB_Exception('prepared statement parameters cannot be arrays');
                     // converting objects to their string representation
                     if (is_object($param)) {
-                        $rval .= 's';
+                        $type_str .= 's';
                         $param = $param->__toString();
                     }
             }
         }
-        return $rval;
+        array_unshift($params, $type_str);
     }
 
     /**
@@ -49,8 +49,7 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
     public function exec_select($prepared_stmt, array $params
             , DB_Query_Select $orig_query) {
         if ( ! empty($params)) {
-            $type_str = $this->get_type_string($params);
-            array_unshift($params, $type_str);
+            $this->add_type_string($params);
             call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
         }
         $prepared_stmt->execute();
@@ -59,15 +58,30 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
     }
 
     public function exec_insert($prepared_stmt, array $params) {
-        
+        if ( ! empty($params)) {
+            $this->add_type_string($params);
+            call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
+        }
+        $prepared_stmt->execute();
+        return $this->_db_conn->insert_id;
     }
 
     public function exec_update($prepared_stmt, array $params) {
-        
+        if ( ! empty($params)) {
+            $this->add_type_string($params);
+            call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
+        }
+        $prepared_stmt->execute();
+        return $this->_db_conn->affected_rows;
     }
 
     public function exec_delete($prepared_stmt, array $params) {
-        
+        if ( ! empty($params)) {
+            $this->add_type_string($params);
+            call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
+        }
+        $prepared_stmt->execute();
+        return $this->_db_conn->affected_rows;
     }
     
 }

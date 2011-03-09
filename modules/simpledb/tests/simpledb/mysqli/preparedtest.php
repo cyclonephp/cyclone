@@ -82,4 +82,21 @@ class SimpleDB_Mysqli_PreparedTest extends SimpleDB_Mysqli_DbTest {
             ++$idx;
         }
     }
+
+    public function testInsert() {
+        $insert_id = DB::insert('user')->values(array('name' => 'user3'))
+                ->prepare()->exec();
+        $this->assertEquals(3, $insert_id);
+    }
+
+    public function testUpdate() {
+        $aff_rows = DB::update('user')->values(array('name' => 'u'))
+                ->prepare()->exec();
+        $this->assertEquals(2, $aff_rows);
+    }
+
+    public function testDelete() {
+        $aff_rows = DB::delete('user')->prepare()->exec();
+        $this->assertEquals(2, $aff_rows);
+    }
 }
