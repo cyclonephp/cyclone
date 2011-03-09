@@ -11,7 +11,7 @@ class Cyclone_CLI {
 
     public static function bootstrap() {
         if ($_SERVER['argv'][0] != 'cyphp') {
-            echo self::CALL_ERROR;
+            echo self::CALL_ERROR."\n" ;
             return;
         }
         //TODO
