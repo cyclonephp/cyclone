@@ -32,14 +32,9 @@ FileSystem::bootstrap(array(
     'application' => APPPATH,
     'simpledb' => MODPATH . 'simpledb' . DIRECTORY_SEPARATOR,
     'jork' => MODPATH . 'jork' . DIRECTORY_SEPARATOR,
-    'pagination' => MODPATH . 'pagination' . DIRECTORY_SEPARATOR,
     'core' => MODPATH . 'core' . DIRECTORY_SEPARATOR,
-    'record' => MODPATH . 'record' . DIRECTORY_SEPARATOR,
     'cyform' => MODPATH . 'cyform' . DIRECTORY_SEPARATOR,
-    'dev' => TOOLPATH . 'dev' . DIRECTORY_SEPARATOR,
-    'captcha' => MODPATH . 'captcha' . DIRECTORY_SEPARATOR,
     'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
-    'userguide' => TOOLPATH . 'userguide' . DIRECTORY_SEPARATOR,
     'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
     'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
     'system' => SYSPATH
@@ -52,28 +47,6 @@ FileSystem::run_init_scripts();
 Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
-
-//Kohana::$config->attach(new Kohana_Config_File);
-
-/**
- * Enable modules. Modules are referenced by a relative or absolute path.
- */
-/**Kohana::modules(array(
-            'simpledb' => MODPATH.'simpledb',
-            'jork' => MODPATH.'jork',
-            'pagination' => MODPATH . 'pagination',
-            'core' => MODPATH . 'core',
-            'record' => MODPATH . 'record',
-            'cyform' => MODPATH . 'cyform',
-            'dev' => TOOLPATH . 'dev',
-            'captcha' => MODPATH . 'captcha',
-            'unittest' => TOOLPATH.'unittest',
-            'userguide' => TOOLPATH.'userguide',
-            'config' => MODPATH.'config',
-            'cytpl' =>  MODPATH.'cytpl'
-        ));
-/**/
-
 
 Session::instance();
 
