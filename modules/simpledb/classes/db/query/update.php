@@ -4,7 +4,7 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package SimpleDB
  */
-class DB_Query_Update extends DB_Query {
+class DB_Query_Update implements DB_Query {
 
     public $table;
 
@@ -41,6 +41,11 @@ class DB_Query_Update extends DB_Query {
     public function exec($database = 'default') {
         $sql = DB::compiler($database)->compile_update($this);
         return DB::executor($database)->exec_update($sql);
+    }
+
+    public function  prepare($database = 'default') {
+        $sql = DB::compiler($database)->compile_update($this);
+        return new DB_Query_Prepared_Update($sql, $database);
     }
 
 }

@@ -4,7 +4,7 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package SimpleDB
  */
-class DB_Query_Select extends DB_Query implements DB_Expression {
+class DB_Query_Select implements DB_Query, DB_Expression {
 
     public $distinct;
 
@@ -130,6 +130,11 @@ class DB_Query_Select extends DB_Query implements DB_Expression {
     public function exec($database = 'default') {
         $sql = DB::compiler($database)->compile_select($this);
         return DB::executor($database)->exec_select($sql);
+    }
+
+    public function  prepare($database = 'default') {
+        $sql = DB::compiler($database)->compile_select($this);
+        return new DB_Query_Prepared_Select($sql, $database, $this);
     }
 
     public function  compile_expr(DB_Compiler $adapter) {
