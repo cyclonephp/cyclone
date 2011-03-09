@@ -48,28 +48,6 @@ Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-//Kohana::$config->attach(new Kohana_Config_File);
-
-/**
- * Enable modules. Modules are referenced by a relative or absolute path.
- */
-/**Kohana::modules(array(
-            'simpledb' => MODPATH.'simpledb',
-            'jork' => MODPATH.'jork',
-            'pagination' => MODPATH . 'pagination',
-            'core' => MODPATH . 'core',
-            'record' => MODPATH . 'record',
-            'cyform' => MODPATH . 'cyform',
-            'dev' => TOOLPATH . 'dev',
-            'captcha' => MODPATH . 'captcha',
-            'unittest' => TOOLPATH.'unittest',
-            'userguide' => TOOLPATH.'userguide',
-            'config' => MODPATH.'config',
-            'cytpl' =>  MODPATH.'cytpl'
-        ));
-/**/
-
-
 Session::instance();
 
 //Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
