@@ -54,6 +54,7 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
             call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
         }
         $prepared_stmt->execute();
+        $prepared_stmt->store_result();
         return new DB_Query_Result_Prepared_MySQLi($prepared_stmt, $orig_query);
     }
 

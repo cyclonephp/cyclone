@@ -13,7 +13,6 @@ class DB_Query_Result_Mysqli extends DB_Query_Result {
 
     public function  __construct(mysqli_result $result) {
         $this->result = $result;
-        $this->next();
     }
 
     public function  current() {
@@ -46,6 +45,7 @@ class DB_Query_Result_Mysqli extends DB_Query_Result {
 
     public function seek($pos) {
         $this->result->data_seek($pos);
+        $this->_idx = $pos;
     }
 
     public function valid() {

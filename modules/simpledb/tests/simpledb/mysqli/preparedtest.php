@@ -19,14 +19,67 @@ class SimpleDB_Mysqli_PreparedTest extends SimpleDB_Mysqli_DbTest {
 
 
     public function testExecSelect() {
+        $result = DB::select('id', 'name')->from('user')->prepare()->exec();
+        $this->assertEquals(2, count($result));
+    }
+
+    /**
+     * @expectedException DB_Exception
+     */
+    public function testExecSelectFailure() {
         $result = DB::select()->from('user')->prepare()->exec();
-        $this->markTestSkipped('result handling is not yet implemented');
-        //$this->assertEquals(2, count($result));
     }
 
     public function testPreparedResult() {
-        $stmt = DB::connector()->db_conn->prepare('select id, name form cy_user');
+        $stmt = DB::connector()->db_conn->prepare('select id, name from cy_user');
         $stmt->execute();
+        $stmt->store_result();
         $result = new DB_Query_Result_Prepared_MySQLi($stmt, DB::select('id', 'name')->from('user'));
+        $this->assertEquals(2, count($result));
+
+        $exp = array(
+            array('id' => 1, 'name' => 'user1'),
+            array('id' => 2, 'name' => 'user2')
+        );
+        $idx = 0;
+        foreach ($result as $key => $row) {
+            $this->assertEquals($idx, $key);
+            $this->assertEquals($exp[$idx]['id'], $row['id']);
+            ++$idx;
+        }
+
+        $idx = 0;
+        foreach ($result as $key => $row) {
+            $this->assertEquals($idx, $key);
+            $this->assertEquals($exp[$idx]['id'], $row['id']);
+            ++$idx;
+        }
+    }
+
+    public function testPreparedResultIndexBy() {
+        $stmt = DB::connector()->db_conn->prepare('select id, name from cy_user');
+        $stmt->execute();
+        $stmt->store_result();
+        $result = new DB_Query_Result_Prepared_MySQLi($stmt, DB::select('id', 'name')->from('user'));
+        $result->index_by('id');
+        $this->assertEquals(2, count($result));
+
+        $exp = array(
+            1 => array('id' => 1, 'name' => 'user1'),
+            2 => array('id' => 2, 'name' => 'user2')
+        );
+        $idx = 1;
+        foreach ($result as $key => $row) {
+            $this->assertEquals($idx, $key);
+            $this->assertEquals($exp[$idx]['id'], $row['id']);
+            ++$idx;
+        }
+
+        $idx = 1;
+        foreach ($result as $key => $row) {
+            $this->assertEquals($idx, $key);
+            $this->assertEquals($exp[$idx]['id'], $row['id']);
+            ++$idx;
+        }
     }
 }

@@ -24,6 +24,7 @@ class Env {
             self::$current = self::DEV;
         }
         self::$magic_quotes = get_magic_quotes_gpc();
+        set_error_handler('Kohana::error_handler');
     }
 
     public static function init_legacy() {
