@@ -178,5 +178,9 @@ class DB {
     public static function esc($param) {
         return new DB_Expression_Param($param);
     }
+
+    public static function param($name = '?') {
+        return new DB_Expression_Custom($name);
+    }
     
 }

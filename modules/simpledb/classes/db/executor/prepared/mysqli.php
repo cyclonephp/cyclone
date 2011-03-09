@@ -12,7 +12,7 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
 
     private function add_type_string(array &$params) {
         $type_str = '';
-        foreach ($params as &$param) {
+        foreach ($params as $k => $param) {
             switch (gettype($param)) {
                 case 'integer' :
                     $type_str .= 'i';
@@ -50,7 +50,12 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
             , DB_Query_Select $orig_query) {
         if ( ! empty($params)) {
             $this->add_type_string($params);
-            call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
+            // I know that this foreach seems to be totally useless..
+            // but please don't try to remove it, you will find yourself in a
+            // fuckin' big shit of PHP
+            $tmp = array();
+            foreach ($params as $k => $p) $tmp [$k]= &$params[$k];
+            call_user_func_array(array($prepared_stmt, 'bind_param'), $tmp);
         }
         $prepared_stmt->execute();
         $prepared_stmt->store_result();
@@ -60,6 +65,8 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
     public function exec_insert($prepared_stmt, array $params) {
         if ( ! empty($params)) {
             $this->add_type_string($params);
+            $tmp = array();
+            foreach ($params as $k => $p) $tmp [$k]= &$params[$k];
             call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
         }
         $prepared_stmt->execute();
@@ -69,6 +76,8 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
     public function exec_update($prepared_stmt, array $params) {
         if ( ! empty($params)) {
             $this->add_type_string($params);
+            $tmp = array();
+            foreach ($params as $k => $p) $tmp [$k]= &$params[$k];
             call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
         }
         $prepared_stmt->execute();
@@ -78,6 +87,8 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
     public function exec_delete($prepared_stmt, array $params) {
         if ( ! empty($params)) {
             $this->add_type_string($params);
+            $tmp = array();
+            foreach ($params as $k => $p) $tmp [$k]= &$params[$k];
             call_user_func_array(array($prepared_stmt, 'bind_params'), $params);
         }
         $prepared_stmt->execute();

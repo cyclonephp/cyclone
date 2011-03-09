@@ -28,8 +28,12 @@ abstract class DB_Query_Prepared_Abstract implements DB_Query_Prepared {
      * @param scalar $value
      * @return DB_Query_Prepared_Abstract
      */
-    public function param($key, $value) {
-        $this->_params[$key] = $value;
+    public function param($value, $key = '?') {
+        if ('?' == $key) {
+            $this->_params []= &$value;
+            return $this;
+        }
+        $this->_params[$key] = &$value;
         return $this;
     }
 
