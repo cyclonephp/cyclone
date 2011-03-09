@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * Implementation of DB_Executor_Prepared for MySQLi
+ */
 class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
 
+    /**
+     * Creates an prepared statement from the given SQL query
+     *
+     * @param string $sql
+     * @return MySQLi_Stmt
+     * @throws DB_Exception if the preparation fails.
+     */
     public function prepare($sql) {
         $rval = $this->_db_conn->prepare($sql);
         if (FALSE === $rval) 
@@ -34,7 +44,7 @@ class DB_Executor_Prepared_Mysqli extends DB_Executor_Prepared_Abstract {
                     // converting objects to their string representation
                     if (is_object($param)) {
                         $type_str .= 's';
-                        $param = $param->__toString();
+                        $param = (string) $param;
                     }
             }
         }

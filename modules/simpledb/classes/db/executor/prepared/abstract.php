@@ -1,6 +1,13 @@
 <?php
 
-
+/**
+ * Abstract implementation of DB_Executor_Prepared.
+ *
+ * It contains only a constructor for dependency injection.
+ *
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package SimpleDB
+ */
 abstract class DB_Executor_Prepared_Abstract implements DB_Executor_Prepared {
 
     protected $_config;
