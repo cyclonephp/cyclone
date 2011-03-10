@@ -2,3 +2,4 @@
 system/.cache
 phpunit-report
 docs
+.master
