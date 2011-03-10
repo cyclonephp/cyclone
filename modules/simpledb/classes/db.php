@@ -42,7 +42,7 @@ class DB {
 
     /**
      * @param string $config config file name
-     * @return DB_Executor
+     * @return DB_Executor_Prepared
      */
     public static function executor_prepared($config = 'default') {
         if ( ! array_key_exists($config, self::$_executor_prepareds)) {
@@ -177,6 +177,10 @@ class DB {
 
     public static function esc($param) {
         return new DB_Expression_Param($param);
+    }
+
+    public static function param($name = '?') {
+        return new DB_Expression_Custom($name);
     }
     
 }

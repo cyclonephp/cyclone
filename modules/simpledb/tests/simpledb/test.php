@@ -1,7 +1,7 @@
 <?php
 
 
-class SimpleDB_Test extends Kohana_Unittest_TestCase {
+class SimpleDB_Test extends SimpleDB_Mysqli_DbTest {
 
     public function testPools() {
         $this->assertInstanceOf('DB_Compiler', DB::compiler());
@@ -44,6 +44,26 @@ class SimpleDB_Test extends Kohana_Unittest_TestCase {
 
     public function testQueryDelete() {
         $query = DB::delete('user')->where('id', '=', 15);
+    }
+
+    public function testConnector() {
+        $conn = DB::connector();
+        $this->assertInstanceOf('DB_Connector_Mysqli', $conn);
+    }
+
+    public function testCompiler() {
+        $comp = DB::compiler();
+        $this->assertInstanceOf('DB_Compiler_Mysqli', $comp);
+    }
+
+    public function testExecutor() {
+        $exec = DB::executor();
+        $this->assertInstanceOf('DB_Executor_Mysqli', $exec);
+    }
+
+    public function testExecutorPrepared() {
+        $exec_prep = DB::executor_prepared();
+        $this->assertInstanceOf('DB_Executor_Prepared_Mysqli', $exec_prep);
     }
 
 }
