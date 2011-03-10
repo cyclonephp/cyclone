@@ -74,6 +74,8 @@ class Env {
         }
         self::$magic_quotes = get_magic_quotes_gpc();
 
+        set_error_handler('Kohana::error_handler');
+
         $_GET = Kohana::sanitize($_GET);
         $_POST = Kohana::sanitize($_POST);
         $_COOKIE = Kohana::sanitize($_COOKIE);

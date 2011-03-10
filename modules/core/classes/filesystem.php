@@ -214,6 +214,18 @@ class FileSystem {
         return FALSE;
     }
 
+    public static function autoloader_tests($classname) {
+        $classname = strtolower($classname);
+        $rel_filename = 'tests/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
+
+        $result = FileSystem::find_file($rel_filename);
+        if ($result) {
+            include_once $result;
+            return TRUE;
+        }
+        return FALSE;
+    }
+
     public static function autoloader_camelcase($classname){
         $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
 

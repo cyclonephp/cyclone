@@ -4,6 +4,12 @@ require_once DOCROOT.'modules/simpledb/tests/simpledb/mysqli/dbtest.php';
 
 class SimpleDB_Mysqli_CompileTest extends SimpleDB_Mysqli_DbTest {
 
+    public function testCompileParams() {
+        $sql = DB::select('name')->from('user')->where('id', '=', DB::param())
+                ->compile();
+        $this->assertEquals("SELECT `name` FROM (`cy_user`) WHERE `id` = ?", $sql);
+    }
+
     public function testCompileInsert() {
         $query = DB::insert('user')->values(array(
             'name' => 'user'
