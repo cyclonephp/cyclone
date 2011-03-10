@@ -15,7 +15,6 @@ abstract class SimpleDB_Mysqli_DbTest extends Kohana_Unittest_TestCase {
             $insert->exec();
         } catch (Exception $ex) {
             error_log($ex->getMessage() . ' class: ' . get_class($this));
-            die();
             $this->markTestSkipped('skipping simpledb tests');
         }
     }

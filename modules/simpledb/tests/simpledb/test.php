@@ -1,7 +1,7 @@
 <?php
 
 
-class SimpleDB_Test extends Kohana_Unittest_TestCase {
+class SimpleDB_Test extends SimpleDB_Mysqli_DbTest {
 
     public function testPools() {
         $this->assertInstanceOf('DB_Compiler', DB::compiler());
