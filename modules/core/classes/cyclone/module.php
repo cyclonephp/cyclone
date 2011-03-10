@@ -16,8 +16,8 @@ class Cyclone_Cli_Module {
         $i = 0;
         foreach ($module_array as $name => $module) {
             if ($this->validate_module($value) == TRUE) {
-                $this->$_modules_sort[$i]['name'] = $name;
-                $this->$_modules_sort[$i]['desc'] = $module['description'];
+                $this->_modules_sort[$i]['name'] = $name;
+                $this->_modules_sort[$i]['desc'] = $module['description'];
                 $i++;
             }
         }
@@ -28,7 +28,7 @@ class Cyclone_Cli_Module {
      * @return array
      */
     public function get_modules_short() {
-        return $this->modules_sort;
+        return $this->_modules_sort;
     }
 
     /**
@@ -37,7 +37,7 @@ class Cyclone_Cli_Module {
      * @return boolean
      */
     public function module_exist($module_name) {
-        foreach ($this->$_modules_sort as $mod) {
+        foreach ($this->_modules_sort as $mod) {
             if ($mod['name'] === $module_name) {
                 return TRUE;
             }
