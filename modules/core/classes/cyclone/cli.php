@@ -11,7 +11,8 @@ class Cyclone_CLI {
     const INTRO = "For module help type: cyphp <module_name> ";
 
     public static function bootstrap() {
-        if ($_SERVER['argv'][0] != 'cyphp') {
+
+        if ($_SERVER['argv'][0] != 'cyphp' && $_SERVER['argv'][0] != './cyphp') {
             echo self::CALL_ERROR . "\n";
             return;
         }
@@ -19,7 +20,6 @@ class Cyclone_CLI {
         $param_num = count($_SERVER['argv']);
         $cli_module = new Cyclone_Cli_Module();
         $modules_short = $cli_module->get_modules_short();
-        $module_exist = FALSE;
 
         if ($param_num == 1 || $cli_module->module_exist($_SERVER['argv'][1]) === FALSE) {
             echo self::INTRO . "\n\n";
@@ -28,7 +28,7 @@ class Cyclone_CLI {
             }
         } else {
             // TODO
-            echo "OK";
+            echo "OK" . "\n";
         }
     }
 

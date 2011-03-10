@@ -15,7 +15,7 @@ class Cyclone_Cli_Module {
         $module_array = FileSystem::list_files('cli.php', TRUE);
         $i = 0;
         foreach ($module_array as $name => $module) {
-            if ($this->validate_module($value) == TRUE) {
+            if ($this->validate_module($module) == TRUE) {
                 $this->_modules_sort[$i]['name'] = $name;
                 $this->_modules_sort[$i]['desc'] = $module['description'];
                 $i++;
