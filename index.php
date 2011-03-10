@@ -90,6 +90,6 @@ if (!defined('SUPPRESS_REQUEST')) {
 
 
     echo $request->send_headers()->response;
-} elseif (Kohana::$is_cli && 'by_cyphp' == SUPPRESS_REQUEST) {
+} elseif (Kohana::$is_cli && 'by_cyphp' === SUPPRESS_REQUEST) {
     Cyclone_CLI::bootstrap();
 }
