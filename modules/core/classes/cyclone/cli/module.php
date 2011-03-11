@@ -80,7 +80,7 @@ class Cyclone_Cli_Module {
      * @return boolean
      */
     public static function validate_module($module) {
-        return TRUE;
+        return self::parse_module($module, self::MODULE_NAME);
         //TODO validate module
     }
 
@@ -92,23 +92,26 @@ class Cyclone_Cli_Module {
     private static function parse_module($data, $depth) {
         switch ($depth) {
             case self::MODULE_NAME: {
-                    $run = 0;
+                    if (empty($data)) {
+                        self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
+                        return FALSE;
+                    }
+                    if (count(array_keys($data)) > 1) {
+                        self::show_validation_error(Cyclone_Cli_Errors::MORE_MODULES_IN_A_FILE);
+                        return FALSE;
+                    }
                     foreach ($data as $name => $value) {
-                        if (run > 0) {
-                            self::show_validation_error(Cyclone_Cli_Errors::MORE_MODULES_IN_A_FILE);
-                            return FALSE;
-                        }
                         if (empty($name)) {
                             self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
                             return FALSE;
                         }
                         self::$_curr_module = $name;
                         return self::parse_module($value, self::MODULE_INFO);
-                        $run++;
                     }
                     break;
                 }
             case self::MODULE_INFO: {
+                    echo "module_info called\n";
                     break;
                 }
             case self::COMMAND_NAME: {
@@ -140,5 +143,4 @@ class Cyclone_Cli_Module {
     }
 
 }
-
 ?>
