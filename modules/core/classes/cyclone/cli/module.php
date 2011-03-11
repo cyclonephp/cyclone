@@ -10,7 +10,7 @@ class Cyclone_Cli_Module {
 
     // short version of valid modules (module name and short description
     private static $_modules_short = NULL;
-    // modules
+    // valid modules
     private static $_modules = NULL;
     // is the _modules_short and _modules variables initalized
     private static $_initalized = FALSE;
@@ -20,23 +20,23 @@ class Cyclone_Cli_Module {
     private static $_curr_command = NULL;
 
     /** constanst for  depth  of module parsing */
-    const MODULE_NAME = 1;
-    const MODULE_INFO = 2;
-    const COMMAND_NAME = 3;
-    const COMMAND_INFO = 4;
-    const COMMAND_ARGS = 5;
-    const COMMAND_ARG_INFO = 6;
+    const MODULE_INFO = 1;
+    const COMMAND_NAME = 2;
+    const COMMAND_INFO = 3;
+    const COMMAND_ARGS = 4;
+    const COMMAND_ARG_INFO = 5;
 
     /**
      * Load the modules and initalize the core variables.
      */
     private static function initalize() {
-        self::$_modules = FileSystem::list_files('cli.php', TRUE);
+        $modules = FileSystem::list_files('cli.php', TRUE);
         $i = 0;
-        foreach (self::$_modules as $name => $module) {
-            if (self::validate_module($module) == TRUE) {
+        foreach ($modules as $name => $module) {
+            if (self::validate_module($module, $name)) {
+                self::$_modules[$name] = $module;
                 self::$_modules_short[$i]['name'] = $name;
-                self::$_modules_short[$i]['desc'] = $module['description'];
+                self::$_modules_short[$i]['desc'] = $module['description']; // long desc, concat to short
                 $i++;
             }
         }
@@ -79,9 +79,9 @@ class Cyclone_Cli_Module {
      * @param array $module module
      * @return boolean
      */
-    public static function validate_module($module) {
-        return self::parse_module($module, self::MODULE_NAME);
-        //TODO validate module
+    public static function validate_module($module, $module_name) {
+        self::$_curr_module = $module_name;
+        return self::parse_module($module, self::MODULE_INFO);
     }
 
     /**
@@ -90,28 +90,35 @@ class Cyclone_Cli_Module {
      * @param integer $depth depth of parsing
      */
     private static function parse_module($data, $depth) {
+
         switch ($depth) {
-            case self::MODULE_NAME: {
-                    if (empty($data)) {
-                        self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
-                        return FALSE;
-                    }
-                    if (count(array_keys($data)) > 1) {
-                        self::show_validation_error(Cyclone_Cli_Errors::MORE_MODULES_IN_A_FILE);
-                        return FALSE;
-                    }
-                    foreach ($data as $name => $value) {
-                        if (empty($name)) {
-                            self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
-                            return FALSE;
-                        }
-                        self::$_curr_module = $name;
-                        return self::parse_module($value, self::MODULE_INFO);
-                    }
-                    break;
-                }
+            /* case self::MODULE_NAME: {
+              print_r($data);
+              echo "num of keys: " . count(array_keys($data)) . "\n";
+              foreach (array_keys($data) as $value) {
+              echo "key: " . $value . "\n";
+              }
+              if (empty($data)) {
+              self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
+              return FALSE;
+              }
+              if (count(array_keys($data)) > 1) {
+              self::show_validation_error(Cyclone_Cli_Errors::MORE_MODULES_IN_A_FILE);
+              return FALSE;
+              }
+              foreach ($data as $name => $value) {
+              if (empty($name)) {
+              self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
+              return FALSE;
+              }
+              self::$_curr_module = $name;
+              return self::parse_module($value, self::MODULE_INFO);
+              }
+              break;
+              } */
             case self::MODULE_INFO: {
                     echo "module_info called\n";
+                    return TRUE;
                     break;
                 }
             case self::COMMAND_NAME: {
@@ -128,7 +135,7 @@ class Cyclone_Cli_Module {
                     break;
                 }
             default: {
-                    echo self::ERR_MODULE_VALIDATION_FAILED . PHP_EOL;
+                    echo Cyclone_Cli_Errors::MODULE_VALIDATION_FAILED . PHP_EOL;
                     break;
                 }
         }
@@ -143,4 +150,5 @@ class Cyclone_Cli_Module {
     }
 
 }
+
 ?>
