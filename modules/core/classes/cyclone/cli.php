@@ -7,13 +7,13 @@
  * @usedby index.php
  */
 class Cyclone_CLI {
-    const CALL_ERROR = "You mustn't call this method dircetly! Use cyphp instead.";
-    const INTRO = "For module help type: cyphp <module_name> ";
+    
+    const INTRO = "For module help type: cyphp <module_name> . Available modules:";
 
     public static function bootstrap() {
 
         if ($_SERVER['argv'][0] != 'cyphp' && $_SERVER['argv'][0] != './cyphp') {
-            echo self::CALL_ERROR . "\n";
+            echo Cyclone_Cli_Errors::CALL_ERROR . PHP_EOL;
             return;
         }
 
@@ -22,14 +22,16 @@ class Cyclone_CLI {
         $modules_short = $cli_module->get_modules_short();
 
         if ($param_num == 1 || $cli_module->module_exist($_SERVER['argv'][1]) === FALSE) {
-            echo self::INTRO . "\n\n";
+            echo self::INTRO . PHP_EOL;
             foreach ($modules_short as $mod) {
-                echo "\t" . $mod['name'] . "\t" . $mod['desc'] . "\n";
+                echo "\t" . $mod['name'] . "\t" . $mod['desc'] . PHP_EOL;
             }
         } else {
             // TODO
-            echo "OK" . "\n";
+            echo "OK" . PHP_EOL;
         }
     }
+
+
 
 }
