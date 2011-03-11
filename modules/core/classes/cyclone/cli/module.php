@@ -35,8 +35,8 @@ class Cyclone_Cli_Module {
         $i = 0;
         foreach (self::$_modules as $name => $module) {
             if (self::$validate_module($module) == TRUE) {
-                $this->_modules_short[$i]['name'] = $name;
-                $this->_modules_short[$i]['desc'] = $module['description'];
+                self::$_modules_short[$i]['name'] = $name;
+                self::$_modules_short[$i]['desc'] = $module['description'];
                 $i++;
             }
         }
