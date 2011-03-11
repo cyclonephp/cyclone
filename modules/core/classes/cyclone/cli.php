@@ -18,10 +18,9 @@ class Cyclone_CLI {
         }
 
         $param_num = count($_SERVER['argv']);
-        $cli_module = new Cyclone_Cli_Module();
-        $modules_short = $cli_module->get_modules_short();
+        $modules_short = Cyclone_Cli_Module::get_modules_short();
 
-        if ($param_num == 1 || $cli_module->module_exist($_SERVER['argv'][1]) === FALSE) {
+        if ($param_num == 1 || Cyclone_Cli_Module::module_exist($_SERVER['argv'][1]) === FALSE) {
             echo self::INTRO . PHP_EOL;
             foreach ($modules_short as $mod) {
                 echo "\t" . $mod['name'] . "\t" . $mod['desc'] . PHP_EOL;

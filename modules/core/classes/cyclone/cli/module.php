@@ -80,9 +80,6 @@ class Cyclone_Cli_Module {
      * @return boolean
      */
     public static function validate_module($module) {
-        foreach ($array as $key => $value) {
-
-        }
         return TRUE;
         //TODO validate module
     }
@@ -99,13 +96,14 @@ class Cyclone_Cli_Module {
                     foreach ($data as $name => $value) {
                         if (run > 0) {
                             self::show_validation_error(Cyclone_Cli_Errors::MORE_MODULES_IN_A_FILE);
-                            return;
+                            return FALSE;
                         }
                         if (empty($name)) {
                             self::show_validation_error(Cyclone_Cli_Errors::NO_MODULE_NAME);
-                            return;
+                            return FALSE;
                         }
-                        self::parse_module($value, self::MODULE_INFO);
+                        self::$_curr_module = $name;
+                        return self::parse_module($value, self::MODULE_INFO);
                         $run++;
                     }
                     break;
@@ -138,7 +136,7 @@ class Cyclone_Cli_Module {
      * @param <type> $error error message
      */
     private static function show_validation_error($error) {
-        echo self::ERR_MODULE_VALIDATION_FAILED . $error . PHP_EOL;
+        echo Cyclone_Cli_Errors::MODULE_VALIDATION_FAILED . $error . PHP_EOL;
     }
 
 }
