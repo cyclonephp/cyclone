@@ -127,12 +127,15 @@ class CyForm_Field {
         if (array_key_exists('validation', $this->model)) {
             foreach ($this->model['validation'] as $validator => $details) {
                 if (is_int($validator)) { // custom callback validator
-                    $this->exec_callback_validator($validator, $details);
+                    $valid = $this->exec_callback_validator($validator, $details);
                 } else { // normal validator - using the Validate class
-                    $this->exec_basic_validator($validator, $details);
+                    $valid = $this->exec_basic_validator($validator, $details);
                 }
+		if ( ! $valid)
+			return FALSE;
             }
         }
+	return TRUE
     }
 
     protected function exec_basic_validator($validator, $details) {
