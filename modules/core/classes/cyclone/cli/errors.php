@@ -7,7 +7,6 @@
  * @usedby index.php
  */
 class Cyclone_Cli_Errors {
-
     /** constatns of error texts */
     const CALL_ERROR = "!!You mustn't call this method dircetly! Use cyphp instead.";
     const MODULE_VALIDATION_FAILED = "!!MODULE VALIDATION FAILED: ";

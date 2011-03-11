@@ -7,7 +7,6 @@
  * @usedby index.php
  */
 class Cyclone_CLI {
-    
     const INTRO = "For module help type: cyphp <module_name> . Available modules:";
 
     public static function bootstrap() {
@@ -30,7 +29,5 @@ class Cyclone_CLI {
             echo "OK" . PHP_EOL;
         }
     }
-
-
 
 }
