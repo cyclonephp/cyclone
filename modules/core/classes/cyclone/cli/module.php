@@ -34,7 +34,7 @@ class Cyclone_Cli_Module {
         self::$_modules = FileSystem::list_files('cli.php', TRUE);
         $i = 0;
         foreach (self::$_modules as $name => $module) {
-            if (self::$validate_module($module) == TRUE) {
+            if (self::validate_module($module) == TRUE) {
                 self::$_modules_short[$i]['name'] = $name;
                 self::$_modules_short[$i]['desc'] = $module['description'];
                 $i++;
@@ -54,7 +54,7 @@ class Cyclone_Cli_Module {
         if (!self::$_initalized) {
             self::initalize();
         }
-        return $this->_modules_short;
+        return self::$_modules_short;
     }
 
     /**
@@ -66,7 +66,7 @@ class Cyclone_Cli_Module {
         if (!self::$_initalized) {
             self::initalize();
         }
-        foreach ($this->_modules_short as $mod) {
+        foreach (self::$_modules_short as $mod) {
             if ($mod['name'] === $module_name) {
                 return TRUE;
             }
