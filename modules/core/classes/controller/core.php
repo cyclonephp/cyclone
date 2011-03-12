@@ -24,15 +24,18 @@ class Controller_Core extends Controller_Template {
     }
 
     protected function process_auth() {
-        $auth_cfg = Kohana::config('auth');
-        $controller = $this->request->controller;
-        $action = $this->request->action;
-        foreach (array(
+        try {
+            $auth_cfg = Kohana::config('auth');
+            $controller = $this->request->controller;
+            $action = $this->request->action;
+            foreach (array(
                 array_key_exists('#', $auth_cfg) ? $auth_cfg['#'] : true,
-                Arr::path($auth_cfg, $controller.'.#', true),
-                Arr::path($auth_cfg, $controller.'.'.$action, true)
-            ) as $rule) {
-            $this->process_auth_rule($rule);
+                Arr::path($auth_cfg, $controller . '.#', true),
+                Arr::path($auth_cfg, $controller . '.' . $action, true)) as $rule) {
+                $this->process_auth_rule($rule);
+            }
+        } catch (Config_Exception $ex) {
+            
         }
     }
 

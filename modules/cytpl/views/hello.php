@@ -12,12 +12,16 @@
 
 <form <?php foreach ( $formtag as $k => $v) echo ' ' . $k . '="' . $v . '"'; ?>>
 
+<ul>
 <?php foreach ($arr as $itm) : ?>
-    <ul>
         <li><?php echo $itm?></li>
-    </ul>
 <?php endforeach; ?>
+</ul>
 
 <?php foreach ($arr as $key => $value) : ?>
     <?php echo $key?> => <?php echo $value?><br/>
 <?php endforeach; ?>
+
+<?php if (array_key_exists('method', $formtag)) : ?>
+
+<?php endif; ?>
