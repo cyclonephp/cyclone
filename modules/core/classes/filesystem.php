@@ -172,6 +172,13 @@ class FileSystem {
         return $rval;
     }
 
+    public static function get_root_path($module) {
+        if (isset(self::$_roots[$module]))
+            return self::$_roots[$module];
+
+        throw new Exception("module '$module' is not installed");
+    }
+
     /**
      * It collects the files found in the CFS root directories + relative
      * directory path.
