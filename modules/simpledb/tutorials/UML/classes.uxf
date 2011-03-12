@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>800</x>
+      <y>550</y>
+      <w>380</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>DB_Compiler
+--
+compile_select(in query: DB_Query_Select): string
+compile_insert(in query: DB_Query_Insert): string
+compile_update(in query: DB_Query_Update): string
+compile_delete(in query: DB_Query_Delete): string
+bg=#8888ff
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>820</x>
+      <y>200</y>
+      <w>300</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>DB_Query
+--
+compile(database): string
+exec(database): DB_Query_Result
+prepare(database): DB_Query_Prepared </panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>730</x>
+      <y>10</y>
+      <w>140</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;DB_Query&gt;&gt;
+&lt;&lt;DB_Expression&gt;&gt;
+DB_Query_Select
+--
+builder methods
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>920</x>
+      <y>0</y>
+      <w>160</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;DB_Query&gt;&gt;
+DB_Query_Insert
+--
+builder methods
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1160</x>
+      <y>20</y>
+      <w>160</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;DB_Query&gt;&gt;
+DB_Query_Update
+--
+builder methods</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1190</x>
+      <y>130</y>
+      <w>170</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;DB_Query&gt;&gt;
+DB_Query_Delete
+--
+builder methods</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>820</x>
+      <y>60</y>
+      <w>186</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>40;30;150;150</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>880</x>
+      <y>30</y>
+      <w>186</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>100;30;90;180</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>940</x>
+      <y>0</y>
+      <w>240</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>220;30;30;210</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>940</x>
+      <y>110</y>
+      <w>270</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>250;30;30;100</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>1140</x>
+      <y>300</y>
+      <w>580</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>DB_Executor
+--
++exec_select(in select_sql: string): DB_Query_Result
++exec_insert(in insert_sql: string, in return_insert_id: boolean): int (row prim. key)
++exec_update(in update_sql: string): int (updated row count)
++exec_delete(in delete_sql: string): int (deleted row count)
+bg=#8888ff</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>150</x>
+      <y>540</y>
+      <w>660</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>DB_Executor_Prepared 
+--
+public function exec_select(in prepared_stmt
+                , params: array, orig_query: DB_Query_Select);
++exec_insert(in prepared_stmt, in params: array);
++exec_update(in prepared_stmt, in params: array);
++exec_delete(in prepared_stmt, in params: array);
+*+prepare(in sql: string): DBMS-specific prepared statement*
+bg=#8888ff</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>270</x>
+      <y>380</y>
+      <w>260</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>DB_Query_Prepared 
+--
+param(in value, in key: string = '?')
+params(in params: array)
++exec()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>280</x>
+      <y>240</y>
+      <w>260</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>/DB_Query_Prepared_Abstract/
+--
+__construct(database)
+param(in value, in key: string = '?')
+params(in params: array)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>300</x>
+      <y>290</y>
+      <w>186</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>100;30;100;100</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>560</x>
+      <y>150</y>
+      <w>230</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DB_Query_Prepared_Delete
+--
++exec(): int (row count)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>440</x>
+      <y>20</y>
+      <w>220</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DB_Query_Prepared_Update
+--
++exec(): int: row count</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>140</x>
+      <y>20</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DB_Query_Prepared_Insert
+--
++exec(): int (row prim. key)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>0</x>
+      <y>150</y>
+      <w>200</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DB_Query_Prepared_Select
+--
++exec(): DB_Query_Result</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>420</x>
+      <y>170</y>
+      <w>200</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>180;30;30;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>360</x>
+      <y>40</y>
+      <w>186</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>150;30;50;200</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>220</x>
+      <y>40</y>
+      <w>186</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>70;30;130;200</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>150</x>
+      <y>160</y>
+      <w>186</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;implements&gt;&gt;</panel_attributes>
+    <additional_attributes>50;30;150;80</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>660</x>
+      <y>260</y>
+      <w>210</w>
+      <h>430</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>30;410;190;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1050</x>
+      <y>240</y>
+      <w>390</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>370;70;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>880</x>
+      <y>240</y>
+      <w>136</w>
+      <h>340</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;uses&gt;&gt;
+</panel_attributes>
+    <additional_attributes>110;320;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>920</x>
+      <y>230</y>
+      <w>136</w>
+      <h>350</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>70;330;80;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>840</x>
+      <y>280</y>
+      <w>170</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;uses&gt;&gt;
+</panel_attributes>
+    <additional_attributes>150;280;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>370</x>
+      <y>440</y>
+      <w>136</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>110;110;40;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>940</x>
+      <y>780</y>
+      <w>100</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>DB_Connector
+--
+connect()
+disconnect()
+autocommit()
+commit()
+rollback()
+bg=#8888ff</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>560</x>
+      <y>790</y>
+      <w>220</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;ArrayObject&gt;&gt;
+DB_Transaction
+--
+append(in DB_Query query);
+exec()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>750</x>
+      <y>760</y>
+      <w>260</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;uses&gt;&gt;
+</panel_attributes>
+    <additional_attributes>240;30;30;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1150</x>
+      <y>870</y>
+      <w>490</w>
+      <h>280</h>
+    </coordinates>
+    <panel_attributes>DB
+--
+-connectors: array&lt;DB_Connector&gt;
+-compilers: array&lt;DB_Compiler&gt;
+-executors: array&lt;DB_Executor&gt;
+-executor_prepareds: array&lt;DB_Executor_Prepared&gt;
+--
++compiler(in database: string): DB_Compiler
++executor(in database: string): DB_Executor
++executor_prepared(in database: string): DB_Executor_Prepared
++connector(in database: string): DB_Connector
+/query builder methods/
++select(): DB_Query_Select
++insert(): DB_Query_Insert
++update(): DB_Query_Update
++delete(): DB_Query_Delete
++expr(params...): DB_Expression
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Interface</type>
+    <coordinates>
+      <x>1390</x>
+      <y>530</y>
+      <w>340</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>DB_Expression 
+--
+compile_expr(in compiler: DB_Compiler): string</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1000</x>
+      <y>840</y>
+      <w>190</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+&lt;contains</panel_attributes>
+    <additional_attributes>30;30;170;60</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1010</x>
+      <y>640</y>
+      <w>212</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+contains one for each 
+database connections</panel_attributes>
+    <additional_attributes>40;30;190;280</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1190</x>
+      <y>360</y>
+      <w>250</w>
+      <h>600</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m2=0..n
+contains one for each 
+database connections</panel_attributes>
+    <additional_attributes>30;580;230;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>500</x>
+      <y>540</y>
+      <w>680</w>
+      <h>430</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+contains one for each 
+database connections</panel_attributes>
+    <additional_attributes>30;30;660;410</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1210</x>
+      <y>430</y>
+      <w>210</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+m2=0..1
+teaches to&gt;</panel_attributes>
+    <additional_attributes>30;50;190;50</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>1080</x>
+      <y>270</y>
+      <w>218</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.&gt;
+&lt;&lt;someStereotype&gt;&gt;</panel_attributes>
+    <additional_attributes>30;50;190;50</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>960</x>
+      <y>500</y>
+      <w>620</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>30;60;600;40</additional_attributes>
+  </element>
+</diagram>
