@@ -15,6 +15,10 @@ class View {
 	// Array of global variables
 	protected static $_global_data = array();
 
+        public static function for_abs_path($file, $data = NULL) {
+            return new View($file, $data, TRUE);
+        }
+
 	/**
 	 * Returns a new View object. If you do not define the "file" parameter,
 	 * you must call [View::set_filename].
@@ -130,11 +134,15 @@ class View {
 	 * @return  void
 	 * @uses    View::set_filename
 	 */
-	public function __construct($file = NULL, array $data = NULL)
+	public function __construct($file = NULL, array $data = NULL, $is_absolute = FALSE)
 	{
 		if ($file !== NULL)
 		{
+                    if ($is_absolute) {
+                        $this->_file = $file;
+                    } else {
 			$this->set_filename($file);
+                    }
 		}
 
 		if ( $data !== NULL)
