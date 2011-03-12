@@ -12,12 +12,16 @@
 
 <form {attrs $formtag}>
 
+<ul>
 {foreach $arr as $itm}
-    <ul>
         <li>{$itm}</li>
-    </ul>
 {/foreach}
+</ul>
 
 {foreach $arr as $key => $value}
     {$key} => {$value}<br/>
 {/foreach}
+
+{if exists $formtag[method]}
+    
+{/if}
