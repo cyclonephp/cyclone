@@ -6,7 +6,7 @@
  */
 interface DB_Query_Prepared {
 
-    public function param($key, $value);
+    public function param($value, $key = '?');
 
     public function params(array $params);
 

@@ -13,7 +13,7 @@ class Controller_Core extends Controller_Template {
 
     public function before() {
         parent::before();
-        $this->process_auth();
+        //$this->process_auth();
         if (Request::$is_ajax) {
             $this->auto_render = true;
         }

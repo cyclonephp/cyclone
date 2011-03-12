@@ -4,19 +4,15 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package SimpleDB
  */
-abstract class DB_Query {
+interface DB_Query {
 
-    public abstract function compile($database = 'default');
+    public function compile($database = 'default');
 
-    public abstract function exec($database = 'default');
+    public function exec($database = 'default');
 
     /**
      * @return DB_Query_Prepared
      */
-    public function prepare($database = 'default') {
-        $db = DB::inst($database);
-        $sql = $db->compile($this);
-        return $db->prepare($sql);
-    }
+    public function prepare($database = 'default');
 
 }

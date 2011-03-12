@@ -26,9 +26,9 @@ abstract class DB_Query_Result extends ArrayIterator implements Countable, Trave
 
     protected $_index_by;
 
-    private $_current_row;
+    protected $_current_row;
 
-    private $_idx = -1;
+    protected $_idx = -1;
 
     /**
      * Sets the row type to be used during the iteration.
