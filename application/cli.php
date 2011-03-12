@@ -2,12 +2,14 @@
 
 return array(
     'application' => array(
-        'description' => 'Short desc of application',
+        'description' => 'The desc of application
+in multi line
+hahaha',
         'commands' => array(
             'generate-schema' => array(
-                'description' => "Generates database schema.
+                /*'description' => "Generates database schema.
 
-Iterates on all classes named Record_*, instantiates each one and creates database schema for them.",
+Iterates on all classes named Record_*, instantiates each one and creates database schema for them.",*/
                 'arguments' => array(
                     '--module' => array(
                         'alias' => '-m',
@@ -22,7 +24,14 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                     )
                 ),
                 'callback' => array('SimpleDB_Schema_Generator', 'generate_schema')
-            )
+            ),
+	'another-command' => array(
+		'desc' => 'Test command
+
+			more lined test desc
+			yeah yeah, really',
+		'callback' => array('application_callback_gen', 'another-command')
+		)
         )
     )
 );
