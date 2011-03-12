@@ -1,165 +1,130 @@
 <?php
 
 /**
- * Module handler class of Cycle CLI.
+ * Module class of Cycle CLI.
  *
  * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
  * @usedby index.php
  */
 class Cyclone_Cli_Module {
 
-    /** short version of valid modules (module name and short description */
-    private $_modules_short = NULL;
-    /** valid modules */
-    private $_modules = NULL;
-    /** currently parsed module */
-    private $_curr_module = NULL;
-    /** currently parsed command */
+    private $_name;
+    private $_data;
     private $_curr_command = NULL;
-
-    /** constanst for  depth  of module parsing */
-    const MODULE_INFO = 0;
-    const COMMAND_NAME = 1;
-    const COMMAND_INFO = 2;
-    const COMMAND_ARGS = 3;
-    const COMMAND_ARG_INFO = 4;
+    private $_curr_arg = NULL;
 
     /**
-     * Load the modules and initalize the core variables.
+     * Set the module name and infos.
      */
-    public function __construct() {
-        $modules = FileSystem::list_files('cli.php', TRUE);
+    public function __construct($name, $data) {
+        $this->_name = $name;
+        $this->_data = $data;
+    }
+
+    public function get_name() {
+        return $this->_name;
+    }
+
+    public function get_short_desc() {
+        return strtok($data['description'], "\n");
+    }
+
+    public function get_long_desc() {
+        $res = "";
         $i = 0;
-        foreach ($modules as $name => $module) {
-            if ($this->validate_module($module, $name)) {
-                $this->_modules[$name] = $module;
-                $this->_modules_short[$i]['name'] = $name;
-                $this->_modules_short[$i]['desc'] = strtok($module['description'], "\n"); // long desc, concat to short
-                $i++;
+        $tok = strtok($data['description'], "\n");
+        while ($tok !== false) {
+            $tok = strtok($data['description']);
+            if ($i > 1) {
+                $res .= $tok;
             }
+            $i++;
         }
-        if ($this->_modules_short === NULL) {
-            $this->_modules_short = array();
-        }
+        return $res;
     }
 
-    /**
-     * Returns with an array of module_names and their short description.
-     * @return array
-     */
-    public function get_modules_short() {
-        return $this->_modules_short;
-    }
-
-    /**
-     * Check the exist of the given module name.
-     * @param string $module_name name of the searched modul
-     * @return boolean
-     */
-    public function module_exist($module_name) {
-        foreach ($this->_modules_short as $mod) {
-            if ($mod['name'] === $module_name) {
-                return TRUE;
-            }
-        }
-        return FALSE;
+    public function get_data() {
+        return $this->_data;
     }
 
     /**
      * Check the module's validation.
-     * @param array $module module
-     * @return boolean
      */
-    public function validate_module($module, $module_name) {
-        $this->_curr_module = $module_name;
-        return $this->parse_module($module, self::MODULE_INFO);
+    public function validate() {
+        $this->parse_module_info();
     }
 
     /**
-     * Parse the module
-     * @param array $data data for parsing
-     * @param integer $depth depth of parsing
+     * Check that the required module descriptors are defined.
+     * If commands array exist and not empty call parsing on its values.
      */
-    private function parse_module($data, $depth) {
-
-        switch ($depth) {
-            /**
-             * Check that the required module descriptors are defined. If commands array exist call parsing on it.
-             */
-            case self::MODULE_INFO: {
-                    $this->_curr_command = NULL;
-                    if (array_key_exists("desc", $data) || array_key_exists("description", $data)) {
-                        if (array_key_exists("commands", $data)) {
-                            return $this->parse_module($data['commands'], self::COMMAND_NAME);
-                        } else {
-                            $this->show_module_error(Cyclone_Cli_Errors::MODULE_COMMANDS_NOT_DEF);
-                            return FALSE;
-                        }
-                    } else {
-                        $this->show_module_error(Cyclone_Cli_Errors::MODULE_DESC_NOT_DEF);
-                        return FALSE;
-                    }
+    private function parse_module_info() {
+        $this->_curr_command = NULL;
+        $this->_curr_arg = NULL;
+        if (!empty($data['desc']) || !empty($data['description'])) {
+            if (!empty($data['command'])) {
+                foreach ($data['command'] as $comm_name => $value) {
+                    $this->_curr_command = $comm_name;
+                    $this->parse_command($value);
                 }
-            /**
-             * Check that there are commands, if any exist call parsing on each command.
-             */
-            case self::COMMAND_NAME: {
-                    $this->_curr_command = NULL;
-                    if (count(array_keys($data)) == 0) {
-                        $this->show_module_error(Cyclone_Cli_Errors::MODULE_COMMANDS_NOT_DEF);
-                        return FALSE;
-                    }
-                    foreach ($data as $comm_name => $value) {
-                        $this->_curr_command = $comm_name;
-                        if (!$this->parse_module($value, self::COMMAND_INFO)) {
-                            return FALSE;
-                        }
-                    }
-                    return TRUE;
-                }
-                /**
-                 * Check that the required command descriptors are defined.
-                 * When okay call parsing on its argument.
-                 */
-            case self::COMMAND_INFO: {
-                    if (array_key_exists("desc", $data) || array_key_exists("description", $data)) {
-                        if (array_key_exists("callback", $data)) {
-                            $this->parse_module($data['arguments'], self::COMMAND_ARGS);
-                        } else {
-                            $this->show_module_error(Cyclone_Cli_Errors::COMMAND_CALLBACK_NOT_DEF);
-                            return FALSE;
-                        }
-                    } else {
-                        $this->show_module_error(Cyclone_Cli_Errors::COMMAND_DESC_NOT_DEF);
-                        return FALSE;
-                    }
-                }
-            case self::COMMAND_ARGS: {
-                    return TRUE;
-                    // SOME TODO
-                    break;
-                }
-            case self::COMMAND_ARG_INFO: {
-                    break;
-                }
-            default: {
-                    echo Cyclone_Cli_Errors::MOD_VAL_FAIL . PHP_EOL;
-                    break;
-                }
+            } else {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::MODULE_COMMANDS_NOT_DEF);
+            }
+        } else {
+            $this->throw_validation_exception(Cyclone_Cli_Errors::MODULE_DESC_NOT_DEF);
         }
     }
 
     /**
-     *
-     * @param <type> $error error message
+     * Check that the required command descriptors are defined.
+     * When okay call parsing on its argument.
      */
-    private function show_module_error($error) {
-        echo Cyclone_Cli_Errors::MODULE_VALIDATION_FAILED . PHP_EOL;
-        echo "\tin module: " . $this->_curr_module . PHP_EOL;
-        if (!empty($this->_curr_command)) {
-            echo "\tat command: " . $this->_curr_command . PHP_EOL;
+    private function parse_command($data) {
+        if (!empty($data['desc']) || !empty($data['description'])) {
+            if (!empty($data['callback'])) {
+                /** maybe it has no arguments */
+                if (!empty($data['arguments'])) {
+                    $this->parse_command_args($data['arguments']);
+                    foreach ($data['arguments'] as $arg_name => $value) {
+                        $this->_curr_arg = $arg_name;
+                        $this->parse_command_arg($value);
+                    }
+                }
+                else
+                /* command has no argument */
+                    return;
+            } else {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_CALLBACK_NOT_DEF);
+            }
+        } else {
+            $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_DESC_NOT_DEF);
         }
-        echo "\tcause: " . $error . PHP_EOL . PHP_EOL;
+    }
+
+    private function parse_command_arg($data) {
+        if (!empty($data['alias'])) {
+            if (!preg_match("^-.$", $data['alias'])) {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_ALIAS_BAD_FORMAT);
+            }
+        }
+        if (!empty($data['parameter'])) {
+            if (!isset($data['parameter']) && !is_string($data['paramter'])) {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_BAD_TYPE);
+            }
+        } else {
+            $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_NOT_DEFINED);
+        }
+        if (!empty($data['required'])) {
+            if (!is_bool($data['required'])) {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_BAD_TYPE);
+            } else if ($data['required'] && !isset($data['parameter'])) {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_NO_SENSE);
+            }
+        }
+    }
+
+    private function throw_validation_exception($error) {
+        throw new Cyclone_Cli_Validation_Exception($error, $this->_name, $this->_curr_command, $this->_curr_arg);
     }
 
 }
