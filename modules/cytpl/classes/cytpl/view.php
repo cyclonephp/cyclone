@@ -17,12 +17,17 @@ class CyTpl_View {
 
     private $_data;
 
+    private static $compile_policy = NULL;
+
     public function  __construct($tpl_file) {
         $this->_tpl_name = $tpl_file;
         $this->_tpl_path = 'templates/'.$tpl_file;
         $this->_tpl_abs_path = FileSystem::find_file('templates'
                 . $this->_tpl_name.  '.tpl');
         $this->_html_file = MODPATH.'cytpl/views/' . $tpl_file . '.php';
+        if (NULL === self::$compile_policy) {
+            self::$compile_policy = Config::inst()->get('cytpl.compile');
+        }
     }
 
     private function compile() {
@@ -33,11 +38,15 @@ class CyTpl_View {
     }
 
     public function render() {
-        //$tpl_file = Kohana::find_file('templates', $this->_tpl_name , 'tpl');
-        //if ( ! file_exists($this->_html_file)
-        //        || filemtime($this->_html_file) < filemtime($tpl_file)) {
-            $this->compile();
-        //}
+        $tpl_file = FileSystem::find_file('templates/' . $this->_tpl_name . '.tpl');
+       if (($policy = self::$compile_policy) != 'never') {
+           if ('always' == $policy || ('on-demand' == $policy
+                   && ( ! file_exists($this->_html_file)
+                    || filemtime($this->_html_file) < filemtime($tpl_file)))) {
+                $this->compile();
+            }
+        }
+        
         return View::factory($this->_tpl_name, $this->_data)->__toString();
     }
 

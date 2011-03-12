@@ -9,21 +9,80 @@ class CyTpl_Compiler {
 
     private $_tpl;
 
-    protected function  __construct($tpl) {
+    private $_namespaces = array();
+
+    public function get_namespaces() {
+        return $this->_namespaces;
+    }
+
+    public function  __construct($tpl) {
         $this->_tpl = $tpl;
+    }
+
+    public function extract_namespace($command) {
+        if (preg_match('/^use (?P<namespace>.+)$/', $command, $matches)) {
+            $namespace = $matches['namespace'];
+            $segments = explode(':', $namespace);
+            $count = count($segments);
+            if ($count == 1) {
+                $this->_namespaces [$segments[0]]= $segments[0];
+            } elseif ($count == 2) {
+                $this->_namespaces[$segments[1]] = $segments[0];
+            } else
+                throw new CyTpl_Template_Exception("invalid command: $command");
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    public function get_namespaced_command($command) {
+        if (preg_match('/^(?P<ns_cmd>([a-zA-Z_-]+\:[a-zA-Z_-]+))/', $command, $matches)) {
+            $raw_str = $matches['ns_cmd'];
+            list($namespace, $cmd) = explode(':', $raw_str);
+            if (!isset($this->_namespaces[$namespace]))
+                throw new CyTpl_Template_Exception("invalid namespace '$namespace' in command '$command'");
+
+            $raw_arg_list = substr($command, strlen($raw_str));
+            $raw_args = explode(',', $raw_arg_list);
+            $arguments = array();
+            if ( ! (count($raw_args) == 1 && $raw_args[0] == '')) {
+                foreach ($raw_args as $raw_arg) {
+                    $segments = explode('=', $raw_arg);
+                    $count = count($segments);
+                    if (1 == $count) {
+                        $arguments [] = $segments[0];
+                    } elseif (2 == $count) {
+                        $arguments[$segments[0]] = $segments[1];
+                    } else
+                        throw new CyTpl_Template_Exception("invalid argument $raw_arg in command $command");
+                }
+            }
+            
+            return CyTpl_Command::factory($namespace, $cmd, $arguments);
+        }
+        return NULL;
     }
 
     public function compile() {
         preg_match_all('/\{(?P<match>[^\}]+)\}/', $this->_tpl, $matches);
         foreach ($matches[0] as $idx => $m) {
             $command = $matches['match'][$idx];
-            $compiled = $this->compile_command($command);
+            if ($this->extract_namespace($command))
+                continue;
+
+            $ns_command = $this->get_namespaced_command($command);
+            if ( ! is_null($ns_command)) {
+                
+                continue;
+            }
+            
+            $compiled = $this->compile_core_command($command);
             $this->_tpl = str_replace('{' . $command . '}', $compiled, $this->_tpl);
         }
         return $this->_tpl;
     }
 
-    private function compile_command($command) {
+    private function compile_core_command($command) {
         $command = trim($command);
         if ($command{0} == '$') {
             return '<?php echo $' . substr($command, 1) . '?>';
