@@ -58,7 +58,8 @@ class CyTpl_Compiler {
                 }
             }
             
-            return CyTpl_Command::factory($namespace, $cmd, $arguments);
+            return CyTpl_Command::factory($this->_namespaces[$namespace]
+                    , $cmd, $arguments);
         }
         return NULL;
     }

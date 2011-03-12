@@ -60,9 +60,9 @@ class CyTpl_CoreTest extends Kohana_Unittest_TestCase {
      */
     public function testNamespacedCommand() {
         $compiler = new CyTpl_Compiler('');
-        $compiler->extract_namespace('use hyperform:h');
+        $compiler->extract_namespace('use core:c');
         $compiler->extract_namespace('use another');
-        $compiler->get_namespaced_command('h:input');
+        $compiler->get_namespaced_command('c:i hell');
 
         
         $compiler = new CyTpl_Compiler('');
