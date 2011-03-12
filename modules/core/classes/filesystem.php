@@ -119,8 +119,15 @@ class FileSystem {
      * @return string the absolute file path.
      */
     public static function find_file($rel_filename){
-        if (isset(self::$_abs_file_paths[$rel_filename]))
-            return self::$_abs_file_paths[$rel_filename];
+        if (isset(self::$_abs_file_paths[$rel_filename])) {
+            $candidate = self::$_abs_file_paths[$rel_filename];
+            if ( ! is_null(self::$_path_cache_file) && ! file_exists($candidate)) {
+                unset(self::$_abs_file_paths[$rel_filename]);
+                self::$_cache_invalid = TRUE;
+            } else {
+                return $candidate;
+            }
+        }
         
         foreach (self::$_roots as $root_path) {
             $candidate = $root_path . $rel_filename;
@@ -163,6 +170,13 @@ class FileSystem {
             }
         }
         return $rval;
+    }
+
+    public static function get_root_path($module) {
+        if (isset(self::$_roots[$module]))
+            return self::$_roots[$module];
+
+        throw new Exception("module '$module' is not installed");
     }
 
     /**

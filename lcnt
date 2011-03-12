@@ -1,11 +1,11 @@
 #!/bin/bash
 totalsum=0;
-for i in application modules/{core,config,cyform,cytpl,simpledb,jork}
+for i in application modules/{core,config,cyform,cytpl,simpledb/classes,simpledb/tests,simpledb/tutorials/SimpleDB,jork}
 do
 modsum=0;
 for file in `find $i -name '*'`; do
 	if [ -f $file ]; then
-		linecount=`wc -l $file | sed 's/ [a-zA-Z0-9\./_]*//'`;
+		linecount=`wc -l $file | sed 's/ [a-zA-Z0-9\./_-]*//'`;
 		let modsum=$modsum+$linecount;
 	fi
 done

@@ -135,7 +135,7 @@ class CyForm_Field {
 			return FALSE;
             }
         }
-	return TRUE
+	return TRUE;
     }
 
     protected function exec_basic_validator($validator, $details) {

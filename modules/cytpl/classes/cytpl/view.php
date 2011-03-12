@@ -9,34 +9,45 @@ class CyTpl_View {
         return $view;
     }
 
-    private $_tpl_file;
+    private $_tpl_path;
 
     private $_html_file;
 
-    private $_plain_filename;
+    private $_tpl_name;
 
     private $_data;
 
+    private static $compile_policy = NULL;
+
     public function  __construct($tpl_file) {
-        $this->_plain_filename = $tpl_file;
-        $this->_tpl_file = 'templates/'.$tpl_file;
+        $this->_tpl_name = $tpl_file;
+        $this->_tpl_path = 'templates/'.$tpl_file;
+        $this->_tpl_abs_path = FileSystem::find_file('templates'
+                . $this->_tpl_name.  '.tpl');
         $this->_html_file = MODPATH.'cytpl/views/' . $tpl_file . '.php';
+        if (NULL === self::$compile_policy) {
+            self::$compile_policy = Config::inst()->get('cytpl.compile');
+        }
     }
 
     private function compile() {
-        $tpl = file_get_contents(Kohana::find_file('templates', $this->_plain_filename, 'tpl'));
+        $tpl = file_get_contents($this->_tpl_abs_path);
 
         $html = CyTpl_Compiler::for_template($tpl)->compile();
         file_put_contents($this->_html_file, $html);
     }
 
     public function render() {
-        $tpl_file = Kohana::find_file('templates', $this->_plain_filename , 'tpl');
-        //if ( ! file_exists($this->_html_file)
-        //        || filemtime($this->_html_file) < filemtime($tpl_file)) {
-            $this->compile();
-        //}
-        return View::factory($this->_plain_filename, $this->_data)->__toString();
+        $tpl_file = FileSystem::find_file('templates/' . $this->_tpl_name . '.tpl');
+       if (($policy = self::$compile_policy) != 'never') {
+           if ('always' == $policy || ('on-demand' == $policy
+                   && ( ! file_exists($this->_html_file)
+                    || filemtime($this->_html_file) < filemtime($tpl_file)))) {
+                $this->compile();
+            }
+        }
+        
+        return View::factory($this->_tpl_name, $this->_data)->__toString();
     }
 
     public function  __toString() {
