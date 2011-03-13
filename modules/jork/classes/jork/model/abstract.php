@@ -133,6 +133,8 @@ abstract class JORK_Model_Abstract {
      */
     protected $_save_in_progress = FALSE;
 
+    private $_as_string_in_progress = FALSE;
+
     /**
      * @return mixed the primary key of the entity
      */
@@ -676,6 +678,32 @@ abstract class JORK_Model_Abstract {
         );
 
         $upd_stmt->exec($schema->db_conn);
+    }
+
+    public function as_string($tab_cnt = 0) {
+        if ($this->_as_string_in_progress)
+            return '';
+
+        $this->_as_string_in_progress = TRUE;
+        $tabs = '';
+        for($i = 0; $i < $tab_cnt; ++$i) {
+            $tabs .= "\t";
+        }
+
+        $lines = array($tabs  . "\033[36;1m" . get_class($this) . "\033[0m");
+        foreach ($this->_atomics as $name => $itm) {
+            $val = $itm['value'] === NULL ? 'NULL' : $itm['value'];
+            $lines []= $tabs . $name . ': ' . $val;
+        }
+        foreach ($this->_components as $name => $comp) {
+            $lines []= $comp['value']->as_string($tab_cnt + 1);
+        }
+        $this->_as_string_in_progress = FALSE;
+        return implode(PHP_EOL, $lines);
+    }
+
+    public function  __toString() {
+        return $this->as_string();
     }
 
 }

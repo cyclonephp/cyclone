@@ -93,6 +93,8 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
      */
     protected $_deleted = array();
 
+    private $_as_string_in_progress;
+
     public function  __construct($owner, $comp_name, $comp_schema) {
         $this->_owner = $owner;
         $this->_comp_name = $comp_name;
@@ -139,7 +141,7 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
         $pk = $value->pk();
         $new_itm = array(
             'persistent' => FALSE,
-            'value' => $value
+            'value' => &$value
         );
         if (NULL === $pk) {
             $this->_storage []= $new_itm;
@@ -151,15 +153,20 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
     protected function update_stor_pk($entity) {
         $new_pk = $entity->pk();
         $old_pk = NULL;
+        $existing_pks = array();
         foreach ($this->_storage as $pk => $itm) {
+            $existing_pks [$pk]= $itm['value']->pk();
             if ($itm['value']->pk() == $new_pk) {
                 $old_pk = $pk;
                 break;
             }
         }
-        if ($old_pk === NULL)
-            // exception message should be fixed
-            throw new JORK_Exception('failed to update data structure');
+        if ($old_pk === NULL) {
+            foreach ($existing_pks as $lpk => $dpk) {
+            }
+            throw new JORK_Exception("failed to update data structure: {$this->_comp_class} #$new_pk not found. Entities in collection: #" . implode(', #', $existing_pks));
+
+        }
 
         $this->_storage[$new_pk] = $this->_storage[$old_pk];
         unset($this->_storage[$old_pk]);
@@ -208,4 +215,25 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
         return new JORK_Model_Collection_Iterator($this->_storage);
     }
 
+    public function as_string($tab_cnt = 0) {
+        if ($this->_as_string_in_progress)
+            return '';
+
+        $this->_as_string_in_progress = TRUE;
+        $tabs = '';
+        for($i = 0; $i < $tab_cnt; ++$i) {
+            $tabs .= "\t";
+        }
+
+        $lines = array($tabs . "\033[33;1mCollection <" . $this->_comp_class . ">\033[0m");
+        foreach ($this->_storage as $itm) {
+            $lines []= $itm['value']->as_string($tab_cnt + 1);
+        }
+        $this->_as_string_in_progress = FALSE;
+        return implode(PHP_EOL, $lines);
+    }
+
+    public function  __toString() {
+        return $this->as_string();
+    }
 }
