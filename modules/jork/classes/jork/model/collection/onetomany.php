@@ -39,7 +39,6 @@ class JORK_Model_Collection_OneToMany extends JORK_Model_Collection {
                 $item['persistent'] = FALSE;
                 $item['value']->$itm_join_col = $owner_pk;
             }
-            $this->save();
             return;
         }
 

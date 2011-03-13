@@ -12,7 +12,7 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
     }
 
     public function notify_pk_creation($owner_pk) {
-        $this->save();
+        //$this->save();
     }
 
     public function notify_owner_deletion(DB_Expression_Param $owner_pk) {
