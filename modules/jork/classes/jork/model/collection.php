@@ -8,7 +8,7 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package JORK
  */
-abstract class JORK_Model_Collection extends ArrayObject {
+abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggregate {
 
     public static function for_component($owner, $comp_name) {
         $comp_schema = $owner->schema()->components[$comp_name];
@@ -202,6 +202,10 @@ abstract class JORK_Model_Collection extends ArrayObject {
 
     public function  count() {
         return count($this->_storage);
+    }
+
+    public function  getIterator() {
+        return new JORK_Model_Collection_Iterator($this->_storage);
     }
 
 }
