@@ -16,11 +16,16 @@ class JORK_Model_Playground extends JORK_DbTest {
         for ($i = 0; $i < 6; ++$i) { ++$run;
             $post = new Model_Post;
             $post->name = "newbie post $i";
-            //$post->topic = $topic;
             $user->posts->append($post);
         }
         
         $user->save();
+        $posts = DB::select()->from('t_posts')->exec('jork_test');
+        $this->assertEquals(10, count($posts));
+        $users = DB::select()->from('t_users')->exec('jork_test');
+        $this->assertEquals(5, count($users));
+        $topics = DB::select()->from('t_topics')->exec('jork_test');
+        $this->assertEquals(5, count($topics));
     }
 
 }
