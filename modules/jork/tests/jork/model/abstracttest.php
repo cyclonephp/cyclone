@@ -200,4 +200,21 @@ class JORK_Model_AbstractTest extends JORK_DbTest {
         $this->assertEquals(4, count($posts));
     }
 
+    public function testCascadeAll() {
+        $topic = new Model_Topic;
+        $topic->name = 'topic05';
+        for ($i = 5; $i < 10; ++$i) {
+            $post = new Model_Post;
+            $post->name = 'post '.$i;
+            $topic->posts->append($post);
+        }
+        $topic->save(TRUE);
+        $this->assertEquals(5, $topic->id);
+        $topics = DB::select()->from('t_topics')->exec('jork_test');
+        $this->assertEquals(5, count($topics));
+
+        $posts = DB::select()->from('t_posts')->exec('jork_test');
+        $this->assertEquals(9, count($posts));
+    }
+
 }
