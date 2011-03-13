@@ -690,10 +690,17 @@ abstract class JORK_Model_Abstract {
             $tabs .= "\t";
         }
 
+        $prim_key = $this->schema()->primary_key();
+
         $lines = array($tabs  . "\033[36;1m" . get_class($this) . "\033[0m");
         foreach ($this->_atomics as $name => $itm) {
+            if ($name == $prim_key) {
+                $color = "\033[37;1m";
+            } else {
+                $color = '';
+            }
             $val = $itm['value'] === NULL ? 'NULL' : $itm['value'];
-            $lines []= $tabs . $name . ': ' . $val;
+            $lines []= $tabs . $color . $name . ': ' . $val . "\033[0m";
         }
         foreach ($this->_components as $name => $comp) {
             $lines []= $comp['value']->as_string($tab_cnt + 1);

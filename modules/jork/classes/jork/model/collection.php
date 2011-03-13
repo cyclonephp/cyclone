@@ -141,34 +141,43 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
         $pk = $value->pk();
         $new_itm = array(
             'persistent' => FALSE,
-            'value' => &$value
+            'value' => $value
         );
         if (NULL === $pk) {
             $this->_storage []= $new_itm;
         } else {
-            $this->_storage[$pk] = $new_itm;
+            if (isset($this->_storage[$pk])) {
+                $temp = $this->_storage[$pk];
+                if ($temp['value']->pk() == $pk)
+                    throw new JORK_Exception($this->_comp_class . '#' . $pk . ' has already been added to the collection');
+                $this->_storage[$pk] = $new_itm;
+                $this->_storage []= $temp;
+            } else {
+                $this->_storage[$pk] = $new_itm;
+            }
         }
     }
 
     protected function update_stor_pk($entity) {
         $new_pk = $entity->pk();
         $old_pk = NULL;
-        $existing_pks = array();
         foreach ($this->_storage as $pk => $itm) {
-            $existing_pks [$pk]= $itm['value']->pk();
             if ($itm['value']->pk() == $new_pk) {
                 $old_pk = $pk;
                 break;
             }
         }
-        if ($old_pk === NULL) {
-            foreach ($existing_pks as $lpk => $dpk) {
-            }
+        if ($old_pk === NULL) 
             throw new JORK_Exception("failed to update data structure: {$this->_comp_class} #$new_pk not found. Entities in collection: #" . implode(', #', $existing_pks));
 
+        if (isset($this->_storage[$new_pk])) {
+            $temp = $this->_storage[$new_pk];
+            $this->_storage[$new_pk] = $this->_storage[$old_pk];
+            $this->_storage []= $temp;
+        } else {
+            $this->_storage[$new_pk] = $this->_storage[$old_pk];
         }
-
-        $this->_storage[$new_pk] = $this->_storage[$old_pk];
+        
         unset($this->_storage[$old_pk]);
     }
 
@@ -224,7 +233,7 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
         for($i = 0; $i < $tab_cnt; ++$i) {
             $tabs .= "\t";
         }
-
+echo "starting iteration on " . count($this->_storage) . "\n";
         $lines = array($tabs . "\033[33;1mCollection <" . $this->_comp_class . ">\033[0m");
         foreach ($this->_storage as $itm) {
             $lines []= $itm['value']->as_string($tab_cnt + 1);
