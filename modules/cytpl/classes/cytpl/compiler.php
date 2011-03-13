@@ -73,7 +73,8 @@ class CyTpl_Compiler {
 
             $ns_command = $this->get_namespaced_command($command);
             if ( ! is_null($ns_command)) {
-                
+                $compiled = $ns_command->invoke();
+                $this->_tpl = str_replace('{' . $command . '}', $compiled, $this->_tpl);
                 continue;
             }
             
@@ -86,7 +87,7 @@ class CyTpl_Compiler {
     private function compile_core_command($command) {
         $command = trim($command);
         if ($command{0} == '$') {
-            return '<?php echo $' . substr($command, 1) . '?>';
+            return '<?php echo $' . CyTpl_Compiler_Helper::propchain(substr($command, 1)) . '?>';
         }
 
         if ($command == 'endif' || $command == '/if' || $command == 'fi') {
@@ -108,12 +109,14 @@ class CyTpl_Compiler {
                     return '<?php if (array_key_exists(' . $key . ', ' . $matches['var'][0] . ')) : ?>';
                 }
             }
-            return '<?php if (' . $condition . ') : ?>';
+            return '<?php if ('
+                .  CyTpl_Compiler_Helper::propchain($condition) . ') : ?>';
         }
 
         foreach (array('elif', 'elsif', 'elseif', 'else if') as $elif_command) {
             if (preg_match_all('/' . $elif_command . ' (?P<condition>.*)/', $command, $matches)) {
-                return '<?php elseif ('. $matches['condition'][0] . ') : ?>';
+                return '<?php elseif ('
+                .  CyTpl_Compiler_Helper::propchain($matches['condition'][0]) . ') : ?>';
             }
         }
         
@@ -127,10 +130,10 @@ class CyTpl_Compiler {
 
         if (substr($command, 0, 7) == 'foreach') {
             if (preg_match_all('/foreach (?P<arr>.+) as (?P<itm>[^ ]+)$/', $command, $matches)) {
-                return '<?php foreach (' . $matches['arr'][0] . ' as '. $matches['itm'][0] . ') : ?>';
+                return '<?php foreach (' .  CyTpl_Compiler_Helper::propchain($matches['arr'][0]) . ' as '. $matches['itm'][0] . ') : ?>';
             }
             if (preg_match_all('/foreach (?P<arr>.+) as (?P<key>[^ ]+) => (?P<val>[^ ]+)$/', $command, $matches)) {
-                return '<?php foreach (' . $matches['arr'][0] 
+                return '<?php foreach (' .  CyTpl_Compiler_Helper::propchain($matches['arr'][0])
                     . ' as '. $matches['key'][0] . ' => '. $matches['val'][0] . ') : ?>';
             }
         }
