@@ -12,10 +12,14 @@ class JORK_Model_Playground extends JORK_DbTest {
         $topic = new Model_Topic;
         $topic->name = 'newbie question - PLEASE HELP';
 
+        $category = new Model_Category;
+        $category->name = 'WTF???';
+        $topic->categories->append($category);
+
         $run = 0;
         for ($i = 0; $i < 6; ++$i) { ++$run;
             $post = new Model_Post;
-            $post->name = "newbie post $i";
+            $post->name = "bump $i";
             $post->topic = $topic;
             $user->posts->append($post);
         }
@@ -26,7 +30,11 @@ class JORK_Model_Playground extends JORK_DbTest {
         $users = DB::select()->from('t_users')->exec('jork_test'); 
         $this->assertEquals(5, count($users));
         $topics = DB::select()->from('t_topics')->exec('jork_test');
-        $this->assertEquals(5, count($topics)); return;
+        $this->assertEquals(5, count($topics));
+        $categories = DB::select()->from('t_categories')->exec('jork_test');
+        $this->assertEquals(4, count($categories));
+        $ct = DB::select()->from('categories_topics')->exec('jork_test');
+        $this->assertEquals(5, count($ct));
     }
 
 }

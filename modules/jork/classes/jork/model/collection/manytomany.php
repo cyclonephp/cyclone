@@ -9,6 +9,7 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
     public function delete_by_pk($pk) {
         $this->_deleted[$pk] = $this->_storage[$pk]['value'];
         unset($this->_storage[$pk]);
+        $this->_persistent = FALSE;
     }
 
     public function notify_pk_creation($owner_pk) {
@@ -20,6 +21,10 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
     }
 
     public function save() {
+        if ($this->_persistent)
+            // there nothing to save
+            return;
+
         $pk = $this->_owner->pk();
         $db_conn = $this->_owner->schema()->db_conn;
         if ( ! empty($this->_deleted)) {
@@ -41,6 +46,7 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
             $inverse_join_col = $this->_comp_schema['join_table']['inverse_join_column'];
             foreach ($this->_storage as $itm) {
                 if (FALSE == $itm['persistent']) {
+                    $itm['value']->save();
                     $ins_stmt->values []= array(
                         $local_join_col => $pk,
                         $inverse_join_col => $itm['value']->pk()
@@ -49,6 +55,7 @@ class JORK_Model_Collection_ManyToMany extends JORK_Model_Collection {
             }
             $ins_stmt->exec($db_conn);
         }
+        $this->_persistent = TRUE;
     }
    
     

@@ -93,7 +93,22 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
      */
     protected $_deleted = array();
 
-    private $_as_string_in_progress;
+    /**
+     * Flag to avoid infinite recursions when as_string() is called on
+     * bi-directional relations.
+     *
+     * @var boolean
+     */
+    private $_as_string_in_progress = FALSE;
+
+    /**
+     * FALSE if any items has been added ore removed since the last save() call.
+     * Subclasses' save() method should not do anything if it's value is TRUE
+     * and should set it to TRUE when the saving process is complete.
+     *
+     * @var boolean
+     */
+    protected $_persistent = TRUE;
 
     public function  __construct($owner, $comp_name, $comp_schema) {
         $this->_owner = $owner;
@@ -156,6 +171,7 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
                 $this->_storage[$pk] = $new_itm;
             }
         }
+        $this->_persistent = FALSE;
     }
 
     protected function update_stor_pk($entity) {
@@ -200,6 +216,7 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
             'persistent' => TRUE,
             'value' => $val
         );
+        $this->_persistent = FALSE;
     }
 
     public function  offsetExists($key) {
@@ -233,7 +250,6 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
         for($i = 0; $i < $tab_cnt; ++$i) {
             $tabs .= "\t";
         }
-echo "starting iteration on " . count($this->_storage) . "\n";
         $lines = array($tabs . "\033[33;1mCollection <" . $this->_comp_class . ">\033[0m");
         foreach ($this->_storage as $itm) {
             $lines []= $itm['value']->as_string($tab_cnt + 1);
