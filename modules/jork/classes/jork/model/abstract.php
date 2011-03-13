@@ -523,6 +523,18 @@ abstract class JORK_Model_Abstract {
      * The <code>update()</code> and <code>insert()</code> methods are also public,
      * but these should be rarely used.
      *
+     * If $cascade is TRUE, then all components will be saved.
+     * If $cascade is FALSE, then no components will be saved.
+     * If $cascade is an array, then the components enumerated in the array
+     *      will be saved.
+     *
+     * Example:
+     * <code>
+     * // saving the topic and it's posts, but no other components of the topic
+     *  $topic->save(array('posts'));
+     * </code>
+     *
+     * @param mixed $cascade boolean or array
      * @see JORK_Model_Abstract::insert()
      * @see JORK_Model_Abstract::update()
      */
