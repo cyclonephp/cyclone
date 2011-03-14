@@ -44,5 +44,13 @@ class CyTpl_Command {
         }
             
     }
+
+    /**
+     * @return string
+     */
+    public function invoke() {
+        $callback = $this->_descriptor['callback'];
+        return call_user_func($callback, $this->_args);
+    }
     
 }

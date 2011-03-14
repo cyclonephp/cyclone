@@ -30,13 +30,14 @@ class CyTpl_CoreTest extends Kohana_Unittest_TestCase {
     public function providerCoreCommands() {
         return array(
             'echo' => array('{$name}', '<?php echo $name?>'),
-            'foreach' => array('{foreach $users as $user}', '<?php foreach ($users as $user) : ?>'),
+            'foreach' => array('{foreach $group.users as $user}', '<?php foreach ($group->users as $user) : ?>'),
             'endforeach' => array('{/foreach}', '<?php endforeach; ?>'),
-            'foreachkey' => array('{foreach $arr as $k => $v}', '<?php foreach ($arr as $k => $v) : ?>'),
-            'if' => array('{if $a == 2}', '<?php if ($a == 2) : ?>'),
-            'elif' => array('{elif $a == 2}', '<?php elseif ($a == 2) : ?>'),
+            'foreachkey' => array('{foreach $obj.arr as $k => $v}', '<?php foreach ($obj->arr as $k => $v) : ?>'),
+            'if' => array('{if $user.id == 2}', '<?php if ($user->id == 2) : ?>'),
+            'elif' => array('{elif $user.id == 2}', '<?php elseif ($user->id == 2) : ?>'),
             'elseif' => array('{elseif $a == 2}', '<?php elseif ($a == 2) : ?>'),
-            'else if' => array('{else if $a == 2}', '<?php elseif ($a == 2) : ?>')
+            'else if' => array('{else if $a == 2}', '<?php elseif ($a == 2) : ?>'),
+            'objchain' => array('{$post.author.name}', '<?php echo $post->author->name?>')
         );
     }
 

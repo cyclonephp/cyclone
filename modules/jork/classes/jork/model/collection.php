@@ -8,7 +8,7 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package JORK
  */
-abstract class JORK_Model_Collection extends ArrayObject {
+abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggregate {
 
     public static function for_component($owner, $comp_name) {
         $comp_schema = $owner->schema()->components[$comp_name];
@@ -93,6 +93,23 @@ abstract class JORK_Model_Collection extends ArrayObject {
      */
     protected $_deleted = array();
 
+    /**
+     * Flag to avoid infinite recursions when as_string() is called on
+     * bi-directional relations.
+     *
+     * @var boolean
+     */
+    private $_as_string_in_progress = FALSE;
+
+    /**
+     * FALSE if any items has been added ore removed since the last save() call.
+     * Subclasses' save() method should not do anything if it's value is TRUE
+     * and should set it to TRUE when the saving process is complete.
+     *
+     * @var boolean
+     */
+    protected $_persistent = TRUE;
+
     public function  __construct($owner, $comp_name, $comp_schema) {
         $this->_owner = $owner;
         $this->_comp_name = $comp_name;
@@ -144,8 +161,17 @@ abstract class JORK_Model_Collection extends ArrayObject {
         if (NULL === $pk) {
             $this->_storage []= $new_itm;
         } else {
-            $this->_storage[$pk] = $new_itm;
+            if (isset($this->_storage[$pk])) {
+                $temp = $this->_storage[$pk];
+                if ($temp['value']->pk() == $pk)
+                    throw new JORK_Exception($this->_comp_class . '#' . $pk . ' has already been added to the collection');
+                $this->_storage[$pk] = $new_itm;
+                $this->_storage []= $temp;
+            } else {
+                $this->_storage[$pk] = $new_itm;
+            }
         }
+        $this->_persistent = FALSE;
     }
 
     protected function update_stor_pk($entity) {
@@ -157,11 +183,17 @@ abstract class JORK_Model_Collection extends ArrayObject {
                 break;
             }
         }
-        if ($old_pk === NULL)
-            // exception message should be fixed
-            throw new JORK_Exception('failed to update data structure');
+        if ($old_pk === NULL) 
+            throw new JORK_Exception("failed to update data structure: {$this->_comp_class} #$new_pk not found. Entities in collection: #" . implode(', #', $existing_pks));
 
-        $this->_storage[$new_pk] = $this->_storage[$old_pk];
+        if (isset($this->_storage[$new_pk])) {
+            $temp = $this->_storage[$new_pk];
+            $this->_storage[$new_pk] = $this->_storage[$old_pk];
+            $this->_storage []= $temp;
+        } else {
+            $this->_storage[$new_pk] = $this->_storage[$old_pk];
+        }
+        
         unset($this->_storage[$old_pk]);
     }
 
@@ -184,6 +216,7 @@ abstract class JORK_Model_Collection extends ArrayObject {
             'persistent' => TRUE,
             'value' => $val
         );
+        $this->_persistent = FALSE;
     }
 
     public function  offsetExists($key) {
@@ -204,4 +237,28 @@ abstract class JORK_Model_Collection extends ArrayObject {
         return count($this->_storage);
     }
 
+    public function  getIterator() {
+        return new JORK_Model_Collection_Iterator($this->_storage);
+    }
+
+    public function as_string($tab_cnt = 0) {
+        if ($this->_as_string_in_progress)
+            return '';
+
+        $this->_as_string_in_progress = TRUE;
+        $tabs = '';
+        for($i = 0; $i < $tab_cnt; ++$i) {
+            $tabs .= "\t";
+        }
+        $lines = array($tabs . "\033[33;1mCollection <" . $this->_comp_class . ">\033[0m");
+        foreach ($this->_storage as $itm) {
+            $lines []= $itm['value']->as_string($tab_cnt + 1);
+        }
+        $this->_as_string_in_progress = FALSE;
+        return implode(PHP_EOL, $lines);
+    }
+
+    public function  __toString() {
+        return $this->as_string();
+    }
 }

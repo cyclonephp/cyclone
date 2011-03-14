@@ -67,6 +67,19 @@ class JORK_Mapper_ExplRootTest extends Kohana_Unittest_TestCase {
         $this->assertEquals($db_query->group_by, array('t_users_0.name'));
     }
 
+    public function testOrderByExpr() {
+        $jork_query = JORK::from('Model_User u')->order_by(DB::expr('avg({u.posts.id})'));
+        $mapper = JORK_Mapper_Select::for_query($jork_query);
+        list($db_query, ) = $mapper->map();
+        $this->assertEquals(array(
+                array(
+                'column' => DB::expr('avg(t_posts_0.id)'),
+                'direction' => 'ASC'
+                )
+            ),
+        $db_query->order_by);
+    }
+
     public function testOffsetLimitHasToMany() {
         $jork_query = JORK::from('Model_Topic t', 'Model_Category c')
             ->with('t.posts')
