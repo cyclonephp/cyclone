@@ -133,6 +133,8 @@ abstract class JORK_Model_Abstract {
      */
     protected $_save_in_progress = FALSE;
 
+    private $_as_string_in_progress = FALSE;
+
     /**
      * @return mixed the primary key of the entity
      */
@@ -394,9 +396,13 @@ abstract class JORK_Model_Abstract {
      * @usedby JORK_Model_Abstract::save()
      * 
      */
-    public function insert() {
-        if ( ! ($this->_persistent  || $this->_save_in_progress)) {
-            $this->_save_in_progress = TRUE;
+    public function insert($cascade) {
+        if ($this->_save_in_progress)
+            // avoiding infinite recursion when cascaded
+            // saving bi-directional relationships
+            return;
+        
+        if ( ! $this->_persistent) {
 
             $schema = $this->schema();
             $insert_sqls = JORK_Query_Cache::inst(get_class($this))->insert_sql();
@@ -453,8 +459,9 @@ abstract class JORK_Model_Abstract {
             }
             // The insert process finished, the entity is now persistent
             $this->_persistent = TRUE;
-            $this->_save_in_progress = FALSE;
         }
+        
+        $this->cascade_save($cascade);
     }
 
     /**
@@ -463,8 +470,13 @@ abstract class JORK_Model_Abstract {
      *
      * @usedby JORK_Model_Abstract::save()
      */
-    public function update() {
-        if ( ! ($this->_persistent  || $this->_save_in_progress)) {
+    public function update($cascade) {
+         if ($this->_save_in_progress)
+            // avoiding infinite recursion when cascaded
+            // saving bi-directional relationships
+            return;
+
+        if ( ! $this->_persistent) {
             $this->_save_in_progress = TRUE;
 
             $schema = $this->schema();
@@ -500,14 +512,10 @@ abstract class JORK_Model_Abstract {
                 $update_sqls[$tbl_name]->exec($schema->db_conn);
             }
 
-            // cascade save
-            foreach ($this->_components as $comp) {
-                $comp['value']->save();
-            }
-
             $this->_persistent = TRUE;
             $this->_save_in_progress = FALSE;
         }
+        $this->cascade_save($cascade);
     }
 
     /**
@@ -517,15 +525,58 @@ abstract class JORK_Model_Abstract {
      * The <code>update()</code> and <code>insert()</code> methods are also public,
      * but these should be rarely used.
      *
+     * If $cascade is TRUE, then all components will be saved.
+     * If $cascade is FALSE, then no components will be saved.
+     * If $cascade is an array, then the components enumerated in the array
+     *      will be saved.
+     *
+     * Example:
+     * <code>
+     * // saving the topic and it's posts, but no other components of the topic
+     *  $topic->save(array('posts'));
+     * </code>
+     *
+     * @param mixed $cascade boolean or array
      * @see JORK_Model_Abstract::insert()
      * @see JORK_Model_Abstract::update()
      */
-    public function save() {
+    public function save($cascade = TRUE) {
         if ($this->pk() === NULL) {
-            $this->insert();
+            $this->insert($cascade);
         } else {
-            $this->update();
+            $this->update($cascade);
         }
+        
+    }
+
+    /**
+     *
+     * @param mixed $cascade
+     * @throws JORK_Exception if $cascade if netither a boolean nor an array
+     * @usedby JORK_Model_Abstract::insert()
+     * @usedby JORK_Model_Abstract::update()
+     */
+    private function cascade_save($cascade) {
+        if (FALSE == $cascade)
+            return;
+        if (TRUE === $cascade) {
+            $comps = $this->_components;
+        } elseif (is_array($cascade)) {
+            // TODO improve
+            $comp_keys = array_intersect(array_keys($this->_components), $cascade);
+            $comps = array();
+            foreach ($comp_keys as $key) {
+                $comps []= $this->_components[$key];
+            }
+        } else
+            throw new JORK_Exception('$cascade parameter must be boolean or array');
+
+        // turn the lock on
+        $this->_save_in_progress = TRUE;
+        foreach ($comps as $comp) {
+            $comp['value']->save();
+        }
+        $this->_save_in_progress = FALSE;
     }
 
     public function delete() {
@@ -627,6 +678,39 @@ abstract class JORK_Model_Abstract {
         );
 
         $upd_stmt->exec($schema->db_conn);
+    }
+
+    public function as_string($tab_cnt = 0) {
+        if ($this->_as_string_in_progress)
+            return '';
+
+        $this->_as_string_in_progress = TRUE;
+        $tabs = '';
+        for($i = 0; $i < $tab_cnt; ++$i) {
+            $tabs .= "\t";
+        }
+
+        $prim_key = $this->schema()->primary_key();
+
+        $lines = array($tabs  . "\033[36;1m" . get_class($this) . "\033[0m");
+        foreach ($this->_atomics as $name => $itm) {
+            if ($name == $prim_key) {
+                $color = "\033[37;1m";
+            } else {
+                $color = '';
+            }
+            $val = $itm['value'] === NULL ? 'NULL' : $itm['value'];
+            $lines []= $tabs . $color . $name . ': ' . $val . "\033[0m";
+        }
+        foreach ($this->_components as $name => $comp) {
+            $lines []= $comp['value']->as_string($tab_cnt + 1);
+        }
+        $this->_as_string_in_progress = FALSE;
+        return implode(PHP_EOL, $lines);
+    }
+
+    public function  __toString() {
+        return $this->as_string();
     }
 
 }

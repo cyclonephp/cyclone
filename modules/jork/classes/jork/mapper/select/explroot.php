@@ -178,11 +178,16 @@ class JORK_Mapper_Select_ExplRoot extends JORK_Mapper_Select {
             return;
 
         foreach ($this->_jork_query->order_by as $ord) {
-            $col_arr = explode('.', $ord['column']);
-            $root_prop = array_shift($col_arr);
-            $col = $this->_mappers[$root_prop]->resolve_prop_chain($col_arr);
-            if (is_array($col))
-                throw new JORK_Exception($ord['column'] . ' is not an atomic property');
+            if ($ord['column'] instanceof DB_Expression_Custom) {
+                $col = $ord['column'];
+                $col->str = $this->map_db_expression($col->str);
+            } else {
+                $col_arr = explode('.', $ord['column']);
+                $root_prop = array_shift($col_arr);
+                $col = $this->_mappers[$root_prop]->resolve_prop_chain($col_arr);
+                if (is_array($col))
+                    throw new JORK_Exception($ord['column'] . ' is not an atomic property');
+            }
             $this->_db_query->order_by [] = array(
                 'column' => $col,
                 'direction' => $ord['direction']
