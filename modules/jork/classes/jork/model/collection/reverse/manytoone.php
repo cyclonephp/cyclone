@@ -26,6 +26,7 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
         $this->_deleted[$pk] = $this->_storage[$pk];
         $this->_deleted[$pk]['value']->{$this->_inverse_join_column} = NULL;
         unset($this->_storage[$pk]);
+        $this->_persistent = FALSE;
     }
 
     public function notify_pk_creation($entity) {
@@ -42,7 +43,6 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
                 $item['persistent'] = FALSE;
                 $item['value']->$itm_join_col = $owner_pk;
             }
-            $this->save();
             return;
         }
         $this->update_stor_pk($entity);
@@ -88,6 +88,10 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
     }
 
     public function save() {
+        if ($this->_persistent)
+            // there nothing to save
+            return;
+        
         foreach ($this->_deleted as $del_itm) {
             // join column has already been set to NULL
             // in delete_by_pk()
@@ -100,6 +104,7 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
                 $itm['persistent'] = TRUE;
             }
         }
+        $this->_persistent = TRUE;
     }
     
 }

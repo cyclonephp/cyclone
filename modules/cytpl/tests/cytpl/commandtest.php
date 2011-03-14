@@ -24,5 +24,27 @@ class CyTpl_CommandTest extends Kohana_Unittest_TestCase {
                 , array(1, 'asd' => 2), FALSE)
         );
     }
+
+    public static function mockCallback(array $params) {
+        return $params[0];
+    }
+
+    public function testInvokeCallback() {
+        $command = new CyTpl_Command('c', array(
+            'callback' => array('CyTpl_CommandTest', 'mockCallback'),
+            'params' => array(0)
+        ), array('test'));
+        $this->assertEquals('test', $command->invoke());
+    }
+
+    public function testInvokeLambda() {
+        $command = new CyTpl_Command('c', array(
+            'callback' => function($params){
+                return $params[0];
+            },
+            'params' => array(0)
+        ), array('test'));
+        $this->assertEquals('test', $command->invoke());
+    }
     
 }
