@@ -51,27 +51,27 @@ class Cyclone_Cli_Module {
      * Check the module's validation.
      */
     public function validate() {
-        $this->parse_module_info();
+        $this->parse_module_info($this->_data);
     }
 
     /**
      * Check that the required module descriptors are defined.
      * If commands array exist and not empty call parsing on its values.
      */
-    private function parse_module_info() {
+    private function parse_module_info($data) {
         $this->_curr_command = NULL;
         $this->_curr_arg = NULL;
         if (!empty($data['desc']) || !empty($data['description'])) {
-            if (!empty($data['command'])) {
-                foreach ($data['command'] as $comm_name => $value) {
+            if (!empty($data['commands'])) {
+                foreach ($data['commands'] as $comm_name => $value) {
                     $this->_curr_command = $comm_name;
                     $this->parse_command($value);
                 }
             } else {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::MODULE_COMMANDS_NOT_DEF);
+                $this->throw_validation_exception(Cyclone_Cli_Errors::MODULE_COMMANDS_NOT_DEF, 102);
             }
         } else {
-            $this->throw_validation_exception(Cyclone_Cli_Errors::MODULE_DESC_NOT_DEF);
+            $this->throw_validation_exception(Cyclone_Cli_Errors::MODULE_DESC_NOT_DEF, 101);
         }
     }
 
@@ -84,47 +84,47 @@ class Cyclone_Cli_Module {
             if (!empty($data['callback'])) {
                 /** maybe it has no arguments */
                 if (!empty($data['arguments'])) {
-                    $this->parse_command_args($data['arguments']);
                     foreach ($data['arguments'] as $arg_name => $value) {
                         $this->_curr_arg = $arg_name;
-                        $this->parse_command_arg($value);
+                        $this->parse_command_args($value);
                     }
-                }
-                else
-                /* command has no argument */
+                } else {
+                    /* command has no argument */
                     return;
+                }
             } else {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_CALLBACK_NOT_DEF);
+                $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_CALLBACK_NOT_DEF, 104);
             }
         } else {
-            $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_DESC_NOT_DEF);
+            $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_DESC_NOT_DEF, 103);
         }
     }
 
-    private function parse_command_arg($data) {
+    private function parse_command_args($data) {
+
         if (!empty($data['alias'])) {
-            if (!preg_match("^-.$", $data['alias'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_ALIAS_BAD_FORMAT);
+            if (!preg_match('/^-[a-zA-Z]$/', $data['alias'])) {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_ALIAS_BAD_FORMAT, 105);
             }
         }
-        if (!empty($data['parameter'])) {
-            if (!isset($data['parameter']) && !is_string($data['paramter'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_BAD_TYPE);
+        if (array_key_exists('parameter', $data)) {
+            if (isset($data['parameter']) && !is_string($data['parameter'])) {
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_BAD_TYPE, 107);
             }
         } else {
-            $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_NOT_DEFINED);
+            $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_NOT_DEFINED, 106);
         }
-        if (!empty($data['required'])) {
+        if (array_key_exists('required', $data)) {
             if (!is_bool($data['required'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_BAD_TYPE);
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_BAD_TYPE, 108);
             } else if ($data['required'] && !isset($data['parameter'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_NO_SENSE);
+                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_NO_SENSE, 109);
             }
         }
     }
 
-    private function throw_validation_exception($error) {
-        throw new Cyclone_Cli_Validation_Exception($error, $this->_name, $this->_curr_command, $this->_curr_arg);
+    private function throw_validation_exception($error, $code) {
+        throw new Cyclone_Cli_Validation_Exception($error, $code, $this->_name, $this->_curr_command, $this->_curr_arg);
     }
 
 }

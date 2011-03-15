@@ -7,7 +7,7 @@
  * @usedby index.php
  */
 class Cyclone_CLI {
-    const INTRO = "For module help type: cyphp <module_name> .\nAvailable modules:";
+    const INTRO = 'For module help type: cyphp <module_name> .\nAvailable modules:';
 
     public static function bootstrap() {
 
