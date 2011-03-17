@@ -6,6 +6,24 @@
  */
 class CyForm {
 
+    public static function model() {
+        return new CyForm_Model;
+    }
+
+    public static function field($type = 'text', $name = NULL) {
+        $candidate = 'CyForm_Model_Field_' . $type;
+        if (class_exists($candidate)) {
+            $class = $candidate;
+            return new $class($name);
+        } 
+        $class = 'CyForm_Model_Field';
+        return new $class($type, $name);
+    }
+
+    public static function source($callback) {
+        return new CyForm_Model_DataSource($callback);
+    }
+
     /**
      * Used as default view root if a requested template is not found
      * in the view root of the current theme.

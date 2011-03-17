@@ -1,5 +1,25 @@
 <?php
 
+
+return CyForm::model()->theme('gray')
+        ->title('Complex CyForm example')
+        ->field(CyForm::field('text')
+            ->label('hello')
+            ->descr('some useful description')
+        )->field(CyForm::field('list')
+            ->label('my list')
+            ->multiple(TRUE)
+            ->validator('not_empty')
+            ->items(array(
+                'f' => 'female',
+                'm' => 'male'
+            ))->source(CyForm::source(function(){
+                    return JORK::from('Model_User')->exec();
+                })
+                ->val('id')->text('name')
+           )
+        );
+
 return array(
     'theme' => 'cyform/gray',
     'title' => 'complex form example',
