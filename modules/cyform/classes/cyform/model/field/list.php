@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros
+ * @package CyForm
+ */
 class CyForm_Model_Field_List extends CyForm_Model_Field {
 
     public $type = 'list';
@@ -9,6 +13,10 @@ class CyForm_Model_Field_List extends CyForm_Model_Field {
     public $items = array();
 
     public $multiple;
+
+    public function  __construct($name = NULL) {
+        $this->name = $name;
+    }
 
     /**
      * @param CyForm_Model_DataSource $data_source

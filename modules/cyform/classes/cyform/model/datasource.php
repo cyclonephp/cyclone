@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @author Bence Eros
+ * @package CyForm
+ */
 class CyForm_Model_DataSource {
 
     public $callback;

@@ -44,14 +44,14 @@ class CyForm {
      *
      * @var array stores the configuration (config/cyform)
      */
-    protected $config;
+    protected $_config;
 
     /**
      * indicates the
      *
      * @var string
      */
-    protected $progress_id;
+    protected $_progress_id;
 
     /**
      *
@@ -59,15 +59,18 @@ class CyForm {
      * @param boolean $load_data_sources if <code>TRUE</code>, then the data sources are loaded after model loading.
      */
     public function  __construct($model, $load_data_sources = true) {
-        if (is_array($model)) {
-            $this->model = $model;
-        } else {
-            $file = Kohana::find_file('forms', $model);
+        if (is_string($model)) {
+            $file = FileSystem::find_file('forms/' . $model . '.php');
             if (FALSE === $file)
-                throw new CyForm_Exception('form definition not found: ' . $model);
-            $this->model = require $file;
+                throw new CyForm_Exception("form not found: $model");
         }
-        $this->config = Config::inst()->get('cyform');
+
+        if (  ! ($model instanceof CyForm_Model))
+            throw new CyForm_Exception('invalid model');
+
+        $this->model = $model;
+
+        $this->_config = Config::inst()->get('cyform');
         $this->init($load_data_sources);
         $this->add_assets();
     }
@@ -136,11 +139,11 @@ class CyForm {
      * @param array $data
      */
     protected function save_data(array $data) {
-        if (null === $this->progress_id) {
-            $this->progress_id = $this->create_progress_id();
+        if (null === $this->_progress_id) {
+            $this->_progress_id = $this->create_progress_id();
         }
 
-        $_SESSION[$this->config['session_key']]['progress'][$this->progress_id] = $data;
+        $_SESSION[$this->_config['session_key']]['progress'][$this->_progress_id] = $data;
     }
 
     /**
@@ -150,10 +153,10 @@ class CyForm {
      * @return array
      */
     protected function get_saved_data($progress_id) {
-        $sess_key = $this->config['session_key'];
+        $sess_key = $this->_config['session_key'];
         if (array_key_exists($sess_key, $_SESSION)
                 && array_key_exists($progress_id, $_SESSION[$sess_key]['progress'])) {
-            $this->progress_id = $progress_id;
+            $this->_progress_id = $progress_id;
             return $_SESSION[$sess_key]['progress'][$progress_id];
         }
         return array();
@@ -167,7 +170,7 @@ class CyForm {
      * @return string
      */
     protected function create_progress_id() {
-        $sess_key = $this->config['session_key'];
+        $sess_key = $this->_config['session_key'];
         if ( ! array_key_exists($sess_key, $_SESSION)) {
             $_SESSION[$sess_key] = array(
                 'progress' => array(),
@@ -183,10 +186,10 @@ class CyForm {
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
         // creating hidden input for storing unique form ID
-        $input = new CyForm_Field($this, $this->config['progress_key'], array(), 'hidden');
+        $input = new CyForm_Field($this, $this->_config['progress_key'], array(), 'hidden');
         $input->set_data($progress_id);
         // and adding it to the form inputs
-        $this->model['fields'] [$this->config['progress_key']] = $input;
+        $this->model['fields'] [$this->_config['progress_key']] = $input;
 
         return $progress_id;
     }
@@ -199,8 +202,8 @@ class CyForm {
      * @param array $src
      */
     public function set_input($src, $validate = true) {
-        if (array_key_exists($this->config['progress_key'], $src)) {
-            $saved_data = $this->get_saved_data($src[$this->config['progress_key']]);
+        if (array_key_exists($this->_config['progress_key'], $src)) {
+            $saved_data = $this->get_saved_data($src[$this->_config['progress_key']]);
         } else {
             $saved_data = array();
         }
@@ -236,8 +239,8 @@ class CyForm {
      */
     public function get_data($result_type = 'array') {
         $result_type = Arr::get($this->model, 'result_type', $result_type);
-        if ( ! is_null($this->progress_id)) {
-            $saved_data = $this->get_saved_data($this->progress_id);
+        if ( ! is_null($this->_progress_id)) {
+            $saved_data = $this->get_saved_data($this->_progress_id);
         }
         if ('array' == $result_type) {
             $result = array();
@@ -277,7 +280,7 @@ class CyForm {
      * @return boolean
      */
     public function edit_mode() {
-        return ! is_null($this->progress_id);
+        return ! is_null($this->_progress_id);
     }
 
     /**
@@ -295,7 +298,7 @@ class CyForm {
     }
 
     protected function before_rendering() {
-        if (is_null($this->progress_id)) {
+        if (is_null($this->_progress_id)) {
             foreach ($this->model['fields'] as $name => &$field) {
                 if (Arr::get($field->model, 'on_create') == 'hide') {
                     unset($this->model['fields'][$name]);
