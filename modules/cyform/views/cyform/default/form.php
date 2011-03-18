@@ -1,6 +1,6 @@
 <fieldset class="cyform">
-    <? if (isset($title)) : ?><legend><?= $title ?></legend> <? endif; ?>
-    <form  <?= HTML::attributes($attributes)?>>
+    <? if ($model->title) : ?><legend><?= $model->title ?></legend> <? endif; ?>
+    <form  <?= HTML::attributes($model->attributes)?>>
         <? foreach($fields as $field) echo $field; ?>
     </form>
 </fieldset>

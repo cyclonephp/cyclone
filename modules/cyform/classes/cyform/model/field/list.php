@@ -8,6 +8,10 @@ class CyForm_Model_Field_List extends CyForm_Model_Field {
 
     public $type = 'list';
 
+    /**
+     *
+     * @var CyForm_Model_DataSource
+     */
     public $data_source;
 
     public $items = array();

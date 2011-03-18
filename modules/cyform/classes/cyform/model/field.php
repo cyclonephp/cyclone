@@ -18,7 +18,14 @@ class CyForm_Model_Field {
 
     public $validators;
 
-    public function  __construct($name = NULL) {
+    public $on_empty = '';
+
+    public $on_create;
+
+    public $on_edit;
+
+    public function  __construct($type, $name = NULL) {
+        $this->type = $type;
         $this->name = $name;
     }
 
@@ -85,6 +92,34 @@ class CyForm_Model_Field {
                 'error' => $error_msg
             );
         }
+        return $this;
+    }
+
+    /**
+     * @param mixed $on_empty
+     * @return CyForm_Model_Field
+     */
+    public function on_empty($on_empty) {
+        $this->on_empty = $on_empty;
+        return $this;
+    }
+
+    /**
+     * @param string $on_create
+     * @return CyForm_Model_Field
+     */
+    public function on_create($on_create) {
+        $this->on_create = $on_create;
+        return $this;
+    }
+
+    /**
+     *
+     * @param string $on_edit
+     * @return CyForm_Model_Field
+     */
+    public function on_edit($on_edit) {
+        $this->on_edit = $on_edit;
         return $this;
     }
 }

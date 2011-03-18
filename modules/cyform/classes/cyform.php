@@ -10,6 +10,12 @@ class CyForm {
         return new CyForm_Model;
     }
 
+    /**
+     *
+     * @param string $type
+     * @param string $name
+     * @return CyForm_Model_Field
+     */
     public static function field($type = 'text', $name = NULL) {
         $candidate = 'CyForm_Model_Field_' . $type;
         if (class_exists($candidate)) {
@@ -35,10 +41,12 @@ class CyForm {
 
     /**
      *
-     * @var array the model passed to the constructor. Current input values and
+     * @var CyForm_Model the model passed to the constructor. Current input values and
      * error messages are also stored in this array.
      */
-    public $model;
+    public $_model;
+
+    public $_fields = array();
 
     /**
      *
@@ -68,7 +76,7 @@ class CyForm {
         if (  ! ($model instanceof CyForm_Model))
             throw new CyForm_Exception('invalid model');
 
-        $this->model = $model;
+        $this->_model = $model;
 
         $this->_config = Config::inst()->get('cyform');
         $this->init($load_data_sources);
@@ -81,25 +89,29 @@ class CyForm {
      * @param boolean $load_data_sources if <code>TRUE</code>, then the data sources are loaded after model loading.
      */
     protected function init($load_data_sources) {
-        foreach($this->model['fields'] as $name => &$field) {
-            $type = Arr::get($field, 'type', 'text');
-            $class = 'CyForm_Field_'.ucfirst($type);
+        foreach($this->_model->fields as $name => $field_model) {
+            $class = 'CyForm_Field_'.ucfirst($field_model->type);
             if (class_exists($class)) {
-                $field = new $class($this, $name, $field);
+                $field = new $class($this, $name, $field_model);
             } else  {
-                $field = new CyForm_Field($this, $name, $field, $type);
+                $field = new CyForm_Field($this, $name, $field_model);
             }
             
             if ($load_data_sources) {
                 $field->load_data_source();
             }
+            if (NULL === $field_model->name) {
+                $this->_fields []= $field;
+            } else {
+                $this->_fields[$field_model->name] = $field;
+            }
         }
     }
 
     protected function add_assets() {
-        $theme = array_key_exists('theme', $this->model)
-                ? $this->model['theme']
-                : self::DEFAULT_THEME;
+        if (NULL === $this->_model->theme) {
+            $this->_model->theme = self::DEFAULT_THEME;
+        }
         try {
             Asset_Pool::inst()->add_asset($theme, 'css');
         } catch (Exception $ex) {}
@@ -116,8 +128,8 @@ class CyForm {
      */
     public function set_data($src, $save = true) {
         foreach ($src as $k => $v) {
-            if (array_key_exists($k, $this->model['fields'])) {
-                $this->model['fields'][$k]->set_data($v);
+            if (array_key_exists($k, $this->_fields)) {
+                $this->_fields[$k]->set_data($v);
             }
         }
         $save && $this->save_data($src);
@@ -186,10 +198,12 @@ class CyForm {
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
         // creating hidden input for storing unique form ID
-        $input = new CyForm_Field($this, $this->_config['progress_key'], array(), 'hidden');
+        $input = new CyForm_Field($this, $this->_config['progress_key']
+                , new CyForm_Model_Field('hidden'
+                        , $this->_config['progress_key']));
         $input->set_data($progress_id);
         // and adding it to the form inputs
-        $this->model['fields'] [$this->_config['progress_key']] = $input;
+        $this->_model->fields[$this->_config['progress_key']] = $input;
 
         return $progress_id;
     }
@@ -207,7 +221,7 @@ class CyForm {
         } else {
             $saved_data = array();
         }
-        foreach ($this->fields as $field) {
+        foreach ($this->_fields as $field) {
             $field->pick_input($src, $saved_data);
         }
         if ($validate) {
@@ -223,7 +237,7 @@ class CyForm {
      */
     public function validate() {
         $valid = true;
-        foreach ($this->fields as $field) {
+        foreach ($this->_fields as $field) {
             if ( ! $field->validate()) {
                 $valid = false;
             }
@@ -238,7 +252,7 @@ class CyForm {
      * @return mixed
      */
     public function get_data($result_type = 'array') {
-        $result_type = Arr::get($this->model, 'result_type', $result_type);
+        $result_type = $this->_model->result_type;
         if ( ! is_null($this->_progress_id)) {
             $saved_data = $this->get_saved_data($this->_progress_id);
         }
@@ -249,7 +263,7 @@ class CyForm {
                     $result[$k] = $v;
                 }
             }
-            foreach ($this->fields as $name => $field) {
+            foreach ($this->_fields as $name => $field) {
                 // if the key is an integer then it's the hidden input created
                 // for storing the form ID. This value shouldn't be presented in
                 // the business data
@@ -264,7 +278,7 @@ class CyForm {
                     $result->$k = $v;
                 }
             }
-            foreach ($this->fields as $name => $field) {
+            foreach ($this->_fields as $name => $field) {
                 // the same here
                 if ( ! is_int($name)) {
                     $result->$name = $field->get_data();
@@ -283,63 +297,36 @@ class CyForm {
         return ! is_null($this->_progress_id);
     }
 
-    /**
-     * shortcut to model access
-     */
-    public function __get($key) {
-        return $this->model[$key];
-    }
-
-    /**
-     * shortcut to model access
-     */
-    public function __set($key, $value) {
-        $this->model[$key] = $value;
-    }
-
     protected function before_rendering() {
         if (is_null($this->_progress_id)) {
-            foreach ($this->model['fields'] as $name => &$field) {
-                if (Arr::get($field->model, 'on_create') == 'hide') {
-                    unset($this->model['fields'][$name]);
+            foreach ($this->_model->fields as $name => &$field) {
+                if ($field->on_create == 'hide') {
+                    unset($this->_fields[$name]);
                 }
             }
         } else {
-            foreach ($this->model['fields'] as $name => &$field) {
-                if (Arr::get($field->model, 'on_edit') == 'hide') {
-                    unset($this->model['fields'][$name]);
+            foreach ($this->_model->fields as $name => &$field) {
+                if ($field->_model->on_edit == 'hide') {
+                    unset($this->_fields[$name]);
                 }
             }
-        }
-        if ( ! array_key_exists('theme', $this->model)) {
-            $this->model['theme'] = self::DEFAULT_THEME;
-        }
-
-        if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = 'form';
-        }
-
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
-        }
-
-        if ( ! array_key_exists('method', $this->model['attributes'])) {
-            $this->model['attributes']['method'] = 'post';
-        }
-
-        if ( ! array_key_exists('action', $this->model['attributes'])) {
-            $this->model['attributes']['action'] = '';
         }
     }
 
     public function render() {
         $this->before_rendering();
         try {
-            $view = new View($this->model['theme']
-                .DIRECTORY_SEPARATOR.$this->model['view'], $this->model);
+            $view = new View($this->_model->theme
+                .DIRECTORY_SEPARATOR.$this->_model->view, array(
+                    'model' => $this->_model,
+                    'fields' => $this->_fields
+                ));
         } catch (Kohana_View_Exception $ex) {
             $view = new View(self::DEFAULT_THEME . DIRECTORY_SEPARATOR
-                    . $this->model['view'], $this->model);
+                    . $this->_model->view, array(
+                    'model' => $this->_model,
+                    'fields' => $this->_fields
+                ));
         }
         return $view->render();
     }

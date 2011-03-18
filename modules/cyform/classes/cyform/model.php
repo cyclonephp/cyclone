@@ -12,9 +12,14 @@ class CyForm_Model {
 
     public $title;
 
-    public $attributes = array();
+    public $attributes = array(
+        'method' => 'post',
+        'action' => ''
+    );
 
-    public $fields;
+    public $fields = array();
+
+    public $view = 'form';
 
     public function result($result_type) {
         $this->result_type = $result_type;
@@ -39,6 +44,24 @@ class CyForm_Model {
         return $this;
     }
 
+    /**
+     * @param string $method
+     * @return CyForm_Model
+     */
+    public function method($method) {
+        $this->attributes['method'] = $method;
+        return $this;
+    }
+
+    /**
+     * @param string $action
+     * @return CyForm_Model
+     */
+    public function action($action) {
+        $this->attributes['action'] = $action;
+        return $this;
+    }
+
     public function attribute($key, $value) {
         $this->attributes[$key] = $value;
         return $this;
@@ -50,6 +73,15 @@ class CyForm_Model {
         } else {
             $this->fields[$field->name] = $field;
         }
+        return $this;
+    }
+
+    /**
+     * @param string $view
+     * @return CyForm_Model
+     */
+    public function view($view) {
+        $this->view = $view;
         return $this;
     }
     

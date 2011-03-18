@@ -8,9 +8,9 @@ class CyForm_Field {
 
     /**
      *
-     * @var array the field model defined in the form definition
+     * @var CyForm_Model_Field the field model defined in the form definition
      */
-    public $model;
+    public $_model;
 
     /**
      *
@@ -40,7 +40,7 @@ class CyForm_Field {
      *
      * @var CyForm
      */
-    protected $form;
+    protected $_form;
 
     /**
      *
@@ -48,11 +48,11 @@ class CyForm_Field {
      * @param array $model the field definition
      * @param string $type the type of the HTML input
      */
-    public function  __construct(CyForm $form, $name, array $model, $type) {
-        $this->form = $form;
-        $this->model = $model;
+    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model) {
+        $this->_form = $form;
+        $this->_model = $model;
         $this->name = $name;
-        $this->type = $type;
+        $this->type = $model->type;
     }
 
     /**
@@ -101,8 +101,8 @@ class CyForm_Field {
         if (null === $this->value) {
             $this->set_data(Arr::get($saved_data, $this->name));
         }
-        if ('' === $this->value && array_key_exists('on_empty', $this->model)) {
-            $this->value = $this->model['on_empty'];
+        if ('' === $this->value) {
+            $this->value = $this->_model->on_empty;
         }
     }
 
@@ -124,8 +124,8 @@ class CyForm_Field {
      * Stores the error messages in the <code>CyForm_Input::validation_errors</code> array.
      */
     public function validate() {
-        if (array_key_exists('validation', $this->model)) {
-            foreach ($this->model['validation'] as $validator => $details) {
+        if (array_key_exists('validation', $this->_model)) {
+            foreach ($this->_model['validation'] as $validator => $details) {
                 if (is_int($validator)) { // custom callback validator
                     $valid = $this->exec_callback_validator($validator, $details);
                 } else { // normal validator - using the Validate class
@@ -193,23 +193,23 @@ class CyForm_Field {
      * @usedby CyForm_Field::render()
      */
     protected function before_rendering() {
-        $this->model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
+        $this->_model['errors'] = $this->validation_errors;
+        if ( ! array_key_exists('attributes', $this->_model)) {
+            $this->_model['attributes'] = array();
         }
-        if (( ! $this->form->edit_mode()
-                && 'disable' == Arr::get($this->model, 'on_create'))
-            || ($this->form->edit_mode()
-                && 'disable' == Arr::get($this->model, 'on_edit'))) {
+        if (( ! $this->_form->edit_mode()
+                && 'disable' == Arr::get($this->_model, 'on_create'))
+            || ($this->_form->edit_mode()
+                && 'disable' == Arr::get($this->_model, 'on_edit'))) {
             
-            $this->model['attributes']['disabled'] = 'disabled';
+            $this->_model['attributes']['disabled'] = 'disabled';
         }
-        $this->model['attributes']['value'] = $this->value;
-        $this->model['attributes']['name'] = $this->name;
-        $this->model['attributes']['type'] = $this->type;
-        $this->model['name'] = $this->name;
-        if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = $this->type;
+        $this->_model['attributes']['value'] = $this->value;
+        $this->_model['attributes']['name'] = $this->name;
+        $this->_model['attributes']['type'] = $this->type;
+        $this->_model['name'] = $this->name;
+        if ( ! array_key_exists('view', $this->_model)) {
+            $this->_model['view'] = $this->type;
         }
     }
 
@@ -222,12 +222,12 @@ class CyForm_Field {
     public function render() {
         $this->before_rendering();
         try {
-            $view = new View($this->form->theme
-                .DIRECTORY_SEPARATOR.$this->model['view'],
-                $this->model);
+            $view = new View($this->_form->theme
+                .DIRECTORY_SEPARATOR.$this->_model['view'],
+                $this->_model);
         } catch (Kohana_View_Exception $ex) {
             $view = new View(CyForm::DEFAULT_THEME . DIRECTORY_SEPARATOR
-                    . $this->model['view'], $this->model);
+                    . $this->_model['view'], $this->_model);
         }
         return $view->render();
     }
