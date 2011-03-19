@@ -21,12 +21,22 @@ class CyForm_Model {
 
     public $view = 'form';
 
+    /**
+     * @param string $result_type
+     * @return CyForm_Model
+     */
     public function result($result_type) {
         $this->result_type = $result_type;
+        return $this;
     }
 
+    /**
+     * @param string $result_type
+     * @return CyForm_Model
+     */
     public function result_type($result_type) {
         $this->result_type = $result_type;
+        return $this;
     }
 
     public function theme($theme) {

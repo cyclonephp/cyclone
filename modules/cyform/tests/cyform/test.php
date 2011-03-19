@@ -100,7 +100,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
             'name2' => true,
             'name3' => 'val2'
         ));
-        $this->assertEquals($form->get_data(), array(
+        $this->assertEquals((array)$form->get_data(), array(
             'name1' => 'val1',
             'name2' => true,
             'name3' => 'val2'
