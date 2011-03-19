@@ -71,6 +71,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testValidation() {
+        $this->markTestSkipped('CyclonePHP needs a standalone validator class');
         $form = new CyForm('examples/basic');
         $form->set_input(array('name' => 'hello'));
         $this->assertEquals($form->_fields['name']->validation_errors,
@@ -186,7 +187,6 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
      */
     public function testEdit(array $fields, array $before_data
             , $progress_id_required, $input, array $after_data) {
-        echo "\033[37;1m";
         $cfg = Config::inst()->get('cyform');
         unset($_SESSION[$cfg['progress_key']]);
         $form_model = CyForm::model();
@@ -213,7 +213,6 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
         $form_after_submit->set_input($input);
         $result = $form_after_submit->get_data();
         $this->assertEquals($result, $after_data);
-        echo "\033[0m";
     }
 
     public function providerEdit() {
