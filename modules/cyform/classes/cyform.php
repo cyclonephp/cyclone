@@ -198,12 +198,16 @@ class CyForm {
         $_SESSION[$sess_key]['progress'][$progress_id] = array();
 
         // creating hidden input for storing unique form ID
-        $input = new CyForm_Field($this, $this->_config['progress_key']
-                , new CyForm_Model_Field('hidden'
-                        , $this->_config['progress_key']));
-        $input->set_data($progress_id);
+        $field_model = new CyForm_Model_Field('hidden'
+             , $this->_config['progress_key']);
+
+        $field = new CyForm_Field($this, $this->_config['progress_key']
+                , $field_model);
+        $field->set_data($progress_id);
         // and adding it to the form inputs
-        $this->_model->fields[$this->_config['progress_key']] = $input;
+        $this->_model->fields[$this->_config['progress_key']] = $field_model;
+
+        $this->_fields[$this->_config['progress_key']] = $field;
 
         return $progress_id;
     }
@@ -306,7 +310,7 @@ class CyForm {
             }
         } else {
             foreach ($this->_model->fields as $name => &$field) {
-                if ($field->_model->on_edit == 'hide') {
+                if ($field->on_edit == 'hide') {
                     unset($this->_fields[$name]);
                 }
             }

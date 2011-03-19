@@ -193,21 +193,19 @@ class CyForm_Field {
      * @usedby CyForm_Field::render()
      */
     protected function before_rendering() {
-        $this->_model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->_model)) {
-            $this->_model['attributes'] = array();
-        }
+        $this->_model->errors = $this->validation_errors;
+        
         if (( ! $this->_form->edit_mode()
-                && 'disable' == Arr::get($this->_model, 'on_create'))
+                && 'disable' == $this->_model->on_create)
             || ($this->_form->edit_mode()
-                && 'disable' == Arr::get($this->_model, 'on_edit'))) {
+                && 'disable' == $this->_model->on_edit)) {
             
-            $this->_model['attributes']['disabled'] = 'disabled';
+            $this->_model->attributes['disabled'] = 'disabled';
         }
-        $this->_model['attributes']['value'] = $this->value;
-        $this->_model['attributes']['name'] = $this->name;
-        $this->_model['attributes']['type'] = $this->type;
-        $this->_model['name'] = $this->name;
+        $this->_model->attributes['value'] = $this->value;
+        $this->_model->attributes['name'] = $this->name;
+        $this->_model->attributes['type'] = $this->type;
+        $this->_model->name = $this->name;
         if ( ! array_key_exists('view', $this->_model)) {
             $this->_model['view'] = $this->type;
         }
