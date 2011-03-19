@@ -110,18 +110,16 @@ class CyForm_Field {
      * Stores the error messages in the <code>CyForm_Input::validation_errors</code> array.
      */
     public function validate() {
-        if (array_key_exists('validation', $this->_model)) {
-            foreach ($this->_model['validation'] as $validator => $details) {
-                if (is_int($validator)) { // custom callback validator
-                    $valid = $this->exec_callback_validator($validator, $details);
-                } else { // normal validator - using the Validate class
-                    $valid = $this->exec_basic_validator($validator, $details);
-                }
-		if ( ! $valid)
-			return FALSE;
+        foreach ($this->_model->validators as $validator => $details) {
+            if (is_int($validator)) { // custom callback validator
+                $valid = $this->exec_callback_validator($validator, $details);
+            } else { // normal validator - using the Validate class
+                $valid = $this->exec_basic_validator($validator, $details);
             }
+            if (!$valid)
+                return FALSE;
         }
-	return TRUE;
+        return TRUE;
     }
 
     protected function exec_basic_validator($validator, $details) {
@@ -129,7 +127,7 @@ class CyForm_Field {
         if (is_array($details)) {
             $params = Arr::get($details, 'params', array());
             array_unshift($params, $this->value);
-            if (array_key_exists('error', $details)) {
+            if ($details['error']) {
                 $error = $details['error'];
             }
         } else {

@@ -51,7 +51,7 @@ class CyForm {
      *
      * @var array stores the configuration (config/cyform)
      */
-    protected $_config;
+    protected $_cfg;
 
     /**
      * indicates the
@@ -70,6 +70,8 @@ class CyForm {
             $file = FileSystem::find_file('forms/' . $model . '.php');
             if (FALSE === $file)
                 throw new CyForm_Exception("form not found: $model");
+            
+            $model = require $file;
         }
 
         if (  ! ($model instanceof CyForm_Model))
@@ -77,7 +79,7 @@ class CyForm {
 
         $this->_model = $model;
 
-        $this->_config = Config::inst()->get('cyform');
+        $this->_cfg = Config::inst()->get('cyform');
         $this->init($load_data_sources);
         $this->add_assets();
     }
@@ -154,7 +156,7 @@ class CyForm {
             $this->_progress_id = $this->create_progress_id();
         }
 
-        $_SESSION[$this->_config['session_key']]['progress'][$this->_progress_id] = $data;
+        $_SESSION[$this->_cfg['session_key']]['progress'][$this->_progress_id] = $data;
     }
 
     /**
@@ -164,7 +166,7 @@ class CyForm {
      * @return array
      */
     protected function get_saved_data($progress_id) {
-        $sess_key = $this->_config['session_key'];
+        $sess_key = $this->_cfg['session_key'];
         if (array_key_exists($sess_key, $_SESSION)
                 && array_key_exists($progress_id, $_SESSION[$sess_key]['progress'])) {
             $this->_progress_id = $progress_id;
@@ -181,7 +183,7 @@ class CyForm {
      * @return string
      */
     protected function create_progress_id() {
-        $sess_key = $this->_config['session_key'];
+        $sess_key = $this->_cfg['session_key'];
         if ( ! array_key_exists($sess_key, $_SESSION)) {
             $_SESSION[$sess_key] = array(
                 'progress' => array(),
@@ -198,15 +200,15 @@ class CyForm {
 
         // creating hidden input for storing unique form ID
         $field_model = new CyForm_Model_Field('hidden'
-             , $this->_config['progress_key']);
+             , $this->_cfg['progress_key']);
 
-        $field = new CyForm_Field($this, $this->_config['progress_key']
+        $field = new CyForm_Field($this, $this->_cfg['progress_key']
                 , $field_model);
         $field->set_data($progress_id);
         // and adding it to the form inputs
-        $this->_model->fields[$this->_config['progress_key']] = $field_model;
+        $this->_model->fields[$this->_cfg['progress_key']] = $field_model;
 
-        $this->_fields[$this->_config['progress_key']] = $field;
+        $this->_fields[$this->_cfg['progress_key']] = $field;
 
         return $progress_id;
     }
@@ -219,8 +221,8 @@ class CyForm {
      * @param array $src
      */
     public function set_input($src, $validate = true) {
-        if (array_key_exists($this->_config['progress_key'], $src)) {
-            $saved_data = $this->get_saved_data($src[$this->_config['progress_key']]);
+        if (array_key_exists($this->_cfg['progress_key'], $src)) {
+            $saved_data = $this->get_saved_data($src[$this->_cfg['progress_key']]);
         } else {
             $saved_data = array();
         }

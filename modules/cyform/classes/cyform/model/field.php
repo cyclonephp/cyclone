@@ -16,7 +16,7 @@ class CyForm_Model_Field {
 
     public $view;
 
-    public $validators;
+    public $validators = array();
 
     public $on_empty = '';
 
@@ -82,7 +82,7 @@ class CyForm_Model_Field {
      * @param string $error_msg
      * @return CyForm_Model_Field
      */
-    public function validator($validator, $params = TRUE, $error_msg) {
+    public function validator($validator, $params = TRUE, $error_msg = null) {
         if (is_string($validator)) {
             $this->validators[$validator] = $params;
         } else {
