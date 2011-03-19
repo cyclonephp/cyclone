@@ -34,7 +34,7 @@ class CyForm_Field_Date extends CyForm_Field {
     }
 
     protected function get_segment_name($segment) {
-        return $this->name.$this->suffixes[$segment];
+        return $this->_model->name.$this->suffixes[$segment];
     }
 
     public function  set_data($val) {

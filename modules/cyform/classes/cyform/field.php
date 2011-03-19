@@ -13,18 +13,6 @@ class CyForm_Field {
     public $_model;
 
     /**
-     *
-     * @var string the name of the field
-     */
-    public $name;
-
-    /**
-     *
-     * @var string the input type
-     */
-    public $type;
-
-    /**
      * @var mixed the current field value
      */
     public $value;
@@ -51,8 +39,6 @@ class CyForm_Field {
     public function  __construct(CyForm $form, $name, CyForm_Model_Field $model) {
         $this->_form = $form;
         $this->_model = $model;
-        $this->name = $name;
-        $this->type = $model->type;
     }
 
     /**
@@ -97,9 +83,9 @@ class CyForm_Field {
      * disabled on the client side therefore weren't submitted.
      */
     public function pick_input(&$src, &$saved_data = array()) {
-        $this->value = Arr::get($src, $this->name);
+        $this->value = Arr::get($src, $this->_model->name);
         if (null === $this->value) {
-            $this->set_data(Arr::get($saved_data, $this->name));
+            $this->set_data(Arr::get($saved_data, $this->_model->name));
         }
         if ('' === $this->value) {
             $this->value = $this->_model->on_empty;
@@ -203,9 +189,8 @@ class CyForm_Field {
             $this->_model->attributes['disabled'] = 'disabled';
         }
         $this->_model->attributes['value'] = $this->value;
-        $this->_model->attributes['name'] = $this->name;
-        $this->_model->attributes['type'] = $this->type;
-        $this->_model->name = $this->name;
+        $this->_model->attributes['name'] = $this->_model->name;
+        $this->_model->attributes['type'] = $this->_model->type;
         if ( ! array_key_exists('view', $this->_model)) {
             $this->_model['view'] = $this->type;
         }

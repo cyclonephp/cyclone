@@ -22,6 +22,6 @@ class CyForm_Field_Checkbox extends CyForm_Field {
     }
 
     public function pick_input(&$src, &$saved_data = array()) {
-        $this->value = (boolean) Arr::get($src, $this->name);
+        $this->value = (boolean) Arr::get($src, $this->_model->name);
     }
 }

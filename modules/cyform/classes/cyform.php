@@ -22,8 +22,7 @@ class CyForm {
             $class = $candidate;
             return new $class($name);
         } 
-        $class = 'CyForm_Model_Field';
-        return new $class($type, $name);
+        return new CyForm_Model_Field($type, $name);
     }
 
     public static function source($callback) {
