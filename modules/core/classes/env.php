@@ -58,6 +58,8 @@ class Env {
 
     public static $charset = 'utf-8';
 
+    public static $eol;
+
     /**
      * Sets up Env::$is_cli, Env::$is_windows and Env::$current. The last one
      * is loaded from the CYCLONEPHP_ENV environment variable, or defaults to
@@ -73,6 +75,8 @@ class Env {
             self::$current = self::DEV;
         }
         self::$magic_quotes = get_magic_quotes_gpc();
+
+        self::$eol = self::$is_cli ? PHP_EOL : '<br />';
 
         $_GET = Kohana::sanitize($_GET);
         $_POST = Kohana::sanitize($_POST);
