@@ -104,8 +104,8 @@ class CyForm_Field {
 
     /**
      * if the validation is set up for the field, then executes all of the
-     * validators by calling <code>CyForm_Input::exec_basic_validator()</code> and
-     * <code>CyForm_Input::exec_callback_validator()</code>.
+     * validators by calling CyForm_Input::exec_basic_validator() and
+     * CyForm_Input::exec_callback_validator().
      *
      * Stores the error messages in the <code>CyForm_Input::validation_errors</code> array.
      */
