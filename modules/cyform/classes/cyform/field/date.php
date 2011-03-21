@@ -21,8 +21,8 @@ class CyForm_Field_Date extends CyForm_Field {
     );
 
 
-    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model) {
-        parent::__construct($form, $name, $model, 'date');
+    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model, $cfg) {
+        parent::__construct($form, $name, $model, 'date', $cfg);
     }
 
     public function  pick_input(&$src, &$saved_data = array()) {

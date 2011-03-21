@@ -32,7 +32,9 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testInputCheckbox() {
-        $checkbox = new CyForm_Field_Checkbox(new CyForm(CyForm::model()), '', CyForm::field('checkbox', 'chb'));
+        $checkbox = new CyForm_Field_Checkbox(new CyForm(CyForm::model()), ''
+                , CyForm::field('checkbox', 'chb')
+                , Config::inst()->get('cyform'));
 
         $arr = array(
             'chb' => 'on'
@@ -76,15 +78,14 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testValidation() {
-        $this->markTestSkipped('CyclonePHP needs a standalone validator class');
+        //$this->markTestSkipped('CyclonePHP needs a standalone validator class');
         $form = new CyForm('examples/basic');
         $form->set_input(array('name' => 'hello'));
-        $this->assertEquals($form->_fields['name']->validation_errors,
-                array(
-                    'numeric' => 'hello: invalid number format',
+        $this->assertEquals(array(
                     0 => 'username hello is not unique',
+                    'numeric' => 'hello: invalid number format',
                     1 => 'username hello is not unique'
-                ));
+                ), $form->_fields['name']->validation_errors);
     }
 
     public function testResult() {

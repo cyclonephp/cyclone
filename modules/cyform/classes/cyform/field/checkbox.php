@@ -6,10 +6,10 @@
  */
 class CyForm_Field_Checkbox extends CyForm_Field {
 
-    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model) {
+    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model, $cfg) {
         if ($model->type != 'checkbox')
             throw new CyForm_Exception('parameter $model->type must be checkbox');
-        parent::__construct($form, $name, $model);
+        parent::__construct($form, $name, $model, $cfg);
     }
 
     /**

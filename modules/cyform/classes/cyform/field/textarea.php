@@ -6,8 +6,8 @@
  */
 class CyForm_Field_Textarea extends CyForm_Field {
 
-    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model) {
-        parent::__construct($form, $name, $model, 'textarea');
+    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model, $cfg) {
+        parent::__construct($form, $name, $model, 'textarea', $cfg);
     }
 
     protected function before_rendering() {

@@ -93,9 +93,9 @@ class CyForm {
         foreach($this->_model->fields as $name => $field_model) {
             $class = 'CyForm_Field_'.ucfirst($field_model->type);
             if (class_exists($class)) {
-                $field = new $class($this, $name, $field_model);
+                $field = new $class($this, $name, $field_model, $this->_cfg);
             } else  {
-                $field = new CyForm_Field($this, $name, $field_model);
+                $field = new CyForm_Field($this, $name, $field_model, $this->_cfg);
             }
             
             if ($load_data_sources) {
@@ -203,7 +203,7 @@ class CyForm {
              , $this->_cfg['progress_key']);
 
         $field = new CyForm_Field($this, $this->_cfg['progress_key']
-                , $field_model);
+                , $field_model, $this->_cfg);
         $field->set_data($progress_id);
         // and adding it to the form inputs
         $this->_model->fields[$this->_cfg['progress_key']] = $field_model;

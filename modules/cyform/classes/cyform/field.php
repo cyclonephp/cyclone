@@ -32,13 +32,21 @@ class CyForm_Field {
 
     /**
      *
+     * @var cyform configuration
+     */
+    protected $_cfg;
+
+    /**
+     *
      * @param string $name the name of the input field
      * @param array $model the field definition
      * @param string $type the type of the HTML input
      */
-    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model) {
+    public function  __construct(CyForm $form, $name
+            , CyForm_Model_Field $model, $cfg) {
         $this->_form = $form;
         $this->_model = $model;
+        $this->_cfg = $cfg;
     }
 
     /**
@@ -110,24 +118,33 @@ class CyForm_Field {
      * Stores the error messages in the <code>CyForm_Input::validation_errors</code> array.
      */
     public function validate() {
+        $policy = $this->_cfg['validation_policy'];
+        $is_valid = TRUE;
         foreach ($this->_model->validators as $validator => $details) {
             if (is_int($validator)) { // custom callback validator
                 $valid = $this->exec_callback_validator($validator, $details);
             } else { // normal validator - using the Validate class
                 $valid = $this->exec_basic_validator($validator, $details);
             }
-            if (!$valid)
-                return FALSE;
+            if ( ! $valid ) {
+                if ($policy == 'fail_on_first')
+                    return FALSE;
+                $is_valid = FALSE;
+            }
         }
-        return TRUE;
+        return $is_valid;
     }
 
     protected function exec_basic_validator($validator, $details) {
         $callback = array('Validate', $validator);
         if (is_array($details)) {
             $params = Arr::get($details, 'params', array());
-            array_unshift($params, $this->value);
-            if ($details['error']) {
+            if (TRUE === $params) {
+                $params = array($this->value);
+            } else {
+                array_unshift($params, $this->value);
+            }
+            if (isset($details['error'])) {
                 $error = $details['error'];
             }
         } else {
@@ -139,7 +156,9 @@ class CyForm_Field {
                 $error = __(Kohana::config('cyform.default_error_prefix') . $validator);
             }
             $this->add_validation_error($validator, $error, $params);
+            return FALSE;
         }
+        return TRUE;
     }
 
     protected function exec_callback_validator($validator, $details) {
@@ -160,7 +179,9 @@ class CyForm_Field {
                 $error = $details['error'];
             }
             $this->add_validation_error($validator, $error, $params);
+            return FALSE;
         }
+        return TRUE;
     }
 
     protected function add_validation_error($validator, $error_template, $params) {

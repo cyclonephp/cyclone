@@ -84,9 +84,12 @@ class CyForm_Model_Field {
      * @param string $error_msg
      * @return CyForm_Model_Field
      */
-    public function validator($validator, $params = TRUE, $error_msg = null) {
+    public function validator($validator, $params = TRUE, $error_msg = NULL) {
         if (is_string($validator)) {
-            $this->validators[$validator] = $params;
+            $this->validators[$validator] = array(
+                'params' => $params,
+                'error' => $error_msg
+            );
         } else {
             $this->validators []= array(
                 'callback' => $validator,
