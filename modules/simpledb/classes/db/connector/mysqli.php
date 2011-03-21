@@ -8,7 +8,16 @@ class DB_Connector_Mysqli extends DB_Connector_Abstract {
 
     public function connect() {
         $conn = $this->_config['connection'];
-        $this->db_conn = @new mysqli($conn['host'], $conn['username'],
+
+        if (array_key_exists('persistent', $this->_config['connection'])
+                && $conn['connection']) {
+           $host = 'p:'.$conn['host'];
+        } else {
+            $host = $conn['host'];
+        }
+
+
+        $this->db_conn = @new mysqli($host, $conn['username'],
                 $conn['password'], $conn['database']
                 , Arr::get($conn, 'port',  ini_get('mysqli.default_port'))
                 , Arr::get($conn, 'socket', ini_get('mysqli.default_socket')));
