@@ -56,19 +56,16 @@ class CyForm_Field_Date extends CyForm_Field {
     }
 
     protected function  before_rendering() {
-        $this->model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
-        }
+        $this->_model->errors = $this->validation_errors;
         
         if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = 'date';
+            $this->_model->view = 'date';
         }
 
-        $this->model['segments'] = array();
+        $this->_model->segments = array();
 
         foreach (array_keys($this->value) as $segment) {
-            $this->model['segments'] []= $this->build_segment_view_data($segment);
+            $this->_model->segments []= $this->build_segment_view_data($segment);
         }
     }
 

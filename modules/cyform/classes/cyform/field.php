@@ -99,7 +99,7 @@ class CyForm_Field {
      * @param array $src
      */
     public function push_input(&$src) {
-        $src[$this->name] = $this->value;
+        $src[$this->_model->name] = $this->value;
     }
 
     /**
@@ -189,8 +189,8 @@ class CyForm_Field {
         $this->_model->attributes['value'] = $this->value;
         $this->_model->attributes['name'] = $this->_model->name;
         $this->_model->attributes['type'] = $this->_model->type;
-        if ( ! array_key_exists('view', $this->_model)) {
-            $this->_model['view'] = $this->type;
+        if (NULL === $this->_model->view) {
+            $this->_model->view = $this->_model->type;
         }
     }
 
@@ -203,12 +203,12 @@ class CyForm_Field {
     public function render() {
         $this->before_rendering();
         try {
-            $view = new View($this->_form->theme
-                .DIRECTORY_SEPARATOR.$this->_model['view'],
-                $this->_model);
+            $view = new View($this->_form->_model->theme
+                .DIRECTORY_SEPARATOR.$this->_model->view,
+                (array) $this->_model);
         } catch (Kohana_View_Exception $ex) {
             $view = new View(CyForm::DEFAULT_THEME . DIRECTORY_SEPARATOR
-                    . $this->_model['view'], $this->_model);
+                    . $this->_model->view, (array) $this->_model);
         }
         return $view->render();
     }

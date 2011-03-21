@@ -33,11 +33,16 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testInputCheckbox() {
         $checkbox = new CyForm_Field_Checkbox(new CyForm(CyForm::model()), '', CyForm::field('checkbox', 'chb'));
-        $checkbox->set_data('on');
+
+        $arr = array(
+            'chb' => 'on'
+        );
+        $checkbox->pick_input($arr);
 
         $this->assertTrue($checkbox->get_data());
 
-        $checkbox->set_data(null);
+        $arr = array();
+        $checkbox->pick_input($arr);
 
         $this->assertFalse($checkbox->get_data());
     }

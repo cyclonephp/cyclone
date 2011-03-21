@@ -18,10 +18,16 @@ class CyForm_Field_Checkbox extends CyForm_Field {
      * @param string $val
      */
     public function set_data($val) {
-        $this->value = (boolean) $val == 'on';
+        $this->value = (boolean) $val;
+    }
+
+    public function  push_input(&$src) {
+        if ($this->value) {
+            $src[$this->_model->name] = 'on';
+        }
     }
 
     public function pick_input(&$src, &$saved_data = array()) {
-        $this->value = (boolean) Arr::get($src, $this->_model->name);
+        $this->value = array_key_exists($this->_model->name, $src);
     }
 }

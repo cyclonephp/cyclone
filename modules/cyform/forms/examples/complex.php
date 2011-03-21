@@ -14,7 +14,7 @@ return CyForm::model()->theme('gray')
                 'f' => 'female',
                 'm' => 'male'
             ))->source(CyForm::source(function(){
-                    return JORK::from('Model_User')->exec();
+                    return JORK::from('Model_User')->exec('jork_test');
                 })
                 ->val('id')->text('name')
            )

@@ -44,32 +44,25 @@ class CyForm_Field_List extends CyForm_Field {
     }
 
     protected function before_rendering() {
-        $this->model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
-        }
+        $this->_model->errors = $this->validation_errors;
 
-        $multiple = Arr::get($this->model, 'multiple');
-
-        if ($multiple && is_null($this->value)) {
+        /*if ($this->_model->multiple && is_null($this->value)) {
             $this->value = array();
-        }
-        $this->model['attributes']['value'] = $this->value;
-        $this->model['attributes']['name'] = $this->name;
+        }*/
+        $this->_model->attributes['value'] = $this->value;
+        $this->_model->attributes['name'] = $this->_model->name;
 
-        if ($multiple) {
-            $this->model['attributes']['name'] .= '[]';
+        if ($this->_model->multiple) {
+            $this->_model->attributes['name'] .= '[]';
         }
-        $this->model['attributes']['type'] = $this->type;
-        $this->model['name'] = $this->name;
 
-        if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = 'select';
+        if (NULL === $this->_model->view) {
+            $this->_model->view = 'select';
         }
-        if ($this->model['view'] == 'buttons') {
-            $this->model['view'] = $multiple ? 'checkboxlist' : 'radiogroup';
-        } elseif ($this->model['view'] == 'select' && $multiple) {
-            $this->model['attributes']['multiple'] = 'multiple';
+        if ($this->_model->view == 'buttons') {
+            $this->_model->view = $this->_model->multiple ? 'checkboxlist' : 'radiogroup';
+        } elseif ($this->_model->view == 'select' && $this->_model->multiple) {
+            $this->_model->attributes['multiple'] = 'multiple';
         }
     }
     

@@ -24,6 +24,8 @@ class CyForm_Model_Field {
 
     public $on_edit;
 
+    public $errors = array();
+
     public function  __construct($type, $name = NULL) {
         $this->type = $type;
         $this->name = $name;
