@@ -35,6 +35,13 @@ class FileSystem {
     private static $_path_cache_file;
 
     /**
+     *
+     * @var string
+     * @usedby FileSystem::bootstrap()
+     */
+    private static $_cache_dir;
+
+    /**
      * Set to TRUE by find_file() if self::$_abs_file_paths changed and it
      * should be serialized by save_cache()
      *
@@ -63,14 +70,51 @@ class FileSystem {
         self::$_roots = $roots;
         
         if ($cache_dir) {
+            self::$_cache_dir = $cache_dir;
             self::$_path_cache_file = $cache_dir . 'filepaths.txt';
-            if ( ! is_writable(self::$_path_cache_file))
-                throw new Exception(self::$_path_cache_file . " is not writable");
             self::$_abs_file_paths = unserialize(file_get_contents(self::$_path_cache_file));
             register_shutdown_function(array('FileSystem', 'save_cache'));
         } else {
             self::$_abs_file_paths = array();
         }
+    }
+
+    /**
+     * Tries to create the system cache directory.
+     *
+     * @see FileSystem::$_cache_dir
+     * @usedby FileSystem::bootstrap()
+     */
+    private static function create_cache_dir() {
+        if ( ! is_writable(self::$_cache_dir)) {
+            if ( ! file_exists(self::$_cache_dir)) {
+                if ( ! @mkdir(self::$_cache_dir, 0755, TRUE))
+                    throw new Exception('failed to create cache directory: '
+                            . self::$_cache_dir);
+            } else 
+                throw new Exception(self::$_cache_dir . ' is not writable');
+        }
+    }
+
+    /**
+     * Returns the absolute path of a subdirectory in the system cache directory.
+     *
+     * If the directory doesn't exist then tries to create it, and throws an
+     * exception if the creation fails.
+     *
+     * @param string $rel_path the relative path to the subdirectory in system cache
+     * @return string the absolute path of the cache directory
+     */
+    public static function get_cache_dir($rel_path) {
+        $candidate = self::$_cache_dir . $rel_path;
+        if ( ! is_dir($candidate)) {
+            if (file_exists($candidate))
+                throw new Exception("cache path '$rel_path' exists but not a directory");
+
+            if ( ! @mkdir($candidate, 0755, TRUE))
+                throw new Exception("failed to create cache directory '$rel_path'");
+        }
+        return $candidate;
     }
 
     /**
