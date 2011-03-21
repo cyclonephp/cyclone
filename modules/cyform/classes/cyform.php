@@ -16,7 +16,7 @@ class CyForm {
      * @param string $name
      * @return CyForm_Model_Field
      */
-    public static function field($type = 'text', $name = NULL) {
+    public static function field($name = NULL, $type = 'text') {
         $candidate = 'CyForm_Model_Field_' . $type;
         if (class_exists($candidate)) {
             $class = $candidate;

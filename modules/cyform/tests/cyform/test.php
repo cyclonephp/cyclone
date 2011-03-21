@@ -16,7 +16,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testBasicInput() {
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'basic'))
+                ->field(CyForm::field('basic', 'text'))
         );
         $this->assertEquals(1, count($form->_fields));
         $this->assertTrue($form->_fields['basic'] instanceof CyForm_Field);
@@ -27,13 +27,13 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
      * @dataProvider providerExplicitInput
      */
     public function testExplicitInput($field_type, $input_class) {
-        $form = new CyForm(CyForm::model()->field(CyForm::field($field_type, 'name')));
+        $form = new CyForm(CyForm::model()->field(CyForm::field('name', $field_type)));
         $this->assertTrue($form->_fields['name'] instanceof $input_class);
     }
 
     public function testInputCheckbox() {
         $checkbox = new CyForm_Field_Checkbox(new CyForm(CyForm::model()), ''
-                , CyForm::field('checkbox', 'chb')
+                , CyForm::field('chb', 'checkbox')
                 , Config::inst()->get('cyform'));
 
         $arr = array(
@@ -54,7 +54,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
      * @dataProvider providerDataSource
      */
     public function testDataSourceLoading($data_source) {
-        $form = new CyForm(CyForm::model()->field(CyForm::field('list', 'name')
+        $form = new CyForm(CyForm::model()->field(CyForm::field('name', 'list')
                 ->source($data_source)));
         
         foreach ( $this->mockDataSource() as $row) {
@@ -64,8 +64,8 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testLoadInput() {
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'name1'))
-                ->field(CyForm::field('text', 'name2'))
+                ->field(CyForm::field('name1', 'text'))
+                ->field(CyForm::field('name2', 'text'))
         );
 
         $form->set_input(array(
@@ -90,14 +90,14 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testResult() {
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'name1'))
-                ->field(CyForm::field('checkbox', 'name2'))
-                ->field(CyForm::field('list', 'name3')
+                ->field(CyForm::field('name1', 'text'))
+                ->field(CyForm::field('name2', 'checkbox'))
+                ->field(CyForm::field('name3', 'list')
                         ->items(array(
                             'val1' => 'text1',
                             'val2' => 'text2'
                         )))
-                ->field(CyForm::field('submit'))
+                ->field(CyForm::field(NULL, 'submit'))
                 ->result('stdClass')
         );
 
@@ -116,7 +116,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testOnEmpty() {
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'name1')->on_empty(NULL))
+                ->field(CyForm::field('name1', 'text')->on_empty(NULL))
         );
         $form->set_input(array('name1' => ''));
         $data = $form->get_data();
@@ -129,7 +129,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
      */
     public function testFieldDate($date_string, $input, $date_format) {
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('date', 'mydate'))
+                ->field(CyForm::field('mydate', 'date'))
                 );
         $form->_fields['mydate']->value_format = $date_format;
 
@@ -142,7 +142,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
         $this->assertEquals($data['mydate'], $date_string);
 
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('date', 'mydate'))
+                ->field(CyForm::field('mydate', 'date'))
                 );
         $form->_fields['mydate']->value_format = $date_format;
         $form->set_data(array('mydate' => $date_string));
@@ -152,7 +152,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testOnCreate() {
         $form = new CyForm(CyForm::model()
-            ->field(CyForm::field('text', 'name')
+            ->field(CyForm::field('name', 'text')
                 ->on_create('hide'))
         );
 
@@ -160,7 +160,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
         $this->assertFalse(array_key_exists('name', $form->_fields));
 
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'name')
+                ->field(CyForm::field('name', 'text')
                         ->on_create('disable'))
         );
         $form->render();
@@ -169,7 +169,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
 
     public function testOnEdit() {
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'name')
+                ->field(CyForm::field('name', 'text')
                         ->on_edit('hide'))
         );
 
@@ -177,7 +177,7 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
         $form->render();
         $this->assertFalse(array_key_exists('name', $form->_fields));
         $form = new CyForm(CyForm::model()
-                ->field(CyForm::field('text', 'name')
+                ->field(CyForm::field('name', 'text')
                         ->on_edit('disable'))
         );
         
@@ -224,8 +224,8 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
     public function providerEdit() {
         $rval = array();
         $fields = array(
-            CyForm::field('text', 'name1'),
-            CyForm::field('text', 'name2')
+            CyForm::field('name1', 'text'),
+            CyForm::field('name2', 'text')
         );
         $before_data = array('name1' => 'val1', 'name2' => 'val2');
         $progress_id_required = false;
@@ -234,8 +234,8 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
         $rval []= array($fields, $before_data, $progress_id_required, $input, $after_data);
 
         $fields = array(
-            CyForm::field('text', 'name1'),
-            CyForm::field('text', 'name2')
+            CyForm::field('name1', 'text'),
+            CyForm::field('name2', 'text')
         );
         $before_data = array('name1' => 'val1', 'name2' => 'val2', 'name3' => 'val3');
         $progress_id_required = true;
@@ -244,8 +244,8 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
         $rval []= array($fields, $before_data, $progress_id_required, $input, $after_data);
 
         $fields = array(
-            CyForm::field('text', 'name1'),
-            CyForm::field('text', 'name2')
+            CyForm::field('name1', 'text'),
+            CyForm::field('name2', 'text')
         );
         $before_data = array('name1' => 'val1', 'name2' => 'val2', 'name3' => 'val3');
         $progress_id_required = true;

@@ -1,7 +1,7 @@
 <?php
 
 return CyForm::model()
-    ->field(CyForm::field('text', 'name')
+    ->field(CyForm::field('name', 'text')
         ->validator('not_empty')
         ->validator('regex', array('/[a-z]*/'))
         ->validator('numeric', array(), ':1: invalid number format')
