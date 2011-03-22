@@ -44,6 +44,9 @@ class CyForm_Field_Date extends CyForm_Field {
             $pattern = str_replace($segment, '(?P<'.$segment.'>\d+)', $pattern);
         }
         preg_match($pattern, $val, $matches);
+        if (empty($matches))
+            throw new Exception('invalid date format');
+
         $this->value = array(
             'year' => $matches['year'],
             'month' => $matches['month'],
@@ -112,22 +115,6 @@ class CyForm_Field_Date extends CyForm_Field {
             }
         }
         $this->_model->segments []= $day_seg;
-    }
-
-    protected function build_segment_view_data($segment) {
-        $rval = array(
-            'value' => $this->value[$segment],
-            'name' => $this->get_segment_name($segment),
-            'items' => array()
-        );
-        for ($i = $min_date[$segment]; $i <= $max_date[$segment]; $i++) {
-            if (strlen($i) < 2) {
-                $rval['items'][$tmp = '0'.$i] = $tmp;
-            } else {
-                $rval['items'][$i] = $i;
-            }
-        }
-        return $rval;
     }
 
     protected function extract_date_definition($key) {

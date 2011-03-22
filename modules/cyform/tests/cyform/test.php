@@ -259,7 +259,8 @@ class CyForm_Test extends Kohana_Unittest_TestCase {
     public function providerFieldDate() {
         return array(
             array('2010-09-17', array('year' => '2010', 'month' => '09', 'day' => '17'), 'year-month-day'),
-            array('09/17/2010', array('year' => '2010', 'month' => '09', 'day' => '17'), 'month/day/year')
+            array('09/17/2010', array('year' => '2010', 'month' => '09', 'day' => '17'), 'month/day/year'),
+            array('2010.09.17', array('year' => '2010', 'month' => '09', 'day' => '17'), 'year.month.day')
         );
     }
 
