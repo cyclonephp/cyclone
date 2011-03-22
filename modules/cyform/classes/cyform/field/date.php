@@ -58,7 +58,7 @@ class CyForm_Field_Date extends CyForm_Field {
     protected function  before_rendering() {
         $this->_model->errors = $this->validation_errors;
         
-        if ( ! array_key_exists('view', $this->model)) {
+        if (NULL === $this->_model->view) {
             $this->_model->view = 'date';
         }
 
@@ -92,18 +92,18 @@ class CyForm_Field_Date extends CyForm_Field {
     }
 
     protected function extract_date_definition($key, $default = 'now') {
-        if ( ! array_key_exists($key, $this->model)) {
-            $this->model[$key] = $default;
+        if (NULL === $this->_model->$key) {
+            $this->_model->$key = $default;
         }
 
-        if ('now' === $this->model[$key]) {
+        if ('now' === $this->_model->$key) {
             return array(
                 'year' => date('Y'),
                 'month' => date('m'),
                 'day' => date('d')
             );
         }
-        return $this->model[$key];
+        return $this->_model->$key;
     }
 
 }

@@ -12,14 +12,11 @@ class CyForm_Field_Textarea extends CyForm_Field {
 
     protected function before_rendering() {
         $this->model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
-        }
-        $this->model['value'] = $this->value;
-        $this->model['attributes']['name'] = $this->name;
-        $this->model['name'] = $this->name;
-        if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = $this->type;
+        
+        $this->_model->value = $this->value;
+        $this->_model->attributes['name'] = $this->_model->name;
+        if (NULL === $this->_model->view) {
+            $this->_model->view = 'textarea';
         }
     }
 }

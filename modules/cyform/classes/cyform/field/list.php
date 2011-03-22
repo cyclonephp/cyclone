@@ -46,9 +46,9 @@ class CyForm_Field_List extends CyForm_Field {
     protected function before_rendering() {
         $this->_model->errors = $this->validation_errors;
 
-        /*if ($this->_model->multiple && is_null($this->value)) {
+        if ($this->_model->multiple && is_null($this->value)) {
             $this->value = array();
-        }*/
+        }
         $this->_model->attributes['value'] = $this->value;
         $this->_model->attributes['name'] = $this->_model->name;
 

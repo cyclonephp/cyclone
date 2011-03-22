@@ -3,22 +3,48 @@
 
 return CyForm::model()->theme('gray')
         ->title('Complex CyForm example')
-        ->field(CyForm::field('text')
-            ->label('hello')
-            ->descr('some useful description')
-        )->field(CyForm::field('list')
-            ->label('my list')
-            ->multiple(TRUE)
+        ->action('formtest/ajaxsave')
+        ->field(CyForm::field('name')
+            ->label('username'))
+
+        ->field(CyForm::field('password', 'password')
+            ->label('password')
+        )->field(CyForm::field('role', 'list')
+            ->label('role')
+            ->view('select')
+            ->items(array(
+                '0' => 'user',
+                '1' => 'admin'
+            ))
+        )->field(CyForm::field('enabled', 'checkbox')
+             ->label('enabled')
+        )->field(CyForm::field('about', 'textarea')
+                ->label('about')
+        )->field(CyForm::field('gender', 'list')
+            ->label('gender')
+            ->view('buttons')
             ->validator('not_empty')
             ->items(array(
                 'f' => 'female',
                 'm' => 'male'
-            ))->source(CyForm::source(function(){
-                    return JORK::from('Model_User')->exec('jork_test');
-                })
-                ->val('id')->text('name')
-           )
-        );
+            ))
+        )->field(CyForm::field('groups', 'list')
+                ->label('groups')
+                ->multiple(TRUE)
+                ->view('buttons')
+                ->items(array(
+                    '1' => 'group 01',
+                    '2' => 'group 02',
+                    '3' => 'group 03'
+                ))
+        )->field(CyForm::field('expires', 'date')
+                ->label('expires')
+                ->min_date('now')
+                ->max_date(array('year' => '2015', 'month' => '05', 'day' => '22'))
+        )
+
+
+;
 
 return array(
     'theme' => 'cyform/gray',
