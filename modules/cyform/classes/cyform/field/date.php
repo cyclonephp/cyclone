@@ -49,6 +49,7 @@ class CyForm_Field_Date extends CyForm_Field {
             'month' => $matches['month'],
             'day' => $matches['day']
         );
+        // TODO validate
     }
 
     public function  get_data() {
@@ -62,20 +63,58 @@ class CyForm_Field_Date extends CyForm_Field {
             $this->_model->view = 'date';
         }
 
-        $this->_model->segments = array();
+        $min_date = $this->extract_date_definition('min_date');
+        $max_date = $this->extract_date_definition('max_date');
 
-        foreach (array_keys($this->value) as $segment) {
-            $this->_model->segments []= $this->build_segment_view_data($segment);
+        $year_seg = array(
+            'value' => $this->value['year'],
+            'name' => $this->get_segment_name('year'),
+            'items' => array()
+        );
+
+        for ($y = $min_date['year']; $y <= $max_date['year']; ++$y) {
+            if (strlen($y) < 2) {
+                $year_seg['items'][$tmp = '0'.$y] = $tmp;
+            } else {
+                $year_seg['items'][$y] = $y;
+            }
         }
+        $this->_model->segments = array($year_seg);
+
+        $month_seg = array(
+            'value' => $this->value['month'],
+            'name' => $this->get_segment_name('month'),
+            'items' => array()
+        );
+
+        for ($m = 1; $m <= 12; ++$m) {
+            if (strlen($m) < 2) {
+                $month_seg['items'][$tmp = '0'.$m] = $tmp;
+            } else {
+                $month_seg['items'][$m] = $m;
+            }
+        }
+        $this->_model->segments []= $month_seg;
+
+
+
+        $day_seg = array(
+            'value' => $this->value['day'],
+            'name' => $this->get_segment_name('day'),
+            'items' => array()
+        );
+
+        for ($d = 1; $d <= 31; ++$d) {
+            if (strlen($d) < 2) {
+                $day_seg['items'][$tmp = '0'.$d] = $tmp;
+            } else {
+                $day_seg['items'][$d] = $d;
+            }
+        }
+        $this->_model->segments []= $day_seg;
     }
 
     protected function build_segment_view_data($segment) {
-        static $min_date = null;
-        static $max_date = null;
-        if (null == $min_date && null == $max_date) {
-            $min_date = $this->extract_date_definition('min_date', '1900-01-01');
-            $max_date = $this->extract_date_definition('max_date');
-        }
         $rval = array(
             'value' => $this->value[$segment],
             'name' => $this->get_segment_name($segment),
@@ -91,11 +130,7 @@ class CyForm_Field_Date extends CyForm_Field {
         return $rval;
     }
 
-    protected function extract_date_definition($key, $default = 'now') {
-        if (NULL === $this->_model->$key) {
-            $this->_model->$key = $default;
-        }
-
+    protected function extract_date_definition($key) {
         if ('now' === $this->_model->$key) {
             return array(
                 'year' => date('Y'),

@@ -39,7 +39,7 @@ return CyForm::model()->theme('gray')
                 ))
         )->field(CyForm::field('expires', 'date')
                 ->label('expires')
-                ->min_date('now')
+                //->min_date('now')
                 ->max_date(array('year' => '2015', 'month' => '05', 'day' => '22'))
         )
 

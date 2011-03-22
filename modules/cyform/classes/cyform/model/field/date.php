@@ -3,9 +3,9 @@
 class CyForm_Model_Field_Date extends CyForm_Model_Field {
 
 
-    public $min_date;
+    public $min_date = array('year' => '1900', 'month' => '01', 'day' => '01');
 
-    public $max_date;
+    public $max_date = 'now';
 
     public function  __construct($name = NULL) {
         parent::__construct('date', $name);
