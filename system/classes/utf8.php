@@ -749,8 +749,8 @@ class UTF8 {
 
 } // End UTF8
 
-if (Kohana_UTF8::$server_utf8 === NULL)
+if (UTF8::$server_utf8 === NULL)
 {
 	// Determine if this server supports UTF-8 natively
-	Kohana_UTF8::$server_utf8 = extension_loaded('mbstring');
+	UTF8::$server_utf8 = extension_loaded('mbstring');
 }

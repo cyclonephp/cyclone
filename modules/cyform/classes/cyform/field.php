@@ -8,21 +8,9 @@ class CyForm_Field {
 
     /**
      *
-     * @var array the field model defined in the form definition
+     * @var CyForm_Model_Field the field model defined in the form definition
      */
-    public $model;
-
-    /**
-     *
-     * @var string the name of the field
-     */
-    public $name;
-
-    /**
-     *
-     * @var string the input type
-     */
-    public $type;
+    public $_model;
 
     /**
      * @var mixed the current field value
@@ -40,7 +28,13 @@ class CyForm_Field {
      *
      * @var CyForm
      */
-    protected $form;
+    protected $_form;
+
+    /**
+     *
+     * @var cyform configuration
+     */
+    protected $_cfg;
 
     /**
      *
@@ -48,11 +42,11 @@ class CyForm_Field {
      * @param array $model the field definition
      * @param string $type the type of the HTML input
      */
-    public function  __construct(CyForm $form, $name, array $model, $type) {
-        $this->form = $form;
-        $this->model = $model;
-        $this->name = $name;
-        $this->type = $type;
+    public function  __construct(CyForm $form, $name
+            , CyForm_Model_Field $model, $cfg) {
+        $this->_form = $form;
+        $this->_model = $model;
+        $this->_cfg = $cfg;
     }
 
     /**
@@ -97,12 +91,12 @@ class CyForm_Field {
      * disabled on the client side therefore weren't submitted.
      */
     public function pick_input(&$src, &$saved_data = array()) {
-        $this->value = Arr::get($src, $this->name);
+        $this->value = Arr::get($src, $this->_model->name);
         if (null === $this->value) {
-            $this->set_data(Arr::get($saved_data, $this->name));
+            $this->set_data(Arr::get($saved_data, $this->_model->name));
         }
-        if ('' === $this->value && array_key_exists('on_empty', $this->model)) {
-            $this->value = $this->model['on_empty'];
+        if ('' === $this->value) {
+            $this->value = $this->_model->on_empty;
         }
     }
 
@@ -113,37 +107,44 @@ class CyForm_Field {
      * @param array $src
      */
     public function push_input(&$src) {
-        $src[$this->name] = $this->value;
+        $src[$this->_model->name] = $this->value;
     }
 
     /**
      * if the validation is set up for the field, then executes all of the
-     * validators by calling <code>CyForm_Input::exec_basic_validator()</code> and
-     * <code>CyForm_Input::exec_callback_validator()</code>.
+     * validators by calling CyForm_Input::exec_basic_validator() and
+     * CyForm_Input::exec_callback_validator().
      *
      * Stores the error messages in the <code>CyForm_Input::validation_errors</code> array.
      */
     public function validate() {
-        if (array_key_exists('validation', $this->model)) {
-            foreach ($this->model['validation'] as $validator => $details) {
-                if (is_int($validator)) { // custom callback validator
-                    $valid = $this->exec_callback_validator($validator, $details);
-                } else { // normal validator - using the Validate class
-                    $valid = $this->exec_basic_validator($validator, $details);
-                }
-		if ( ! $valid)
-			return FALSE;
+        $policy = $this->_cfg['validation_policy'];
+        $is_valid = TRUE;
+        foreach ($this->_model->validators as $validator => $details) {
+            if (is_int($validator)) { // custom callback validator
+                $valid = $this->exec_callback_validator($validator, $details);
+            } else { // normal validator - using the Validate class
+                $valid = $this->exec_basic_validator($validator, $details);
+            }
+            if ( ! $valid ) {
+                if ($policy == 'fail_on_first')
+                    return FALSE;
+                $is_valid = FALSE;
             }
         }
-	return TRUE;
+        return $is_valid;
     }
 
     protected function exec_basic_validator($validator, $details) {
         $callback = array('Validate', $validator);
         if (is_array($details)) {
             $params = Arr::get($details, 'params', array());
-            array_unshift($params, $this->value);
-            if (array_key_exists('error', $details)) {
+            if (TRUE === $params) {
+                $params = array($this->value);
+            } else {
+                array_unshift($params, $this->value);
+            }
+            if (isset($details['error'])) {
                 $error = $details['error'];
             }
         } else {
@@ -155,7 +156,9 @@ class CyForm_Field {
                 $error = __(Kohana::config('cyform.default_error_prefix') . $validator);
             }
             $this->add_validation_error($validator, $error, $params);
+            return FALSE;
         }
+        return TRUE;
     }
 
     protected function exec_callback_validator($validator, $details) {
@@ -176,7 +179,9 @@ class CyForm_Field {
                 $error = $details['error'];
             }
             $this->add_validation_error($validator, $error, $params);
+            return FALSE;
         }
+        return TRUE;
     }
 
     protected function add_validation_error($validator, $error_template, $params) {
@@ -193,23 +198,20 @@ class CyForm_Field {
      * @usedby CyForm_Field::render()
      */
     protected function before_rendering() {
-        $this->model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
-        }
-        if (( ! $this->form->edit_mode()
-                && 'disable' == Arr::get($this->model, 'on_create'))
-            || ($this->form->edit_mode()
-                && 'disable' == Arr::get($this->model, 'on_edit'))) {
+        $this->_model->errors = $this->validation_errors;
+        
+        if (( ! $this->_form->edit_mode()
+                && 'disable' == $this->_model->on_create)
+            || ($this->_form->edit_mode()
+                && 'disable' == $this->_model->on_edit)) {
             
-            $this->model['attributes']['disabled'] = 'disabled';
+            $this->_model->attributes['disabled'] = 'disabled';
         }
-        $this->model['attributes']['value'] = $this->value;
-        $this->model['attributes']['name'] = $this->name;
-        $this->model['attributes']['type'] = $this->type;
-        $this->model['name'] = $this->name;
-        if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = $this->type;
+        $this->_model->attributes['value'] = $this->value;
+        $this->_model->attributes['name'] = $this->_model->name;
+        $this->_model->attributes['type'] = $this->_model->type;
+        if (NULL === $this->_model->view) {
+            $this->_model->view = $this->_model->type;
         }
     }
 
@@ -222,12 +224,12 @@ class CyForm_Field {
     public function render() {
         $this->before_rendering();
         try {
-            $view = new View($this->form->theme
-                .DIRECTORY_SEPARATOR.$this->model['view'],
-                $this->model);
+            $view = new View($this->_form->_model->theme
+                .DIRECTORY_SEPARATOR.$this->_model->view,
+                (array) $this->_model);
         } catch (Kohana_View_Exception $ex) {
             $view = new View(CyForm::DEFAULT_THEME . DIRECTORY_SEPARATOR
-                    . $this->model['view'], $this->model);
+                    . $this->_model->view, (array) $this->_model);
         }
         return $view->render();
     }
