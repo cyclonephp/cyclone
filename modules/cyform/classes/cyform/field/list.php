@@ -49,11 +49,14 @@ class CyForm_Field_List extends CyForm_Field {
         if ($this->_model->multiple && is_null($this->value)) {
             $this->value = array();
         }
-        $this->_model->attributes['value'] = $this->value;
+        
         $this->_model->attributes['name'] = $this->_model->name;
 
         if ($this->_model->multiple) {
             $this->_model->attributes['name'] .= '[]';
+            $this->_model->values = $this->value;
+        } else {
+            $this->_model->attributes['value'] = $this->value;
         }
 
         if (NULL === $this->_model->view) {

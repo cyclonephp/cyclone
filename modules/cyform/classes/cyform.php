@@ -113,6 +113,7 @@ class CyForm {
         if (NULL === $this->_model->theme) {
             $this->_model->theme = self::DEFAULT_THEME;
         }
+        $theme = $this->_model->theme;
         try {
             Asset_Pool::inst()->add_asset($theme, 'css');
         } catch (Exception $ex) {}

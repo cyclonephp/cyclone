@@ -9,7 +9,7 @@
     </label>
     <div class="radiogroup">
         <? foreach ($items as $val => $text) : ?>
-        <input type="radio" value="<?= $val ?>"/><?= $text ?><br/>
+        <input type="radio" value="<?= $val ?>" <?= HTML::attributes($attributes) ?>/><?= $text ?><br/>
         <? endforeach; ?>
     </div>
     <div class="clear"></div>
