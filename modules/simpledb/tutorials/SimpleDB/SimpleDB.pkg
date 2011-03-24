@@ -32,6 +32,20 @@
 			<listitem>Supports transactions.</listitem>
 			<listitem>Comes with a minimal active record implementation</listitem>
 		</itemizedlist>
+		In SimpleDB SQL queries are represented with PHP objects. The object
+		attributes represent the clauses of the SQL query, and its methods
+		are used to build the SQL query using method chaining. Although the
+		query attributes are public (so you can manipulate them directly)
+		it's recommended to use the builder methods so your code will be
+		readable and less error-prone. The DBMS adapters of SimpleDB basicly
+		provide 2 things:
+		<itemizedlist>
+			<listitem>they compile the query object to the SQL dialect of the DBMS</listitem>
+			<listitem>they use the DBMS-specific PHP functions to execute the 
+			query and process its results</listitem>
+		</itemizedlist>
+		This tutorial will guide through the steps of configuring a database
+		connection and building and executing SQL queries.
 	</para>
   </refsect2>
   
@@ -171,7 +185,36 @@
  </refsect1>
  <refsect1 id="{@id select}">
 	<title>SELECT queries</title>
-	<para></para>
+	<para>
+	Let's start with a simple query like
+	<programlisting>
+	SELECT * FROM `users`
+	</programlisting>
+	You can build it this way:
+	<programlisting>
+	DB::select()->from('users');
+	</programlisting>
+	Let's add a WHERE part with a parameter:
+	<programlisting>SELECT * FROM `users` WHERE `id` = 2</programlisting>
+	looks like this:
+<programlisting>$id = 2;
+DB::select()->from('users')->where('id', '=', DB::esc($id));</programlisting>
+
+	The $id parameter should be put into a DB::esc() call
+ - it's a significant difference related to the database module of Kohana. Of course in
+real usage the $id parameter wouldn't be hard-coded. It surely comes
+from an untrused source - route or query parameter, etc. Escaping goes via the
+DB::esc() call in SimpleDB, and it's not performed automatically. Furthermore
+if you don't put your parameter into a DB::esc() call, then it will be compiled
+as a database column name therefore in most cases it will cause an error when
+your database tries to execute it.
+
+If you want to specify the columns to be selected, you have to pass the column 
+names to the DB::select() call:
+	<programlisting>
+	DB::select('id', 'name')->from('users')->where('id', '=', DB::esc(2));
+	</programlisting>
+	</para>
  </refsect1>
   <para>
    
