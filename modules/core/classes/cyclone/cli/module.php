@@ -4,7 +4,7 @@
  * Module class of Cycle CLI.
  *
  * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
- * @usedby index.php
+ * @usedby cli.php
  */
 class Cyclone_Cli_Module {
 

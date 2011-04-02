@@ -4,7 +4,7 @@
  * Contains the error constants for cyclone CLI.
  *
  * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
- * @usedby index.php
+ * @usedby cli.php
  */
 class Cyclone_Cli_Errors {
     const CALL_ERROR = '!!You mustn\'t call this method dircetly! Use cyphp instead.';
