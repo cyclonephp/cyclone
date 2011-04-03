@@ -18,6 +18,9 @@ class Cyclone_Cli_Input_Validator {
         $this->_data = $module->get_data();
     }
 
+    /**
+     * Validates the user input and if all ok then call the corresponding function.
+     */
     public function validate() {
         if (count($this->_input) == 0) {
             $this->show_module_help();
@@ -44,10 +47,119 @@ class Cyclone_Cli_Input_Validator {
         }
     }
 
-    private function parse_command($command) {
-        echo "parse command TODO";
+    /**
+     * Return with the argumentum name, if it exists.
+     * If the argumentum was an alias, return with the "true" name.
+     * If no such argumentum like $var, then return with null;
+     * @param string $var input argumentum
+     * @param array $arguments argumentum array of a module command
+     */
+    private function get_argument_name($var, $arguments) {
+        foreach ($arguments as $arg_name => $value) {
+            if ($var === $arg_name) {
+                return $var;
+            }
+            if (!empty($value['alias'])) {
+                if ($var === $value['alias']) {
+                    return $arg_name;
+                }
+            }
+        }
+        return null;
     }
 
+    /**
+     * Check that, the given argumentum has parameter.
+     * @param string $arg_name existing argumentum
+     * @param array $arguments argumentum array of a module command
+     */
+    private function argument_has_param($arg_name, $arguments) {
+        if (!empty($arguments[$arg_name]['parameter'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Fills the callback array with the not passed arguments.
+     * @param array $cbarray callback array
+     * @param array $arguments argumentum array of a module command
+     */
+    private function suplement_callback_array($cbarray, $arguments) {
+        foreach ($arguments as $arg_name => $value) {
+            if (empty($cbarray[$arg_name])) {
+                $cbarray[$arg_name] = null;
+            }
+        }
+    }
+
+
+    /**
+     * Slice the --arg=par arguments.
+     * @param array $input user input
+     */
+    private function slice_input(){
+        $tmp = '';
+        $length = count($this->_input) - 1;
+        for ($i = 1; $i < $length; $i++) {
+            $tmp .= $this->_input[$i] . ' ';
+        }
+        $tmp .= $this->_input[$length];
+        $tmp = str_replace('=', ' ', $tmp);
+        return explode(' ', $tmp);
+    }
+
+    /**
+     * This command choosed in the input, it parses the rest of the user input.
+     * @param array $command choosed command's array
+     */
+    private function parse_command($command) {
+        $cbarray = null;
+        $input_args = $this->slice_input();
+
+        // command has no arguments
+        if (empty($command['arguments'])) {
+            $this->suplement_callback_array($cbarray, $command['arguments']);
+            call_user_func($command['callback'], $cbarray);
+        // command has arguments
+        } else {
+            $i = 0;
+            if (count($input_args) == 0) {
+                echo '!!This command needs argument.' . PHP_EOL;
+                $this->show_command_help($command);
+                return;
+            }
+            while ($i < count($input_args)) {
+                $arg_name = $this->get_argument_name($input_args[$i], $command['arguments']);
+                if ($arg_name != null) {
+                    if ($this->argument_has_param($arg_name, $command['arguments'])) {
+                        ++$i;
+                        // test that, the next argumentum is a parameter
+                        if (empty($input_args[$i]) || preg_match('/^-/', $input_args[$i])) {
+                            echo "!!$arg_name needs a parameter." . PHP_EOL;
+                            return;
+                        } else {
+                            $cbarray[$arg_name] = $input_args[$i];
+                        }
+                    } else {
+                        $cbarray[$arg_name] = true;
+                    }
+                } else {
+                    echo '!!Paramter given without specified argument OR no such argument. Cause: ' . $input_args[$i] . PHP_EOL;
+                    return;
+                }
+                ++$i;
+            }
+            $this->suplement_callback_array($cbarray, $command['arguments']);
+            call_user_func($command['callback'], $cbarray);
+        }
+    }
+
+    /**
+     * Displays the given command's help.
+     * @param array $command module command
+     */
     private function show_command_help($command) {
         echo $this->get_desc($command) . PHP_EOL;
         if (array_key_exists('arguments', $command)) {
@@ -71,6 +183,11 @@ class Cyclone_Cli_Input_Validator {
         }
     }
 
+    /**
+     * Check that the given command exists in the module.
+     * @param string $command command name
+     * @return boolean
+     */
     private function command_exists($command) {
         foreach ($this->_data['commands'] as $cmd_name => $value) {
             if ($cmd_name === $command) {
@@ -80,6 +197,11 @@ class Cyclone_Cli_Input_Validator {
         return false;
     }
 
+    /**
+     * Return with the description.
+     * @param array $from
+     * @return string the description
+     */
     private function get_desc($from) {
         if (!empty($from['description'])) {
             return $from['description'];
@@ -88,6 +210,11 @@ class Cyclone_Cli_Input_Validator {
         }
     }
 
+    /**
+     * Returns with the short description if exists.
+     * @param string $description
+     * @return string short description
+     */
     private function get_short_desc($description) {
         $tokenized = explode("\n", $description);
         if (count($tokenized) > 1 && empty($tokenized[1])) {
@@ -101,6 +228,11 @@ class Cyclone_Cli_Input_Validator {
         }
     }
 
+    /**
+     * Returns with the long description.
+     * @param string $description
+     * @return string long description
+     */
     private function get_long_desc($description) {
         $tokenized = explode("\n", $description);
         if (count($tokenized) > 1 && empty($tokenized[1])) {
@@ -111,14 +243,20 @@ class Cyclone_Cli_Input_Validator {
         }
     }
 
+    /**
+     * Displays the modules command list in this format: <cmd_name> <short_description>
+     */
     private function show_command_list() {
         foreach ($this->_data['commands'] as $cmd_name => $value) {
             echo "\t $cmd_name \t" . $this->get_short_desc($this->get_desc($value)) . PHP_EOL;
         }
     }
 
+    /**
+     * Displays the module's help.
+     */
     private function show_module_help() {
-       // echo 'Module:' . PHP_EOL . $this->_module->get_name() . PHP_EOL . PHP_EOL;
+        // echo 'Module:' . PHP_EOL . $this->_module->get_name() . PHP_EOL . PHP_EOL;
         $long_desc = $this->get_long_desc($this->get_desc($this->_data));
         echo 'Description:' . PHP_EOL . $long_desc . PHP_EOL . PHP_EOL;
         echo 'type <module> help <command> for detailed command help.' . PHP_EOL . PHP_EOL;

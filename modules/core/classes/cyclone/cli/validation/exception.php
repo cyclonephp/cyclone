@@ -18,7 +18,7 @@ class Cyclone_Cli_Validation_Exception extends Exception {
         if (!empty($arg_name)) {
             $msg .= "\tat argumentum: $arg_name". PHP_EOL;
         }
-        $msg . "\tcause: $error" . PHP_EOL . PHP_EOL;
+        $msg .= "\tcause: $error" . PHP_EOL . PHP_EOL;
         $this->message = $msg;
     }
    

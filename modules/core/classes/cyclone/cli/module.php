@@ -25,24 +25,6 @@ class Cyclone_Cli_Module {
         return $this->_name;
     }
 
-    public function get_short_desc() {
-        return strtok($data['description'], "\n");
-    }
-
-    public function get_long_desc() {
-        $res = "";
-        $i = 0;
-        $tok = strtok($data['description'], "\n");
-        while ($tok !== false) {
-            $tok = strtok($data['description']);
-            if ($i > 1) {
-                $res .= $tok;
-            }
-            $i++;
-        }
-        return $res;
-    }
-
     public function get_data() {
         return $this->_data;
     }
@@ -123,6 +105,11 @@ class Cyclone_Cli_Module {
         }
     }
 
+    /**
+     * Creates and throws a Cyclone_Cli_Validation_Exception.
+     * @param string $error constant error message
+     * @param int $code  the error code
+     */
     private function throw_validation_exception($error, $code) {
         throw new Cyclone_Cli_Validation_Exception($error, $code, $this->_name, $this->_curr_command, $this->_curr_arg);
     }
