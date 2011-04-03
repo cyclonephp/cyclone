@@ -32,9 +32,7 @@ class Cyclone_CLI {
                 return;
             }
 
-            $input_validator = new Cyclone_Cli_Input_Validator(
-                            $_SERVER['argv'], $module
-            );
+            $input_validator = new Cyclone_Cli_Input_Validator($_SERVER['argv'], $module);
             $input_validator->validate();
         }
     }

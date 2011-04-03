@@ -22,13 +22,31 @@ class Cyclone_Cli_Module_Handler {
         return self::$_instance;
     }
 
+    private function get_desc($from) {
+        if (!empty($from['description'])) {
+            return $from['description'];
+        } else {
+            return $from['desc'];
+        }
+    }
+
+    private function get_short_desc($description) {
+        $tokenized = explode("\n", $description);
+        if (count($tokenized) > 1 && empty($tokenized[1])) {
+            return $tokenized[0];
+        } else {
+            if (count($tokenized) == 1) {
+                return $tokenized[0];
+            } else {
+                return "";
+            }
+        }
+    }
+
     public function show_short_help() {
         foreach ($this->_modules as $name => $module) {
-            if (!empty($module['description'])) {
-                echo "\t$name\t ". strtok($module['description'], "\n") . PHP_EOL;
-            } else if (!empty($module['desc'])) {
-                echo "\t$name\t ". strtok($module['desc'], "\n") . PHP_EOL;
-            }
+            $desc = $this->get_desc($module);
+            echo "\t$name\t " . $this->get_short_desc($desc) . PHP_EOL;
         }
     }
 
