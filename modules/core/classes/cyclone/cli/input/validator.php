@@ -94,12 +94,14 @@ class Cyclone_Cli_Input_Validator {
         }
     }
 
-
     /**
      * Slice the --arg=par arguments.
      * @param array $input user input
      */
-    private function slice_input(){
+    private function slice_input() {
+        if (count($this->_input) == 1) {
+            return array();
+        }
         $tmp = '';
         $length = count($this->_input) - 1;
         for ($i = 1; $i < $length; $i++) {
@@ -115,45 +117,39 @@ class Cyclone_Cli_Input_Validator {
      * @param array $command choosed command's array
      */
     private function parse_command($command) {
-        $cbarray = null;
+        $cbarray = array();
         $input_args = $this->slice_input();
+        $i = 0;
 
-        // command has no arguments
-        if (empty($command['arguments'])) {
-            $this->suplement_callback_array($cbarray, $command['arguments']);
-            call_user_func($command['callback'], $cbarray);
-        // command has arguments
-        } else {
-            $i = 0;
-            if (count($input_args) == 0) {
-                echo '!!This command needs argument.' . PHP_EOL;
-                $this->show_command_help($command);
-                return;
-            }
-            while ($i < count($input_args)) {
-                $arg_name = $this->get_argument_name($input_args[$i], $command['arguments']);
-                if ($arg_name != null) {
-                    if ($this->argument_has_param($arg_name, $command['arguments'])) {
-                        ++$i;
-                        // test that, the next argumentum is a parameter
-                        if (empty($input_args[$i]) || preg_match('/^-/', $input_args[$i])) {
-                            echo "!!$arg_name needs a parameter." . PHP_EOL;
-                            return;
-                        } else {
-                            $cbarray[$arg_name] = $input_args[$i];
-                        }
-                    } else {
-                        $cbarray[$arg_name] = true;
-                    }
-                } else {
-                    echo '!!Paramter given without specified argument OR no such argument. Cause: ' . $input_args[$i] . PHP_EOL;
-                    return;
-                }
-                ++$i;
-            }
+        if (count($input_args) == 0) {
             $this->suplement_callback_array($cbarray, $command['arguments']);
             call_user_func($command['callback'], $cbarray);
         }
+
+        while ($i < count($input_args)) {
+            $arg_name = $this->get_argument_name($input_args[$i], $command['arguments']);
+            if ($arg_name != null) {
+                if ($this->argument_has_param($arg_name, $command['arguments'])) {
+                    ++$i;
+                    // test that, the next argumentum is a parameter
+                    if (empty($input_args[$i]) || preg_match('/^-/', $input_args[$i])) {
+                        echo "!!$arg_name needs a parameter." . PHP_EOL;
+                        return;
+                    } else {
+                        $cbarray[$arg_name] = $input_args[$i];
+                    }
+                } else {
+                    $cbarray[$arg_name] = true;
+                }
+            } else {
+                echo '!!Paramter given without specified argument OR no such argument. Cause: ' . $input_args[$i] . PHP_EOL;
+                return;
+            }
+            ++$i;
+        }
+        
+        $this->suplement_callback_array($cbarray, $command['arguments']);
+        call_user_func($command['callback'], $cbarray);
     }
 
     /**
