@@ -26,7 +26,7 @@ class Cyclone_Cli_Module_Handler {
         if (!empty($from['description'])) {
             return $from['description'];
         } else {
-            return $from['desc'];
+            return $from['descr'];
         }
     }
 

@@ -33,17 +33,42 @@ class Cyclone_Cli_Input_Validator {
             } else if ($this->_input[0] == "help" && count($this->_input) == 1) {
                 $this->show_module_help();
             } else {
-                echo "parse command";
+                if ($this->command_exists($this->_input[0])) {
+                    $command = $this->_data['commands'][$this->_input[0]];
+                    $this->parse_command($command);
+                } else {
+                    echo "!!No such command as " . $this->_input[0] . PHP_EOL;
+                    $this->show_module_help();
+                }
             }
         }
     }
 
     private function parse_command($command) {
-
+        echo "parse command TODO";
     }
 
     private function show_command_help($command) {
-        echo "TODO2";
+        echo $this->get_desc($command) . PHP_EOL;
+        if (array_key_exists('arguments', $command)) {
+            echo 'Arguments:' . PHP_EOL;
+            foreach ($command['arguments'] as $name => $value) {
+                if (!empty($value['parameter'])) {
+                    echo "\t$name=" . $value['parameter'];
+                    if (!empty($value['alias'])) {
+                        echo ' ,' . $value['alias'] . ' ' . $value['parameter'];
+                    }
+                } else {
+                    echo "\t$name";
+                    if (!empty($value['alias'])) {
+                        echo ' ,' . $value['alias'];
+                    }
+                }
+                echo "\t" . $this->get_desc($value) . PHP_EOL;
+            }
+        } else {
+            echo "This command has no arguments." . PHP_EOL;
+        }
     }
 
     private function command_exists($command) {
@@ -59,7 +84,7 @@ class Cyclone_Cli_Input_Validator {
         if (!empty($from['description'])) {
             return $from['description'];
         } else {
-            return $from['desc'];
+            return $from['descr'];
         }
     }
 
@@ -93,7 +118,7 @@ class Cyclone_Cli_Input_Validator {
     }
 
     private function show_module_help() {
-        echo 'Module:' . PHP_EOL . $this->_module->get_name() . PHP_EOL . PHP_EOL;
+       // echo 'Module:' . PHP_EOL . $this->_module->get_name() . PHP_EOL . PHP_EOL;
         $long_desc = $this->get_long_desc($this->get_desc($this->_data));
         echo 'Description:' . PHP_EOL . $long_desc . PHP_EOL . PHP_EOL;
         echo 'type <module> help <command> for detailed command help.' . PHP_EOL . PHP_EOL;

@@ -61,7 +61,7 @@ class Cyclone_Cli_Module {
     private function parse_module_info($data) {
         $this->_curr_command = NULL;
         $this->_curr_arg = NULL;
-        if (!empty($data['desc']) || !empty($data['description'])) {
+        if (!empty($data['descr']) || !empty($data['description'])) {
             if (!empty($data['commands'])) {
                 foreach ($data['commands'] as $comm_name => $value) {
                     $this->_curr_command = $comm_name;
@@ -80,7 +80,7 @@ class Cyclone_Cli_Module {
      * When okay call parsing on its argument.
      */
     private function parse_command($data) {
-        if (!empty($data['desc']) || !empty($data['description'])) {
+        if (!empty($data['descr']) || !empty($data['description'])) {
             if (!empty($data['callback'])) {
                 /** maybe it has no arguments */
                 if (!empty($data['arguments'])) {
