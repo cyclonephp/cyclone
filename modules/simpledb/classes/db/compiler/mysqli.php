@@ -49,9 +49,11 @@ class DB_Compiler_Mysqli extends DB_Compiler_Abstract {
         }
         if ( ! empty($query->order_by)) {
             $rval .= ' ORDER BY ';
+            $order_by_itms = array();
             foreach ($query->order_by as $ord) {
-                $rval .= $this->escape_value($ord['column']).' '.$ord['direction'];
+                $order_by_itms []= $this->escape_value($ord['column']).' '.$ord['direction'];
             }
+            $rval .= implode(', ', $order_by_itms);
         }
         if ( ! is_null($query->limit)) {
             $rval .= ' LIMIT '.$query->limit;
