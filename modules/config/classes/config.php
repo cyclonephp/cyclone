@@ -46,7 +46,15 @@ class Config {
                 return $tmp;
             }
         }
-        throw new Config_Exception("no value found for key $key");
+        throw new Config_Exception("no value found for key '$key'");
+    }
+
+    public function set($key, $val) {
+        foreach ($this->writers as $writer) {
+            if ($writer->write($key, $val))
+                return;
+        }
+        throw new Config_Exception("none of the config writers were able to write value '$key'");
     }
 
     public function attach_reader(Config_Reader $reader) {

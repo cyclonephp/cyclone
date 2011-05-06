@@ -145,6 +145,24 @@ abstract class JORK_Model_Abstract {
                 : NULL;
     }
 
+    /**
+     * @param mixed $pk
+     * @return JORK_Model_Abstract
+     */
+    public function get($pk) {
+        $result = JORK::from($this->_schema->class)
+                ->where($this->_schema->primary_key(), '=', DB::esc($pk))
+                ->exec($this->_schema->db_conn);
+        switch (count($result)) {
+            case 0:
+                return NULL;
+            case 1:
+                return $result[0];
+            default:
+                throw new JORK_Exception('Found multiple entities with primary key ' . $pk);
+        }
+    }
+
     public function add_pk_change_listener($listener) {
         $this->_pk_change_listeners []= $listener;
     }
