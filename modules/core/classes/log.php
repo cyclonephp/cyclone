@@ -17,9 +17,9 @@ class Log {
     const ENTRY_FORMAT = 'time [type] | remote_addr | text';
 
     private static $log_levels = array(
-        Kohana::DEVELOPMENT => 0,
-        Kohana::TESTING => 1,
-        Kohana::PRODUCTION => 2
+        Env::DEV => 0,
+        Env::TEST => 1,
+        Env::PROD => 2
     );
 
     public static $log_level;
