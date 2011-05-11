@@ -81,7 +81,7 @@ class Asset_Pool {
      */
     public function add_asset($str, $type, $minify = TRUE) {
         if ( ! array_key_exists($str, $this->assets[$type])) {
-            if (FALSE === Kohana::find_file(Config::inst()->get('core.asset_path').$type, $str, $type))
+            if (FALSE === Kohana::find_file('assets' . DIRECTORY_SEPARATOR . $type, $str, $type))
                 throw new Exception('asset file not found: '.$str);
             $this->assets[$type][$str] = $minify;
         }

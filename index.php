@@ -63,6 +63,11 @@ register_shutdown_function('Log::write');
  * defaults for the URI.
  */
 
+Route::set('img_generator', 'images/products/<action>/<id>.jpg')
+        ->defaults(array(
+            'controller' => 'images'
+        ));
+
 Route::set('default', '(<controller>(/<action>(/<id>)))')
         ->defaults(array(
             'controller' => 'index',
