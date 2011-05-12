@@ -38,16 +38,19 @@ class DB_Query_Select implements DB_Query, DB_Expression {
     public $hints = array();
 
     public function columns() {
-        if (0 == func_num_args()) {
-            $this->columns = array(DB::expr('*'));
-        } else {
-            $this->columns = func_get_args();
-        }
+        $args = func_get_args();
+        $this->columns_arr($args);
         return $this;
     }
 
     public function columns_arr($columns) {
-        $this->columns = empty($columns) ? array(DB::expr('*')) : $columns;
+        if (empty($columns)) {
+            $this->columns = array(DB::expr('*'));
+        } else {
+            foreach ($columns as $col) {
+                $this->columns []= $col;
+            }
+        }
         return $this;
     }
 
@@ -138,7 +141,7 @@ class DB_Query_Select implements DB_Query, DB_Expression {
     }
 
     public function  compile_expr(DB_Compiler $adapter) {
-        return $adapter->compile_select($this);
+        return '(' . $adapter->compile_select($this) . ')';
     }
 
     public function  contains_table_name($table_name) {

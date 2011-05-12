@@ -30,7 +30,7 @@ class Config_Reader_File_Env implements Config_Reader {
         $this->env_reader = new Config_Reader_File($root_path
                 .DIRECTORY_SEPARATOR
                 .Kohana::$environment);
-        $this->default_reader = new Config_Reader_File($root_path.DIRECTORY_SEPARATOR.'all');
+        $this->default_reader = new Config_Reader_File($root_path);
     }
 
     

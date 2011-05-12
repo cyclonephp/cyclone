@@ -1,9 +1,9 @@
 <?php
 
 
-return CyForm::model()->theme('gray')
+return CyForm::model()->theme('cyform/daffodil')
         ->title('Complex CyForm example')
-        ->action('formtest/ajaxsave')
+        //->action('formtest/ajaxsave')
         ->field(CyForm::field('name')
             ->label('username'))
 
@@ -41,7 +41,8 @@ return CyForm::model()->theme('gray')
                 ->label('expires')
                 //->min_date('now')
                 ->max_date(array('year' => '2015', 'month' => '05', 'day' => '22'))
-        )
+        )->field(CyForm::field(NULL, 'submit')
+                ->label('Ok'))
 
 
 ;

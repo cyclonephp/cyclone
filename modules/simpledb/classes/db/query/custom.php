@@ -17,7 +17,7 @@ class DB_Query_Custom implements DB_Query {
     }
 
     public function exec($database = 'default') {
-        DB::executor($database)->exec_custom($this->sql);
+        return DB::executor($database)->exec_custom($this->sql);
     }
 
     public function  prepare($database = 'default') {

@@ -103,7 +103,7 @@ class Kohana {
 	/**
 	 * @var  boolean  enable core profiling?
 	 */
-	public static $profiling = TRUE;
+	public static $profiling = FALSE;
 
 	/**
 	 * @var  boolean  enable error handling?

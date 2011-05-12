@@ -50,7 +50,7 @@ Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-Session::instance();
+//Session::instance();
 
 //Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
 
@@ -63,6 +63,11 @@ register_shutdown_function('Log::write');
  * defaults for the URI.
  */
 
+Route::set('img_generator', 'images/products/<action>/<id>.jpg')
+        ->defaults(array(
+            'controller' => 'images'
+        ));
+
 Route::set('default', '(<controller>(/<action>(/<id>)))')
         ->defaults(array(
             'controller' => 'index',
@@ -71,17 +76,17 @@ Route::set('default', '(<controller>(/<action>(/<id>)))')
 
 if (!defined('SUPPRESS_REQUEST')) {
     $request = Request::instance();
-    if (Kohana::$environment != Kohana::DEVELOPMENT) {
+    if (Kohana::$environment != Env::DEV) {
         try {
             $request->execute();
         } catch (ReflectionException $ex) {
-            Log::warning('404 not found: ' . $_SERVER['PATH_INFO']);
+            Log::warning('404 not found: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 404);
         } catch (Exception_BadRequest $ex) {
-            Log::warning('500 bad request: ' . $_SERVER['PATH_INFO']);
+            Log::warning('500 bad request: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 500);
         } catch (Exception $ex) {
-            Log::error('500 internal error: ' . $_SERVER['PATH_INFO']);
+            Log::error('500 internal error: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 500);
         }
     } else {
