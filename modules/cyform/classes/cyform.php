@@ -6,6 +6,9 @@
  */
 class CyForm {
 
+    /**
+     * @return CyForm_Model
+     */
     public static function model() {
         return new CyForm_Model;
     }
@@ -25,8 +28,24 @@ class CyForm {
         return new CyForm_Model_Field($type, $name);
     }
 
+    /**
+     * @param callback $callback
+     * @return CyForm_Model_DataSource
+     */
     public static function source($callback) {
         return new CyForm_Model_DataSource($callback);
+    }
+
+    /**
+     * @param string $name
+     * @return CyForm_Model
+     */
+    public static function get_model($name) {
+        $file = FileSystem::find_file('forms/' . $name . '.php');
+        if (FALSE === $file)
+            throw new CyForm_Exception("form not found: $name");
+
+        return require $file;
     }
 
     /**
@@ -67,11 +86,7 @@ class CyForm {
      */
     public function  __construct($model, $load_data_sources = true) {
         if (is_string($model)) {
-            $file = FileSystem::find_file('forms/' . $model . '.php');
-            if (FALSE === $file)
-                throw new CyForm_Exception("form not found: $model");
-            
-            $model = require $file;
+            $model = self::get_model($model);
         }
 
         if (  ! ($model instanceof CyForm_Model))
