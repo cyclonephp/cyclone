@@ -13,7 +13,7 @@ class JORK_Model_Collection_Reverse_ManyToOne extends JORK_Model_Collection {
 
         $this->_inverse_join_column = $remote_comp_schema['join_column'];
         $this->_join_column = array_key_exists('inverse_join_column', $remote_comp_schema)
-                ? $remote_comp_schema['invserse_join_column']
+                ? $remote_comp_schema['inverse_join_column']
                 : JORK_Model_Abstract::schema_by_class($comp_schema['class'])->primary_key();
     }
 
