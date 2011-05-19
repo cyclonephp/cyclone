@@ -2,6 +2,7 @@
 
 return array(
     'hello' => array(
-        'world' => 'found'
+        'world' => 'default',
+        'onlydefault' => 'defval'
     )
 );
