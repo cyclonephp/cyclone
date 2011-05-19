@@ -1,0 +1,1 @@
+<input<?= HTML::attributes($attributes) ?>/>

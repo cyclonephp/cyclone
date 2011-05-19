@@ -19,7 +19,7 @@ class CyForm_Field_List extends CyForm_Field {
             if (empty($result))
                 return;
 
-            if (is_array($result[0])) {
+            if (is_array(next($result))) {
                 if (NULL === $val_field) {
                     foreach($result as $val => $row) {
                         $this->_model->items[$val] = $row[$text_field];
@@ -49,11 +49,14 @@ class CyForm_Field_List extends CyForm_Field {
         if ($this->_model->multiple && is_null($this->value)) {
             $this->value = array();
         }
-        $this->_model->attributes['value'] = $this->value;
+        
         $this->_model->attributes['name'] = $this->_model->name;
 
         if ($this->_model->multiple) {
             $this->_model->attributes['name'] .= '[]';
+            $this->_model->values = $this->value;
+        } else {
+            $this->_model->attributes['value'] = $this->value;
         }
 
         if (NULL === $this->_model->view) {
@@ -63,6 +66,12 @@ class CyForm_Field_List extends CyForm_Field {
             $this->_model->view = $this->_model->multiple ? 'checkboxlist' : 'radiogroup';
         } elseif ($this->_model->view == 'select' && $this->_model->multiple) {
             $this->_model->attributes['multiple'] = 'multiple';
+        } elseif ($this->_model->view == 'select') {
+            if ($this->_model->multiple) {
+                $this->_model->attributes['multiple'] = 'multiple';
+            } else {
+                $this->_model->value = $this->value;
+            }
         }
     }
     

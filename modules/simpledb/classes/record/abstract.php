@@ -104,7 +104,7 @@ abstract class Record_Abstract {
         switch(count($result)) {
             case 1: return $result[0];
             case 0: return null;
-            default: throw new Exception('more than one results');
+            default: throw new Exception('more than one results: ' . $query->compile($schema->database));
         }
     }
 
@@ -229,4 +229,8 @@ abstract class Record_Abstract {
                 || array_key_exists($name, $this->_transient_data);
     }
 
+    public function as_array() {
+        return $this->_row;
+    }
+    
 }
