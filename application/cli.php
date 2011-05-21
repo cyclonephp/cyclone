@@ -3,13 +3,14 @@
 return array(
     'application' => array(
         'description' => 'The desc of application
-in multi line
-hahaha',
+Application module description. This is the multi lined long version.
+An other line.
+And an another.',
         'commands' => array(
             'generate-schema' => array(
-                /*'description' => "Generates database schema.
+                'description' => "Generates database schema.
 
-Iterates on all classes named Record_*, instantiates each one and creates database schema for them.",*/
+Iterates on all classes named Record_*, instantiates each one and creates database schema for them.",
                 'arguments' => array(
                     '--module' => array(
                         'alias' => '-m',
