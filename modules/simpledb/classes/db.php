@@ -14,6 +14,8 @@ class DB {
 
     private static $_connectors = array();
 
+    private static $_schema_generators = array();
+
     /**
      * @param string $config config file name
      * @return DB_Compiler
@@ -64,6 +66,19 @@ class DB {
             self::$_connectors[$config] = new $class($cfg);
         }
         return self::$_connectors[$config];
+    }
+
+    /**
+     * @param string $config config file name
+     * @return DB_Schema_Generator
+     */
+    public static function schema_generator($config = 'default') {
+        if ( ! array_key_exists($config, self::$_schema_generators)) {
+            $cfg = Config::inst()->get('simpledb/'.$config);
+            $class = 'DB_Schema_Generator_'.$cfg['adapter'];
+            self::$_schema_generators[$config] = new $class($cfg);
+        }
+        return self::$_schema_generators[$config];
     }
 
     /**

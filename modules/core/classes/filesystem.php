@@ -236,7 +236,10 @@ class FileSystem {
             $modules = self::$_roots;
         }
         $rval = array();
-        foreach ($modules as $root_dir) {
+        foreach ($modules as $module_name) {
+            if ( ! isset(self::$_roots[$module_name]))
+                throw new Exception("module '$module' is not installed");
+            $root_dir = self::$_roots[$module_name];
             $candidate = $root_dir . $dir;
             if (is_dir($candidate)) {
                 $handle = opendir($candidate);

@@ -12,16 +12,22 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                     '--module' => array(
                         'alias' => '-m',
                         'parameter' => '<module-name>',
-                        'descr' => 'Database schema will be generated for classes in module <module name>',
+                        'descr' => 'Database schema will be generated for classes in module <module name>.
+                            You can pass multiple modules by passing a comma-separated list of module names (eg. -m frontend,backend)',
                         'required' => false
                     ),
                     '--forced' => array(
                         'alias' => '-f',
                         'parameter' => NULL,
                         'descr' => 'Tables will be dropped before creation'
+                    ),
+                    '--suppress-execution' => array(
+                        'alias' => '-s',
+                        'parameter' => NULL,
+                        'descr' => 'Prints the generated DDL to stdout and does not execute it'
                     )
                 ),
-                'callback' => array('SimpleDB_Schema_Generator', 'generate_schema')
+                'callback' => array('DB_Schema_Builder', 'build_schema')
             )
         )
     )

@@ -124,6 +124,7 @@ class Cyclone_Cli_Input_Validator {
         if (count($input_args) == 0) {
             $this->suplement_callback_array($cbarray, $command['arguments']);
             call_user_func($command['callback'], $cbarray);
+            return;
         }
 
         while ($i < count($input_args)) {

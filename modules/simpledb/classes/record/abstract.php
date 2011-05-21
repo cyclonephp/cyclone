@@ -55,7 +55,7 @@ abstract class Record_Abstract {
     protected static function _inst($classname) {
         if ( ! array_key_exists($classname, self::$_instances)) {
             $inst = new $classname;
-            $inst->_schema = new stdClass;
+            $inst->_schema = new Record_Schema;
             $inst->_schema->class = $classname;
             $inst->_row = null;
             $inst->setup();
@@ -69,7 +69,7 @@ abstract class Record_Abstract {
      * 
      * @return stdClass
      */
-    protected function schema() {
+    public function schema() {
         if ( ! array_key_exists(get_class($this), self::$_instances)) {
             self::_inst(get_class($this));
         }
