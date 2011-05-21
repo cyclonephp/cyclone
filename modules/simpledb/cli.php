@@ -11,7 +11,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 'arguments' => array(
                     '--module' => array(
                         'alias' => '-m',
-                        'parameter' => '<module name>',
+                        'parameter' => '<module-name>',
                         'descr' => 'Database schema will be generated for classes in module <module name>',
                         'required' => false
                     ),
