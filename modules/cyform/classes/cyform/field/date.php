@@ -21,8 +21,8 @@ class CyForm_Field_Date extends CyForm_Field {
     );
 
 
-    public function  __construct(CyForm $form, $name, array $model) {
-        parent::__construct($form, $name, $model, 'date');
+    public function  __construct(CyForm $form, $name, CyForm_Model_Field $model, $cfg) {
+        parent::__construct($form, $name, $model, 'date', $cfg);
     }
 
     public function  pick_input(&$src, &$saved_data = array()) {
@@ -34,7 +34,7 @@ class CyForm_Field_Date extends CyForm_Field {
     }
 
     protected function get_segment_name($segment) {
-        return $this->name.$this->suffixes[$segment];
+        return $this->_model->name.$this->suffixes[$segment];
     }
 
     public function  set_data($val) {
@@ -44,11 +44,15 @@ class CyForm_Field_Date extends CyForm_Field {
             $pattern = str_replace($segment, '(?P<'.$segment.'>\d+)', $pattern);
         }
         preg_match($pattern, $val, $matches);
+        if (empty($matches))
+            throw new Exception('invalid date format');
+
         $this->value = array(
             'year' => $matches['year'],
             'month' => $matches['month'],
             'day' => $matches['day']
         );
+        // TODO validate
     }
 
     public function  get_data() {
@@ -56,57 +60,72 @@ class CyForm_Field_Date extends CyForm_Field {
     }
 
     protected function  before_rendering() {
-        $this->model['errors'] = $this->validation_errors;
-        if ( ! array_key_exists('attributes', $this->model)) {
-            $this->model['attributes'] = array();
-        }
+        $this->_model->errors = $this->validation_errors;
         
-        if ( ! array_key_exists('view', $this->model)) {
-            $this->model['view'] = 'date';
+        if (NULL === $this->_model->view) {
+            $this->_model->view = 'date';
         }
 
-        $this->model['segments'] = array();
+        $min_date = $this->extract_date_definition('min_date');
+        $max_date = $this->extract_date_definition('max_date');
 
-        foreach (array_keys($this->value) as $segment) {
-            $this->model['segments'] []= $this->build_segment_view_data($segment);
-        }
-    }
-
-    protected function build_segment_view_data($segment) {
-        static $min_date = null;
-        static $max_date = null;
-        if (null == $min_date && null == $max_date) {
-            $min_date = $this->extract_date_definition('min_date', '1900-01-01');
-            $max_date = $this->extract_date_definition('max_date');
-        }
-        $rval = array(
-            'value' => $this->value[$segment],
-            'name' => $this->get_segment_name($segment),
+        $year_seg = array(
+            'value' => $this->value['year'],
+            'name' => $this->get_segment_name('year'),
             'items' => array()
         );
-        for ($i = $min_date[$segment]; $i <= $max_date[$segment]; $i++) {
-            if (strlen($i) < 2) {
-                $rval['items'][$tmp = '0'.$i] = $tmp;
+
+        for ($y = $min_date['year']; $y <= $max_date['year']; ++$y) {
+            if (strlen($y) < 2) {
+                $year_seg['items'][$tmp = '0'.$y] = $tmp;
             } else {
-                $rval['items'][$i] = $i;
+                $year_seg['items'][$y] = $y;
             }
         }
-        return $rval;
+        $this->_model->segments = array($year_seg);
+
+        $month_seg = array(
+            'value' => $this->value['month'],
+            'name' => $this->get_segment_name('month'),
+            'items' => array()
+        );
+
+        for ($m = 1; $m <= 12; ++$m) {
+            if (strlen($m) < 2) {
+                $month_seg['items'][$tmp = '0'.$m] = $tmp;
+            } else {
+                $month_seg['items'][$m] = $m;
+            }
+        }
+        $this->_model->segments []= $month_seg;
+
+
+
+        $day_seg = array(
+            'value' => $this->value['day'],
+            'name' => $this->get_segment_name('day'),
+            'items' => array()
+        );
+
+        for ($d = 1; $d <= 31; ++$d) {
+            if (strlen($d) < 2) {
+                $day_seg['items'][$tmp = '0'.$d] = $tmp;
+            } else {
+                $day_seg['items'][$d] = $d;
+            }
+        }
+        $this->_model->segments []= $day_seg;
     }
 
-    protected function extract_date_definition($key, $default = 'now') {
-        if ( ! array_key_exists($key, $this->model)) {
-            $this->model[$key] = $default;
-        }
-
-        if ('now' === $this->model[$key]) {
+    protected function extract_date_definition($key) {
+        if ('now' === $this->_model->$key) {
             return array(
                 'year' => date('Y'),
                 'month' => date('m'),
                 'day' => date('d')
             );
         }
-        return $this->model[$key];
+        return $this->_model->$key;
     }
 
 }

@@ -53,6 +53,10 @@ class DB {
         return self::$_executor_prepareds[$config];
     }
 
+    /**
+     * @param string $config config file name
+     * @return DB_Connector
+     */
     public static function connector($config = 'default') {
         if ( ! array_key_exists($config, self::$_connectors)) {
             $cfg = Config::inst()->get('simpledb/'.$config);

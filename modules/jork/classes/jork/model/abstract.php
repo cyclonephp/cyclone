@@ -42,6 +42,9 @@ abstract class JORK_Model_Abstract {
             $inst->_schema = new JORK_Mapping_Schema;
             $inst->_schema->class = $classname;
             $inst->setup();
+            if (NULL === $inst->_schema->components) {
+                $inst->_schema->components = array();
+            }
             foreach ($inst->_schema->components as $k => &$v) {
                 if (is_string($v)) { // embedded component class found
                     $emb_inst = call_user_func(array($v, 'inst'));
@@ -143,6 +146,24 @@ abstract class JORK_Model_Abstract {
         return array_key_exists($pk, $this->_atomics)
                 ? $this->_atomics[$pk]['value']
                 : NULL;
+    }
+
+    /**
+     * @param mixed $pk
+     * @return JORK_Model_Abstract
+     */
+    public function get($pk) {
+        $result = JORK::from($this->_schema->class)
+                ->where($this->_schema->primary_key(), '=', DB::esc($pk))
+                ->exec($this->_schema->db_conn);
+        switch (count($result)) {
+            case 0:
+                return NULL;
+            case 1:
+                return $result[0];
+            default:
+                throw new JORK_Exception('Found multiple entities with primary key ' . $pk);
+        }
     }
 
     public function add_pk_change_listener($listener) {
@@ -339,6 +360,7 @@ abstract class JORK_Model_Abstract {
             // doing type casts
             switch ($type) {
                 case 'string':
+                case 'datetime':
                     return (string) $val;
                 case 'int':
                     return (int) $val;
@@ -346,10 +368,11 @@ abstract class JORK_Model_Abstract {
                     return (float) $val;
                 case 'bool':
                     return (bool) $val;
-                case 'datetime':
-                    return (string) $val;
+                case 'blob':
+                    return $val;
                 default:
-                    throw new JORK_Exception("invalid type for atomic propery '$key' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
+                    print_r(xdebug_get_function_stack());
+                    throw new JORK_Exception("invalid type for atomic propery '$val' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
                     It must be one of the followings: string, int, float, bool, datetime");
             }
         }

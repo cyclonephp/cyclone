@@ -9,7 +9,7 @@ class DB_Executor_Mysqli extends DB_Executor_Abstract {
     public function  exec_select($sql) {
         $result = $this->_db_conn->query($sql);
         if ($result === false)
-            throw new DB_Exception($this->_db_conn->error, $this->_db_conn->errno);
+            throw new DB_Exception($this->_db_conn->error . ' ( ' . $sql . ' )', $this->_db_conn->errno);
         return new DB_Query_Result_Mysqli($result);
     }
 

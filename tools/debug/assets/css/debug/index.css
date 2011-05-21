@@ -1,0 +1,15 @@
+#stack thead {
+    background-color: #eeddd1;
+}
+
+#stack tbody {
+    font-size: 80%
+}
+
+tr.arguments {
+    display: none;
+}
+
+span.arg-val{
+    width: 250px
+}

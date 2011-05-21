@@ -1,0 +1,45 @@
+fieldset.cyform {
+    background-color: #ffffea;
+    font-family: sans-serif;
+    border: 0px;
+}
+
+fieldset.cyform label {
+    width: 45%;
+    display: inline-block;
+    margin-right: 0;
+    text-align: right;
+    color: #666
+}
+
+fieldset.cyform input, fieldset.cyform .checkboxlist, fieldset.cyform .radiogroup
+, fieldset.cyform .select-cnt{
+    width: 45%;
+    display: inline-block;
+    text-align: left
+}
+
+
+fieldset.cyform .checkboxlist input, fieldset.cyform .radiogroup input {
+    width: 10%
+}
+
+fieldset.cyform input[type=checkbox] {
+    width: 10%
+}
+
+fieldset.cyform input, fieldset.cyform select, fieldset.cyform textarea {
+    border: 1px solid #ffdada;
+    background-color: #fffffa;
+    margin: 5px 5px 5px 5px;
+    padding: 4px 4px 4px 4px;
+    font-size: 17px
+}
+
+fieldset.cyform input[type=submit] {
+
+    margin-left: 30%;
+    margin-right: 30%;
+    width: 40%;
+    text-align: center;
+}
