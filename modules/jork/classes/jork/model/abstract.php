@@ -26,6 +26,8 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
      */
     private static $_instances = array();
 
+    private static $_cfg;
+
     /**
      * It should be called only by the subclasses. All subclasses should contain
      * a static method with this code:
@@ -58,6 +60,18 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
             self::$_instances[$classname] = $inst;
         }
         return self::$_instances[$classname];
+    }
+
+    /**
+     * Loads the JORK configuration for later usage.
+     *
+     * If you override the constructor in the model classes don't forget about
+     * calling \c parent::__construct()
+     */
+    public function  __construct() {
+        if (NULL === self::$_cfg) {
+            self::$_cfg = Config::inst()->get('jork');
+        }
     }
 
     /**
@@ -201,11 +215,20 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
      */
     public function populate_atomics($atomics) {
         $schema = $this->schema();
-        foreach ($atomics as $k => $v) {
-            $this->_atomics[$k] = array(
-                'value' => $this->force_type($v, $schema->atomics[$k]['type']),
-                'persistent' => TRUE
-            );
+        if (self::$_cfg['force_type']) {
+            foreach ($atomics as $k => $v) {
+                $this->_atomics[$k] = array(
+                    'value' => $this->force_type($v, $schema->atomics[$k]['type']),
+                    'persistent' => TRUE
+                );
+            }
+        } else {
+            foreach ($atomics as $k => $v) {
+                $this->_atomics[$k] = array(
+                    'value' => $v,
+                    'persistent' => TRUE
+                );
+            }
         }
     }
 
@@ -397,8 +420,8 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
                 case 'blob':
                     return $val;
                 default:
-                    print_r(xdebug_get_function_stack());
-                    throw new JORK_Exception("invalid type for atomic propery '$val' in class '{$schema->class}': '{$schema->atomics[$key]['type']}'.
+                    $schema = $this->schema();
+                    throw new JORK_Exception("invalid type for atomic propery '$val' in class '{$schema->class}': '{$type}.'
                     It must be one of the followings: string, int, float, bool, datetime");
             }
         }
@@ -410,7 +433,9 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
             if ( ! array_key_exists($key, $this->_atomics)) {
                 $this->_atomics[$key] = array();
             }
-            $this->_atomics[$key]['value'] = $this->force_type($val, $schema->atomics[$key]['type']);
+            $this->_atomics[$key]['value'] = self::$_cfg['force_type'] 
+                    ? $this->force_type($val, $schema->atomics[$key]['type'])
+                    : $val;
             $this->_atomics[$key]['persistent'] = FALSE;
             $this->_persistent = FALSE;
         } elseif (array_key_exists($key, $schema->components)) {
@@ -496,8 +521,11 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
                     $insert_sqls[$tbl_name]->values = array($ins_values);
                     $tmp_id = $insert_sqls[$tbl_name]->exec($schema->db_conn);
                     if ($prim_table == $tbl_name) {
-                        $this->_atomics[$schema->primary_key()] = array(
-                            'value' => $tmp_id,
+                        $pk_atomic = $schema->primary_key();
+                        $this->_atomics[$pk_atomic] = array(
+                            'value' => self::$_cfg['force_type']
+                                ? $this->force_type($tmp_id, $schema->atomics[$pk_atomic]['type'])
+                                : $tmp_id,
                             'persistent' => TRUE
                         );
                         foreach ($this->_pk_change_listeners as $listener) {
