@@ -53,21 +53,10 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 
 Session::instance();
 
-//Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
-
-Log::$log_level = Kohana::$environment;
-
-register_shutdown_function('Log::write');
-
 /**
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
-
-Route::set('img_generator', 'images/products/<action>/<id>.jpg')
-        ->defaults(array(
-            'controller' => 'images'
-        ));
 
 Route::set('default', '(<controller>(/<action>(/<id>)))')
         ->defaults(array(
@@ -81,13 +70,13 @@ if (!defined('SUPPRESS_REQUEST')) {
         try {
             $request->execute();
         } catch (ReflectionException $ex) {
-            Log::warning('404 not found: ' . Request::instance()->uri);
+            log_warning('', '404 not found: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 404);
         } catch (Exception_BadRequest $ex) {
-            Log::warning('500 bad request: ' . Request::instance()->uri);
+            log_warning('', '500 bad request: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 500);
         } catch (Exception $ex) {
-            Log::error('500 internal error: ' . Request::instance()->uri);
+            log_error('', '500 internal error: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 500);
         }
     } else {

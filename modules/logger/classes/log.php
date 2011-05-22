@@ -10,7 +10,7 @@ class Log {
     
     const ERROR = 'ERROR';
 
-    public static $log_level = self::DEBUG;
+    public static $log_level;
 
     public static $level_order = array(
         self::DEBUG => 0,
@@ -29,12 +29,15 @@ class Log {
      * @return Log_Adapter
      */
     public static function for_class($class) {
+        if (NULL === self::$log_level) {
+            self::$log_level = Config::inst()->get('logger.log_level');
+        }
         if (is_object($class)) {
             $class = get_class($class);
         }
         if ( ! isset(self::$_instances[$class])) {
             if (NULL === self::$_log_cfg) {
-                self::$_log_cfg = Config::inst()->get('logger');
+                self::$_log_cfg = Config::inst()->get('logger.adapters');
             }
             $classname_len = strlen($class);
             $longest_matching_prefix_len = NULL;
