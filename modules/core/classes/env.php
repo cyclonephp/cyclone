@@ -80,6 +80,8 @@ class Env {
 
         set_error_handler('Kohana::error_handler');
 
+        set_exception_handler('Kohana::exception_handler');
+
         $_GET = Kohana::sanitize($_GET);
         $_POST = Kohana::sanitize($_POST);
         $_COOKIE = Kohana::sanitize($_COOKIE);

@@ -6,7 +6,7 @@
  * @author Bence Eros <crystal@cyclonephp.com>
  * @package JORK
  */
-abstract class JORK_Model_Abstract {
+abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
 
     /**
      * Mapping schema should be populated in the implementation of this method.
@@ -250,19 +250,32 @@ abstract class JORK_Model_Abstract {
      */
     protected function update_component_fks_reverse($key, $val, $comp_schema) {
         $remote_schema = $val->schema()->components[$comp_schema['mapped_by']];
-        switch($remote_schema['type']) {
-            case JORK::ONE_TO_MANY:
-                $this->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
-                    ? $val->_atomics[$remote_schema['inverse_join_column']]['value']
-                    : $val->pk();
-                $this->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
-                break;
-            case JORK::ONE_TO_ONE:
-                $val->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema)
-                    ? $this->_atomics[$remote_schema['inverse_join_column']]['value']
-                    : $this->pk();
-                $val->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
-                break;
+        if (NULL === $val) {
+            switch ($remote_schema['type']) {
+                case JORK::ONE_TO_MANY:
+                    $this->_atomics[$remote_schema['join_column']]['value'] = NULL;
+                    $this->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
+                    break;
+                case JORK::ONE_TO_ONE:
+                    $val->_atomics[$remote_schema['join_column']]['value'] = NULL;
+                    $val->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
+                    break;
+            }
+        } else {
+            switch ($remote_schema['type']) {
+                case JORK::ONE_TO_MANY:
+                    $this->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema) 
+                        ? $val->_atomics[$remote_schema['inverse_join_column']]['value']
+                        : $val->pk();
+                    $this->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
+                    break;
+                case JORK::ONE_TO_ONE:
+                    $val->_atomics[$remote_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $remote_schema) 
+                        ? $this->_atomics[$remote_schema['inverse_join_column']]['value']
+                        : $this->pk();
+                    $val->_atomics[$remote_schema['join_column']]['persistent'] = FALSE;
+                    break;
+            }
         }
     }
 
@@ -273,26 +286,39 @@ abstract class JORK_Model_Abstract {
      * @param JORK_Model_Abstract $val
      * @see JORK_Model_Abstract::__set()
      */
-    protected function update_component_fks($key, $val) {
+    protected function update_component_fks($key, JORK_Model_Abstract $val = NULL) {
         $schema = $this->schema();
         $comp_schema = $schema->components[$key];
         if (array_key_exists('mapped_by', $comp_schema)) {
             $this->update_component_fks_reverse($key, $val, $comp_schema);
             return;
         }
-        switch ($comp_schema['type']) {
-            case JORK::MANY_TO_ONE:
-                $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
-                    ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
-                    : $val->pk();
-                $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
-                break;
-            case JORK::ONE_TO_ONE:
-                $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
-                    ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
-                    : $val->pk();
-                $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
-                break;
+        if (NULL === $val) {
+            switch ($comp_schema['type']) {
+                case JORK::MANY_TO_ONE:
+                    $this->_atomics[$comp_schema['join_column']]['value'] = NULL;
+                    $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
+                    break;
+                case JORK::ONE_TO_ONE:
+                    $this->_atomics[$comp_schema['join_column']]['value'] = NULL;
+                    $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
+                    break;
+            }
+        } else {
+            switch ($comp_schema['type']) {
+                case JORK::MANY_TO_ONE:
+                    $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema) 
+                        ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
+                        : $val->pk();
+                    $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
+                    break;
+                case JORK::ONE_TO_ONE:
+                    $this->_atomics[$comp_schema['join_column']]['value'] = array_key_exists('inverse_join_column', $comp_schema)
+                        ? $val->_atomics[$comp_schema['inverse_join_column']]['value']
+                        : $val->pk();
+                    $this->_atomics[$comp_schema['join_column']]['persistent'] = FALSE;
+                    break;
+            }
         }
     }
 
@@ -734,6 +760,66 @@ abstract class JORK_Model_Abstract {
 
     public function  __toString() {
         return $this->as_string();
+    }
+
+    public function as_array() {
+        $rval = array();
+        $schema = $this->schema();
+        foreach ($schema->atomics as $k => $dummy) {
+            $rval[$k] = isset($this->_atomics[$k]) ? $this->_atomics[$k]['value'] : NULL;
+        }
+        foreach ($schema->components as $k => $dummy) {
+            $rval[$k] = isset($this->_components[$k]) ? $this->_components[$k]['value'] : NULL;
+        }
+        return $rval;
+    }
+
+    public function __unset($key) {
+        $schema = $this->schema();
+        if (isset($schema->atomics[$key])) {
+            $this->_atomics[$key] = array(
+                'value' => NULL,
+                'persistent' => FALSE
+            );
+            $this->_persistent = FALSE;
+        } elseif (isset($schema->components[$key])) {
+            if ($schema->is_to_many_component($key)) {
+                throw new JORK_Exception("Removing to-many relations is not yet supported");
+            } else {
+                $this->_components[$key] = array(
+                    'value' => NULL,
+                    'persistent' => FALSE
+                );
+                $this->update_component_fks($key);
+            }
+        } else {
+            throw new JORK_Exception("Property {$schema->class}::$key does not exist");
+        }
+    }
+
+    public function  __isset($key) {
+        $schema = $this->_schema;
+        return isset($schema->atomics[$key]) || isset($schema->components[$key]);
+    }
+
+    public function offsetGet($key) {
+        return $this->__get($key);
+    }
+
+    public function offsetSet($key, $value) {
+        $this->__set($key, $value);
+    }
+
+    public function offsetExists($key) {
+        return $this->__isset($key);
+    }
+
+    public function offsetUnset($key) {
+        $this->__unset($key);
+    }
+
+    public function  getIterator() {
+        return new JORK_Model_Collection_Iterator($this->_atomics + $this->_components);
     }
 
 }
