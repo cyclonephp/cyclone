@@ -1,6 +1,6 @@
 <?php
 
-class Log_Adapter_Abstract implements Log_Adapter {
+abstract class Log_Adapter_Abstract implements Log_Adapter {
 
     protected $_entries = array();
 
@@ -8,7 +8,7 @@ class Log_Adapter_Abstract implements Log_Adapter {
 
     protected $_time_format;
 
-    public function  __construct($time_format) {
+    public function  __construct($time_format = 'Y-m-d h:i:s') {
         $this->_time_format = $time_format;
         register_shutdown_function(array($this, 'write_entries'));
         if (NULL === self::$_remote_addr) {
