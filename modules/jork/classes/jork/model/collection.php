@@ -238,7 +238,7 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
     }
 
     public function  getIterator() {
-        return new JORK_Model_Collection_Iterator($this->_storage);
+        return new JORK_Model_Iterator($this->_storage);
     }
 
     public function as_string($tab_cnt = 0) {

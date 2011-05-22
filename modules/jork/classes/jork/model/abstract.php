@@ -819,7 +819,7 @@ abstract class JORK_Model_Abstract implements ArrayAccess, IteratorAggregate{
     }
 
     public function  getIterator() {
-        return new JORK_Model_Collection_Iterator($this->_atomics + $this->_components);
+        return new JORK_Model_Iterator($this->_atomics + $this->_components);
     }
 
 }
