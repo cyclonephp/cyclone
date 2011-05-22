@@ -22,5 +22,11 @@ class Config_Test extends Kohana_Unittest_TestCase {
         Config::setup();
         $this->assertTrue(Config::inst()->readers[0] instanceof Config_Reader_File_Env);
     }
+
+    public function testPrependMock() {
+        Config::inst()->prepend_mock();
+        $this->assertEquals(Config_Storage_Mock::inst(), Config::inst()->readers[0]);
+        $this->assertEquals(Config_Storage_Mock::inst(), Config::inst()->writers[0]);
+    }
     
 }

@@ -57,6 +57,19 @@ class Config {
         throw new Config_Exception("none of the config writers were able to write value '$key'");
     }
 
+    public function prepend_reader(Config_Reader $reader) {
+        array_unshift($this->readers, $reader);
+    }
+
+    public function prepend_writer(Config_Writer $writer) {
+        array_unshift($this->writers, $writer);
+    }
+
+    public function prepend_mock() {
+        $this->prepend_reader(Config_Storage_Mock::inst());
+        $this->prepend_writer(Config_Storage_Mock::inst());
+    }
+
     public function attach_reader(Config_Reader $reader) {
         $this->readers []= $reader;
         return $this;
