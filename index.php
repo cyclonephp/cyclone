@@ -39,6 +39,7 @@ FileSystem::bootstrap(array(
     'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
     'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
     'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
+    'logger' => MODPATH . 'logger' . DIRECTORY_SEPARATOR,
     'system' => SYSPATH
 ), SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
