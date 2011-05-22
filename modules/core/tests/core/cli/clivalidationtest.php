@@ -90,7 +90,7 @@ class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
             in multi line
             hahaha',
             'commands' => array('generate-schema' => array(
-                    'desc' => 'description asdasdasd',
+                    'descr' => 'description asdasdasd',
             ))
         );
         $mod = new Cyclone_Cli_Module("no_values", $arr);

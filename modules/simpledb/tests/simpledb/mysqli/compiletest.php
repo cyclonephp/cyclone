@@ -47,7 +47,7 @@ class SimpleDB_Mysqli_CompileTest extends SimpleDB_Mysqli_DbTest {
                 ;
 
         $this->assertEquals($query->compile(),
-                'SELECT DISTINCT `id`, `name`, (SELECT count(1) FROM (`cy_posts`) WHERE `cy_posts`.`author_fk` = `cy_user`.`id`) AS `post_count` FROM (`cy_users`) LEFT JOIN `cy_groups` ON `cy_users`.`group_fk` = `cy_group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
+                'SELECT DISTINCT `id`, `name`, ((SELECT count(1) FROM (`cy_posts`) WHERE `cy_posts`.`author_fk` = `cy_user`.`id`)) AS `post_count` FROM (`cy_users`) LEFT JOIN `cy_groups` ON `cy_users`.`group_fk` = `cy_group`.`id` WHERE `2` = `1` + `1` AND `4` = 2 + 2 GROUP BY `id` HAVING `2` = `2` ORDER BY `id` DESC LIMIT 20 OFFSET 10');
     }
 
     public function testSet() {

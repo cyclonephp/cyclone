@@ -11,7 +11,7 @@ class Config_Reader_FileTest extends Kohana_Unittest_TestCase {
 
     public function testGet() {
         $val = $this->reader->read('sample.hello.world');
-        $this->assertEquals('found', $val);
+        $this->assertEquals('default', $val);
         
     }
     

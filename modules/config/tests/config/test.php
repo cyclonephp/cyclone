@@ -8,7 +8,7 @@ class Config_Test extends Kohana_Unittest_TestCase {
      */
     public function testAttachDetach() {
         $file_reader = new Config_Reader_File;
-        $db_reader = new Config_Reader_Database;
+        $db_reader = new Config_Reader_Database('config', 'key', 'value');
         Config::inst('test')->attach_reader($file_reader);
         Config::inst('test')->attach_reader($db_reader);
         $this->assertEquals(Config::inst('test')->readers, array($file_reader, $db_reader));

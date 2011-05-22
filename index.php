@@ -51,7 +51,7 @@ Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-//Session::instance();
+Session::instance();
 
 //Controller_Core::$minify_js = Kohana::$environment != Kohana::DEVELOPMENT;
 

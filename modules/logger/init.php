@@ -1,6 +1,6 @@
 <?php
 
-function log($class, $level, $message, $code = NULL) {
+function log_add($class, $level, $message, $code = NULL) {
     Log::for_class($class)->add_entry($level, $message, $code);
 }
 

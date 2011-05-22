@@ -233,12 +233,12 @@ class FileSystem {
      */
     public static function list_directory($dir, $modules = NULL) {
         if (NULL === $modules) {
-            $modules = self::$_roots;
+            $modules = array_keys(self::$_roots);
         }
         $rval = array();
         foreach ($modules as $module_name) {
             if ( ! isset(self::$_roots[$module_name]))
-                throw new Exception("module '$module' is not installed");
+                throw new Exception("module '$module_name' is not installed");
             $root_dir = self::$_roots[$module_name];
             $candidate = $root_dir . $dir;
             if (is_dir($candidate)) {

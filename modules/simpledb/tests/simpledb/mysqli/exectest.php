@@ -98,7 +98,7 @@ class SimpleDB_Mysqli_ExecTest extends SimpleDB_MySQLi_DbTest {
         $this->assertEquals(2, $deleted_rows);
         $conn->rollback();
         $existing_rows = DB::select()->from('user')->exec()->count();
-        $this->assertEquals(2, $existing_rows); 
+        $this->assertEquals(2, $existing_rows); return;
         $deleted_rows = DB::delete('user')->exec();
         $this->assertEquals(2, $deleted_rows);
         $conn->commit();
