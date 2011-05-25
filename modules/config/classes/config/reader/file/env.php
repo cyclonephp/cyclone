@@ -20,7 +20,7 @@ class Config_Reader_File_Env implements Config_Reader {
         $env_val = $this->env_reader->read($key);
         $def_val = $this->default_reader->read($key);
         if (is_array($env_val) && is_array($def_val)) {
-            return Arr::merge($env_val, $def_val);
+            return Arr::merge($def_val, $env_val);
         } else {
             return $env_val === Config::NOT_FOUND ? $def_val : $env_val;
         }
@@ -29,7 +29,7 @@ class Config_Reader_File_Env implements Config_Reader {
     public function  __construct($root_path = 'config') {
         $this->env_reader = new Config_Reader_File($root_path
                 .DIRECTORY_SEPARATOR
-                .Kohana::$environment);
+                .Env::$current);
         $this->default_reader = new Config_Reader_File($root_path);
     }
 

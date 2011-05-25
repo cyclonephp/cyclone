@@ -64,7 +64,7 @@ class Asset_Pool {
                             CssMin::minify(file_get_contents(Kohana::find_file($path, $file, 'css')));
                     }
                 }
-                Log::debug('generating asset file: '.$minified_file_abs_path);
+                Log::for_class($this)->add_debug('generating asset file: '.$minified_file_abs_path);
                 file_put_contents($minified_file_abs_path, $all_src);
             }
             $new_resources []= $minified_file_rel_path;
