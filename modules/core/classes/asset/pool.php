@@ -96,7 +96,7 @@ class Asset_Pool {
         return $head_view;
     }
 
-    protected function transform_assets() {
+    public function transform_assets() {
         $config = Config::inst();
         foreach (array('js', 'css') as $type) {
             if ($config->get('core.minify.'.$type)) {
