@@ -352,6 +352,43 @@ class CyForm {
         return $view->render();
     }
 
+
+    /**
+     * @param array $fields the values should contain the field names to use. The keys are indifferent.
+     * @param boolean $consider_order if TRUE then the used fields will be ordered by their keys in $fields
+     * @return CyForm_Model
+     */
+    public function use_fields($fields, $consider_order = FALSE) {
+        if ($consider_order) {
+            $new_fields = array();
+            foreach ($fields as $field_name) {
+                $new_fields[$field_name] = $this->_fields[$field_name];
+            }
+            $this->_fields = $new_fields;
+        } else {
+            foreach ($this->_fields as $field_name => $val) {
+                if ( ! in_array($field_name, $fields)) {
+                    unset($this->_fields[$field_name]);
+                }
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param array $fields the values should contain the field names to hide. The keys are indifferent.
+     * @return CyForm_Model
+     */
+    public function hide_fields($fields) {
+        foreach ($fields as $field_name) {
+            if ( ! isset($this->_fields[$field_name]))
+                throw new CyForm_Exception("Can't hide field '$field_name' in the form since it does not exist");
+            unset($this->_fields[$field_name]);
+        }
+        return $this;
+    }
+    
+
     public function  __toString() {
         try {
             return $this->render();
