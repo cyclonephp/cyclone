@@ -72,7 +72,11 @@ class FileSystem {
         if ($cache_dir) {
             self::$_cache_dir = $cache_dir;
             self::$_path_cache_file = $cache_dir . 'filepaths.txt';
-            self::$_abs_file_paths = unserialize(file_get_contents(self::$_path_cache_file));
+            if (file_exists(self::$_path_cache_file)) {
+                self::$_abs_file_paths = unserialize(file_get_contents(self::$_path_cache_file));
+            } else {
+                self::$_abs_file_paths = array();
+            }
             register_shutdown_function(array('FileSystem', 'save_cache'));
         } else {
             self::$_abs_file_paths = array();
