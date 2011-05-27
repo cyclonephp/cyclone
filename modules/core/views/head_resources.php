@@ -5,5 +5,8 @@
 <? endforeach; ?>
 <? if (count($server_params)) : ?>
 <script type="text/javascript">
-    server_params = <?= json_encode($server_params) ?>
+    if ( ! $) {
+        $ = {};
+    }
+    $.cy = {params: <?= json_encode($server_params) ?>}
 </script><? endif; ?>
