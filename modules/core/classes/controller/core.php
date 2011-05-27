@@ -85,7 +85,7 @@ class Controller_Core extends Controller_Template {
     }
 
     protected function add_default_resources() {
-        $asset_path = self::$config->get('core.asset_path');
+        $asset_path = 'assets/';
         $js_path = $asset_path.'js';
         $css_path = $asset_path.'css';
         
@@ -148,10 +148,10 @@ class Controller_Core extends Controller_Template {
     }
 
     public static function add_js_param($key, $value) {
-        Asset_Pool::inst()->$js_params[$key] = $value;
+        Asset_Pool::inst()->js_params[$key] = $value;
     }
 
     public static function add_js_params(array $params) {
-        Asset_Pool::inst()->$js_params += $params;
+        Asset_Pool::inst()->js_params += $params;
     }
 }

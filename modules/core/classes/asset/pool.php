@@ -103,7 +103,7 @@ class Asset_Pool {
                 $this->minify_assets($type);
             } else {
                 $new_assets = array();
-                $path = $config->get('core.asset_path').$type;
+                $path = 'assets'.DIRECTORY_SEPARATOR.$type;
                 foreach ($this->assets[$type] as $file => $minify) {
                     $abs_path = Kohana::find_file($path, $file, $type);
                     $new_assets []= substr($abs_path, strlen(DOCROOT));
