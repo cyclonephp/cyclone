@@ -36,7 +36,7 @@ FileSystem::bootstrap(array(
     'jork' => MODPATH . 'jork' . DIRECTORY_SEPARATOR,
     'core' => MODPATH . 'core' . DIRECTORY_SEPARATOR,
     'cyform' => MODPATH . 'cyform' . DIRECTORY_SEPARATOR,
-    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
+//    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
     'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
     'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
     'logger' => MODPATH . 'logger' . DIRECTORY_SEPARATOR,
@@ -64,8 +64,8 @@ Route::set('default', '(<controller>(/<action>(/<id>)))')
             'action' => 'index',
         ));
 
-if (!defined('SUPPRESS_REQUEST')) {
-    $request = Request::instance();
+if ( ! defined('SUPPRESS_REQUEST')) {
+    $request = Request::initial();
     if (Kohana::$environment != Env::DEV) {
         try {
             $request->execute();

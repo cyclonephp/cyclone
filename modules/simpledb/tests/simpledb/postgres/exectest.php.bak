@@ -1,8 +1,9 @@
 <?php
 
-class SimpleDB_Query_Result_ExecTest extends SimpleDB_Postgres_DbTest {
+class SimpleDB_Postgres_ExecTest extends SimpleDB_Postgres_DbTest {
 
     public function testExecSelect() {
+        die("itt\n");
         $arr = DB::select()->from('users')->exec('postgres')->as_array();
         $this->assertEquals(array(
             array('id' => 1, 'name' => 'user1'),

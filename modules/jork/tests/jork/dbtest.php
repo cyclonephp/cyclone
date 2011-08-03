@@ -4,6 +4,7 @@
 abstract class JORK_DbTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
+        parent::setUp();
         $sql = file_get_contents(MODPATH.'jork/tests/testdata.sql');
         try {
             DB::connector('jork_test')->connect();
@@ -17,6 +18,7 @@ abstract class JORK_DbTest extends Kohana_Unittest_TestCase {
 
     public function  tearDown() {
         JORK_InstancePool::clear();
+        parent::tearDown();
     }
 
 }

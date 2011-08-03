@@ -216,11 +216,6 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
         if (in_array($prop_name, $this->_result_atomics))
                 return;
 
-        if ($prop_schema instanceof JORK_Mapping_Schema_Embeddable) {
-            print($prop_name);
-            var_dump($this->_entity_schema);
-            die();
-        }
         try {
         $tbl_name = array_key_exists('table', $prop_schema)
                 ? $prop_schema['table']

@@ -183,8 +183,71 @@ class Route {
 	// Default values for route keys
 	protected $_defaults = array('action' => 'index');
 
+        /**
+         * Ajax constraint. If it's value is not null then the route will match
+         * only if the requests $is_ajax attribute is the same as this value.
+         *
+         * @var boolean
+         */
+        protected $_is_ajax;
+
+        /**
+         * HTTP method constraint. If it's value is not null then the route will match
+         * only if the requests $method attribute is the same as this value (case
+         * insensitively).
+         *
+         * @var string
+         */
+        protected $_method;
+        
+        /**
+         * Protocol constraint. If it's value is not null then the route will
+         * match only if the request's \c $protocol attribute is the same as
+         * this value. Note that you can set programmatically any protocols
+         * for the request using the \c Request::protocol() method, but for the
+         * initial request (created by \c Request::initial() ) the protocol will
+         * always be \c 'http' or \c 'https' .
+         *
+         * @var string
+         */
+        protected $_protocol;
+
 	// Compiled regex cache
 	protected $_route_regex;
+
+        /**
+         * A callback - typically a lambda function - that will be called by
+         * \c Dispatcher_Internal if this lambda controller is not null, and
+         * the request is dispatched using the \c Dispatcher_Internal::STRATEGY_LAMBDA
+         * strategy. The callback should take the assoc. array of parameters
+         * extracted by the matching \c Route (from the request URI).
+         *
+         * @var callback
+         */
+        protected $_lambda_controller;
+
+        /**
+         * A callback that can be used to modify the route parameters before the
+         * the controller execution. It is executed after finding the matching
+         * route and before calling the controller. It takes the routing parameters
+         * as a parameter (assoc. array). The parameters are passed by reference,
+         * so the callback can modify the routing parameters by modifying it's parameter.
+         * Example:
+         * \code
+         * Route::set('default', '(<controller>(/<action>(/<id>)))')
+         *      ->defaults(array(
+         *          'controller' => 'index',
+         *          'action' => 'index'
+         *      ))
+         *      ->before(function (&$params) {
+         *          $params['controller'] = str_replace('-', '_', $params['controller']);
+         *          $params['action'] = str_replace('-', '_', $params['action']);
+         *      });
+         * \endcode
+         *
+         * @var callback
+         */
+        protected $_before;
 
 	/**
 	 * Creates a new route. Sets the URI and regular expressions for keys.
@@ -237,6 +300,63 @@ class Route {
 		return $this;
 	}
 
+        /**
+         * The setter of the \c $is_ajax property
+         *
+         * @param boolean $is_ajax
+         * @return Route
+         */
+        public function is_ajax($is_ajax) {
+            $this->_is_ajax = $is_ajax;
+            return $this;
+        }
+
+        /**
+         * The setter of the \c $method property.
+         *
+         * @param string $method
+         * @return Route
+         */
+        public function method($method) {
+            $this->_method = $method;
+            return $this;
+        }
+        
+        /**
+         * The setter of the lambda controller of the route. This callback will
+         * be invoked if a request matches this route, and is dispatched by the
+         * internal request, using the \c Dispatcher_Internal::STRATEGY_LAMBA
+         * strategy. The callback must accept two parameters: a Request and a 
+         * Response instance.
+         * 
+         * Example:
+         * @code
+         * Route::set('hello/<name>')
+         *  ->method('get')
+         *  ->controller(function(Request $req, Response $resp) {
+         *      $resp->body = 'Hello ' . $req->params['name'];
+         *  });
+         * @endcode
+         * 
+         * Otherwise this controller has no effect.
+         * 
+         * @param callback $lambda_controller
+         * @return Route $this
+         */
+        public function controller($lambda_controller) {
+            $this->_lambda_controller = $lambda_controller;
+            return $this;
+        }
+
+        public function __get($key) {
+            static $readonly_attributes = array(
+                'lambda_controller',
+            );
+            if (in_array($key, $readonly_attributes))
+                return $this->{'_' . $key};
+            return parent::__get();
+        }
+
 	/**
 	 * Tests if the route matches a given URI. A successful match will return
 	 * all of the routed parameters as an array. A failed match will return
@@ -256,7 +376,7 @@ class Route {
 	 * @return  array   on success
 	 * @return  FALSE   on failure
 	 */
-	public function matches($uri)
+	public function matches_uri($uri)
 	{
 		if ( ! preg_match($this->_route_regex, $uri, $matches))
 			return FALSE;
@@ -285,6 +405,57 @@ class Route {
 
 		return $params;
 	}
+
+        /**
+         * Checks if the \& $request matches the route constraints, including
+         * - the URI pattern
+         * - \c $is_ajax
+         * - \c $method
+         * - \c $protocol
+         * 
+         * If matches, then it passes the route pattern parameters to the request
+         * and the lambda controller if exists.
+         *
+         * @param Request $request the request instance to match against
+         * @return boolean FALSE if the route doesn't match the request. Otherwise
+         *      the parameters extracted from the URI
+         */
+        public function matches(Request $request) {
+            if ( ! is_null($this->_method) 
+                && strtolower($request->method) != strtolower($this->_method))
+                    return FALSE;
+            
+            if ( ! is_null($this->_is_ajax) && $request->is_ajax !== $this->_is_ajax)
+                    return FALSE;
+            
+            if ( ! is_null($this->_protocol) 
+                && strtolower($request->protocol) != strtolower($this->_protocol))
+                    return FALSE;
+            
+            $params = $this->matches_uri($request->uri);
+            
+            if (FALSE === $params)
+                return FALSE;
+            
+            $params += $this->_defaults;
+
+            if ( ! is_null($this->_before)) {
+                
+                if ( ! is_callable($this->_before))
+                     throw new Dispatcher_Exception('Route::$before must be a callable');
+
+                $before = $this->_before;
+                $before($params);
+            }
+
+            $request->params($params);
+            
+            if ( ! is_null($this->_lambda_controller)) {
+                $request->lambda_controller($this->_lambda_controller);
+            }
+            
+            return TRUE;
+        }
 
 	/**
 	 * Generates a URI for the current route based on the parameters given.

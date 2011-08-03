@@ -4,6 +4,7 @@
 class JORK_Query_CacheTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
+        parent::setUp();
         JORK_Query_Cache::clear_pool();
     }
 

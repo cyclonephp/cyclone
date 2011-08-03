@@ -54,7 +54,7 @@ class FileSystem {
     /**
      * Bootstrap method for the CFS.
      *
-     * Roots should be <module name> => <module root directory> pairs. Not like
+     * Roots should be <library name> => <library root directory> pairs. Not like
      * Kohana, application and system directories should also be included in the
      * list.
      *
@@ -62,7 +62,8 @@ class FileSystem {
      * $cache_dir/filepaths.txt will be used. This file should exist and it
      * should be writable.
      *
-     * @param array $roots
+     * @param array $roots assoc. array: keys are library names, values are absolute root
+     *  paths of the libraries
      * @param string $cache_dir
      * @usedby index.php
      */
@@ -81,6 +82,13 @@ class FileSystem {
         } else {
             self::$_abs_file_paths = array();
         }
+    }
+
+    public static function enable_lib($name, $root_path) {
+        if (isset(self::$_roots[$name]))
+            throw new Exception("library '$lib' is already enabled", 1);
+
+        self::$_roots[$name] = $root_path;
     }
 
     /**

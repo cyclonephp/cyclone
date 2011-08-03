@@ -87,7 +87,7 @@
     </target>
 	
 	<target name="lint" depends="phplint,jslint"/>
-	
+	<!--
 	<target name="docs">
 		<phpdoc title="CyclonePHP documentation" destdir="docs" output="HTML:frames:earthli">
 			<fileset dir="${modpath}">
@@ -106,6 +106,6 @@
 			</fileset>
 		</phpdoc>
         <copy file=".docs.stylesheet.css" tofile="docs/media/stylesheet.css" overwrite="true"/>
-	</target>
+	</target> -->
 	
 </project>

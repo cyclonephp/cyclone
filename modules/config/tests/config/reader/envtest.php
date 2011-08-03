@@ -6,6 +6,7 @@ class Config_Reader_EnvTest extends Kohana_Unittest_TestCase {
     
     public function  tearDown() {
         Config::inst()->readers = array();
+        parent::tearDown();
     }
 
     public function testDefault() {

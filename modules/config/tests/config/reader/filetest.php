@@ -6,6 +6,7 @@ class Config_Reader_FileTest extends Kohana_Unittest_TestCase {
     public $reader;
 
     public function  setUp() {
+        parent::setUp();
         $this->reader = new Config_Reader_File;
     }
 
