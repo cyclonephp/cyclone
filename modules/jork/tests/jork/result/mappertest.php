@@ -78,6 +78,35 @@ class JORK_Result_MapperTest extends JORK_DbTest {
         }
     }
 
+    public function testSelectItmColl() {
+        $query = JORK::select('name', 'topics')->from('Model_Category');
+        $result = $query->exec('jork_test');
+        //echo $query->compile('jork_test');
+        
+        $this->assertEquals(3, count($result));
+        $row1 = $result[0];
+        $this->assertInternalType('string', $row1['name']);
+        $this->assertInstanceOf('JORK_Model_Collection', $row1['topics']);
+        $this->assertEquals(1, count($row1['topics']));
+        $this->assertTrue(isset($row1['topics'][1]));
+        $this->assertEquals(1, $row1['topics'][1]->id);
+
+        $row2 = $result[1];
+        $this->assertInstanceOf('JORK_Model_Collection', $row2['topics']);
+        $this->assertEquals(2, count($row2['topics']));
+        $this->assertTrue(isset($row2['topics'][1]));
+        $this->assertEquals(1, $row2['topics'][1]->id);
+
+        $this->assertTrue(isset($row2['topics'][2]));
+        $this->assertEquals(2, $row2['topics'][2]->id);
+
+        $row3 = $result[2];
+        $this->assertInstanceOf('JORK_Model_Collection', $row3['topics']);
+        $this->assertEquals(1, count($row3['topics']));
+        $this->assertTrue(isset($row3['topics'][1]));
+        $this->assertEquals(1, $row3['topics'][1]->id);
+    }
+
     public function testSelectTypeExplRoot() {
         $query = JORK::select('p.id uid', 'p.name', 'p.author.moderated_category ctg'
                 , 'p.modinfo', DB::expr('{p.id} - 5 cnt'))->from('Model_Post p');

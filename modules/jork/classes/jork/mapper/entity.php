@@ -142,8 +142,11 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     }
 
     /**
+     * Returns the mapper for the last property in the property chain.
      *
      * @param array $prop_chain
+     * @return array: 0th item is the mapper, 1st item is the last propertyof the
+     *  prop. chain if it is an entity, otherwise (if it's an atomic prop.) it will be FALSE.
      * @usedby JORK_Mapper_Result_Default::extract_mappers()
      */
     public function get_mapper_for_propchain($prop_chain) {
@@ -406,4 +409,23 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
 
         return FALSE;
     }
+
+    /**
+     *
+     * @param array $prop_chain
+     * @return boolean
+     * @usedby JORK_Mapper_Result_Default::map()
+     */
+    public function is_to_many_comp($prop_chain) {
+        $root_prop = array_shift($prop_chain);
+        if (isset($this->_next_to_many_mappers[$root_prop]))
+            return TRUE;
+
+        if (isset($this->_next_to_one_mappers[$root_prop])) {
+            return $this->_next_to_one_mappers[$root_prop]->is_to_many_comp($prop_chain);
+        }
+
+        return FALSE;
+    }
+    
 }

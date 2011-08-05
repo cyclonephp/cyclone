@@ -23,16 +23,29 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
     private $_has_implicit_root;
 
     /**
+     * The mappers of the root entities of the query. Passed in the constructor.
+     *
      * @var array<JORK_Mapper_Row>
      */
     private $_root_mappers;
 
     /**
+     * Mappers that should return an entity collection in each row.
+     *
+     * @var array<JORK_Mapper_Row>
+     */
+    private $_coll_mappers = array();
+
+    /**
+     * Mappers that should return an entity in each row.
+     *
      * @var array<JORK_Mapper_Row>
      */
     private $_entity_mappers = array();
 
     /**
+     * Mappers that should return an atomic property (scalar) in each row.
+     *
      * @var array<JORK_Mapper_Row>
      */
     private $_atomic_mappers = array();
@@ -77,7 +90,11 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
                 list($itm_mapper, $atomic_prop) = $root_mapper
                         ->get_mapper_for_propchain($prop_chain);
                 if (FALSE === $atomic_prop) {
-                    $this->_entity_mappers[$alias] = $itm_mapper;
+                    if ($root_mapper->is_to_many_comp($prop_chain)) {
+                        $this->_coll_mappers[$alias] = $itm_mapper;
+                    } else {
+                        $this->_entity_mappers[$alias] = $itm_mapper;
+                    }
                 } else {
                     $this->_atomic_mappers[$alias] = $itm_mapper;
                     $this->_atomic_props[$alias] = $atomic_prop;
@@ -98,7 +115,13 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
             }
 
             if ($is_new_row) {
+                if (isset($obj_result_row)) {
+                    $obj_result []= $obj_result_row;
+                }
                 $obj_result_row = array();
+                foreach ($this->_coll_mappers as $alias => $mapper) {
+                    $obj_result_row[$alias] = $mapper->create_collection();
+                }
                 foreach ($this->_entity_mappers as $alias => $mapper) {
                     $obj_result_row[$alias] = $mapper->get_last_entity();
                 }
@@ -106,8 +129,15 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
                     $obj_result_row[$alias] = $mapper->get_last_entity()
                             ->{$this->_atomic_props[$alias]};
                 }
-                $obj_result [] = &$obj_result_row;
             }
+
+            foreach ($this->_coll_mappers as $alias => $mapper) {
+                $obj_result_row[$alias]->append_persistent($mapper->get_last_entity());
+            }
+        }
+        
+        if (isset($obj_result_row)) {
+            $obj_result [] = $obj_result_row;
         }
         return $obj_result;
     }

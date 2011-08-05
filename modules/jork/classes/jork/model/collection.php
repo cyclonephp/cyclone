@@ -174,6 +174,13 @@ abstract class JORK_Model_Collection extends ArrayObject implements IteratorAggr
         $this->_persistent = FALSE;
     }
 
+    public function append_persistent($value) {
+        $this->_storage[$value->pk()] = array(
+            'persistent' => TRUE,
+            'value' => $value
+        );
+    }
+
     protected function update_stor_pk($entity) {
         $new_pk = $entity->pk();
         $old_pk = NULL;
