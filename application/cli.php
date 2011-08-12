@@ -3,7 +3,7 @@
 return array(
     'application' => array(
         'description' => 'The desc of application
-Application module description. This is the multi lined long version.
+Application library description. This is the multi lined long version.
 An other line.
 And an another.',
         'commands' => array(
@@ -12,10 +12,10 @@ And an another.',
 
 Iterates on all classes named Record_*, instantiates each one and creates database schema for them.",
                 'arguments' => array(
-                    '--module' => array(
+                    '--library' => array(
                         'alias' => '-m',
-                        'parameter' => '<module name>',
-                        'descr' => 'Database schema will be generated for classes in module <module name>',
+                        'parameter' => '<library name>',
+                        'descr' => 'Database schema will be generated for classes in library <library name>',
                         'required' => false
                     ),
                     '--forced' => array(

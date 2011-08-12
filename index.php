@@ -7,7 +7,7 @@ error_reporting(E_ALL | E_STRICT);
 define('DOCROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
 
 define('APPPATH', DOCROOT.'application'.DIRECTORY_SEPARATOR);
-define('MODPATH', DOCROOT.'modules'.DIRECTORY_SEPARATOR);
+define('LIBPATH', DOCROOT.'libs'.DIRECTORY_SEPARATOR);
 define('SYSPATH', DOCROOT.'system'.DIRECTORY_SEPARATOR);
 define('TOOLPATH', DOCROOT.'tools'.DIRECTORY_SEPARATOR);
 
@@ -25,21 +25,21 @@ date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
 
-include MODPATH . 'core/classes/filesystem.php';
+include LIBPATH . 'core/classes/filesystem.php';
 spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
 
 spl_autoload_register(array('FileSystem', 'autoloader_tests'));
 
 FileSystem::bootstrap(array(
     'application' => APPPATH,
-    'simpledb' => MODPATH . 'simpledb' . DIRECTORY_SEPARATOR,
-    'jork' => MODPATH . 'jork' . DIRECTORY_SEPARATOR,
-    'core' => MODPATH . 'core' . DIRECTORY_SEPARATOR,
-    'cyform' => MODPATH . 'cyform' . DIRECTORY_SEPARATOR,
+    'simpledb' => LIBPATH . 'simpledb' . DIRECTORY_SEPARATOR,
+    'jork' => LIBPATH . 'jork' . DIRECTORY_SEPARATOR,
+    'core' => LIBPATH . 'core' . DIRECTORY_SEPARATOR,
+    'cyform' => LIBPATH . 'cyform' . DIRECTORY_SEPARATOR,
 //    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
-    'config' => MODPATH . 'config' . DIRECTORY_SEPARATOR,
-    'cytpl' => MODPATH . 'cytpl' . DIRECTORY_SEPARATOR,
-    'logger' => MODPATH . 'logger' . DIRECTORY_SEPARATOR,
+    'config' => LIBPATH . 'config' . DIRECTORY_SEPARATOR,
+    'cytpl' => LIBPATH . 'cytpl' . DIRECTORY_SEPARATOR,
+    'logger' => LIBPATH . 'logger' . DIRECTORY_SEPARATOR,
     'system' => SYSPATH
 ), SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
