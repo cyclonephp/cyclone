@@ -91,7 +91,7 @@ class JORK_Mapper_Entity implements JORK_Mapper_Row {
     public function map_row(&$db_row) {
         $pk = $db_row[$this->_result_primary_key_column];
         if (NULL === $pk)
-            return array(NULL, FALSE);
+            return array($this->_previous_result_entity = NULL, FALSE);
         if ($this->_previous_result_entity != NULL
                 && $pk == $this->_previous_result_entity->pk()) { //same instance
             $is_new_entity = false;

@@ -113,7 +113,10 @@ abstract class JORK_Mapper_Component extends JORK_Mapper_Entity {
     }
 
     public function create_collection() {
-        return JORK_Model_Collection::for_component($this->_parent_mapper->get_last_entity(), $this->_comp_name);
+        $last_parent_entity = $this->_parent_mapper->get_last_entity();
+        if (NULL === $last_parent_entity)
+             return NULL;
+        return JORK_Model_Collection::for_component($last_parent_entity, $this->_comp_name);
     }
 
 }

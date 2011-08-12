@@ -126,13 +126,16 @@ class JORK_Mapper_Result_Default extends JORK_Mapper_Result {
                     $obj_result_row[$alias] = $mapper->get_last_entity();
                 }
                 foreach ($this->_atomic_mappers as $alias => $mapper) {
-                    $obj_result_row[$alias] = $mapper->get_last_entity()
-                            ->{$this->_atomic_props[$alias]};
+                    $last_entity = $mapper->get_last_entity();
+                    $obj_result_row[$alias] = $last_entity === NULL ? NULL :
+                            $last_entity->{$this->_atomic_props[$alias]};
                 }
             }
 
             foreach ($this->_coll_mappers as $alias => $mapper) {
-                $obj_result_row[$alias]->append_persistent($mapper->get_last_entity());
+                if ($obj_result_row[$alias] != NULL && $last_entity != NULL) {
+                    $obj_result_row[$alias]->append_persistent($last_entity);
+                }
             }
         }
         
