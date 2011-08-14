@@ -278,7 +278,7 @@ class FileSystem {
     public static function autoloader_kohana($classname) {
         $classname = strtolower($classname);
         $rel_filename = 'classes/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
-
+        
         $result = FileSystem::find_file($rel_filename);
         if ($result) {
             include_once $result;

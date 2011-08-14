@@ -25,7 +25,7 @@ date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
 
-include LIBPATH . 'core/classes/filesystem.php';
+include SYSPATH . 'classes/filesystem.php';
 spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
 
 spl_autoload_register(array('FileSystem', 'autoloader_tests'));
