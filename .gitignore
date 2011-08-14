@@ -2,5 +2,6 @@
 system/.cache
 phpunit-report
 docs
-.master
 error_log
+app
+index.php
