@@ -6,7 +6,7 @@ error_reporting(E_ALL | E_STRICT);
 
 define('DOCROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
 
-define('APPPATH', DOCROOT.'application'.DIRECTORY_SEPARATOR);
+define('APPPATH', DOCROOT.'app'.DIRECTORY_SEPARATOR);
 define('LIBPATH', DOCROOT.'libs'.DIRECTORY_SEPARATOR);
 define('SYSPATH', DOCROOT.'system'.DIRECTORY_SEPARATOR);
 define('TOOLPATH', DOCROOT.'tools'.DIRECTORY_SEPARATOR);
@@ -32,7 +32,7 @@ spl_autoload_register(array('FileSystem', 'autoloader_tests'));
 
 FileSystem::bootstrap(array(
     'application' => APPPATH,
-    'simpledb' => LIBPATH . 'simpledb' . DIRECTORY_SEPARATOR,
+    'db' => LIBPATH . 'db' . DIRECTORY_SEPARATOR,
     'jork' => LIBPATH . 'jork' . DIRECTORY_SEPARATOR,
     'core' => LIBPATH . 'core' . DIRECTORY_SEPARATOR,
     'cyform' => LIBPATH . 'cyform' . DIRECTORY_SEPARATOR,
