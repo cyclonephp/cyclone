@@ -19,3 +19,6 @@
 [submodule "libs/cyform"]
 	path = libs/cyform
 	url = git@github.com:cyclonephp/CyForm.git
+[submodule "tools/cydocs"]
+	path = tools/cydocs
+	url = git@github.com:cyclonephp/CyDocs.git

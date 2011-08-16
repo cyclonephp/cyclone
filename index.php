@@ -40,7 +40,8 @@ FileSystem::bootstrap(array(
     'config' => LIBPATH . 'config' . DIRECTORY_SEPARATOR,
     'cytpl' => LIBPATH . 'cytpl' . DIRECTORY_SEPARATOR,
     'logger' => LIBPATH . 'logger' . DIRECTORY_SEPARATOR,
-    'system' => SYSPATH
+    'cydocs' => TOOLPATH . 'cydocs/',
+    'system' => SYSPATH,
 ), SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
 Config::setup();

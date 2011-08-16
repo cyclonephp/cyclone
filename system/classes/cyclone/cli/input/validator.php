@@ -113,6 +113,23 @@ class Cyclone_Cli_Input_Validator {
     }
 
     /**
+     * Adds the default values of arguments of <code>$comand</code> to
+     * <code>$parsed_args</code> after the explicitly passed CLI arguments
+     * are parsed.
+     *
+     * @param array $parsed_args
+     * @param array $command
+     * @usedby Cyclone_CLI_Validator::parse_command()
+     */
+    private function add_defaults(&$parsed_args, $command) {
+        foreach ($command['arguments'] as $arg_name => $arg_details) {
+            if ( ! isset($parsed_args[$arg_name]) && isset($arg_details['default'])) {
+                $parsed_args[$arg_name] = $arg_details['default'];
+            }
+        }
+    }
+
+    /**
      * This command choosed in the input, it parses the rest of the user input.
      * @param array $command choosed command's array
      */
@@ -123,6 +140,7 @@ class Cyclone_Cli_Input_Validator {
 
         if (count($input_args) == 0) {
             $this->suplement_callback_array($cbarray, $command['arguments']);
+            $this->add_defaults($cbarray, $command);
             call_user_func($command['callback'], $cbarray);
             return;
         }
@@ -148,8 +166,8 @@ class Cyclone_Cli_Input_Validator {
             }
             ++$i;
         }
-        
         $this->suplement_callback_array($cbarray, $command['arguments']);
+        $this->add_defaults($cbarray, $command);
         call_user_func($command['callback'], $cbarray);
     }
 
