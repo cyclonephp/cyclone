@@ -1,5 +1,5 @@
 <?php
-require SYSPATH . 'classes/filesystem.php';
+require \cyclone\SYSPATH . 'classes/filesystem.php';
 
 interface Autoloader {
 

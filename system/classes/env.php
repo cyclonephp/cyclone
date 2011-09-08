@@ -95,7 +95,10 @@ class Env {
      */
     public static function init_legacy() {
         self::init();
-        define('MODPATH', LIBPATH);
+        define('MODPATH', \cyclone\LIBPATH);
+        define('DOCROOT', \cyclone\DOCROOT);
+        define('SYSPATH', \cyclone\SYSPATH);
+        define('APPPATH', \cyclone\APPPATH);
         Kohana::$environment = self::$current;
         Kohana::$is_cli = self::$is_cli;
         Kohana::$magic_quotes = self::$magic_quotes;

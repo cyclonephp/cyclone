@@ -1,4 +1,4 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
 
 if ( ! defined('KOHANA_START_TIME'))
 {
