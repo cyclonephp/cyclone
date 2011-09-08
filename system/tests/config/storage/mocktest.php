@@ -1,14 +1,16 @@
 <?php
 
+use cyclone\config;
+
 class Config_Storage_MockTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
         parent::setUp();
-        Config_Storage_Mock::inst()->clear();
+        config\MockStorage::inst()->clear();
     }
 
     public function testRead() {
-        $inst = Config_Storage_Mock::inst();
+        $inst = config\MockStorage::inst();
         $inst->storage = array(
             'hello' => 'world',
             'step1' => array(
@@ -23,7 +25,7 @@ class Config_Storage_MockTest extends Kohana_Unittest_TestCase {
     }
 
     public function testWrite() {
-        $inst = Config_Storage_Mock::inst();
+        $inst = config\MockStorage::inst();
         $inst->write('step1', 'val');
         $this->assertEquals(array(
                 'step1' => 'val'

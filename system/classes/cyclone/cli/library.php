@@ -1,12 +1,15 @@
 <?php
 
+namespace cyclone\cli;
+
 /**
  * Library class of Cycle CLI.
  *
  * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
  * @usedby cli.php
+ * @package cyclone
  */
-class Cyclone_Cli_library {
+class Library {
 
     private $_name;
     private $_data;
@@ -50,10 +53,10 @@ class Cyclone_Cli_library {
                     $this->parse_command($value);
                 }
             } else {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::LIBRARY_COMMANDS_NOT_DEF, 102);
+                $this->throw_validation_exception(Errors::LIBRARY_COMMANDS_NOT_DEF, 102);
             }
         } else {
-            $this->throw_validation_exception(Cyclone_Cli_Errors::LIBRARY_DESC_NOT_DEF, 101);
+            $this->throw_validation_exception(Errors::LIBRARY_DESC_NOT_DEF, 101);
         }
     }
 
@@ -75,10 +78,10 @@ class Cyclone_Cli_library {
                     return;
                 }
             } else {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_CALLBACK_NOT_DEF, 104);
+                $this->throw_validation_exception(Errors::COMMAND_CALLBACK_NOT_DEF, 104);
             }
         } else {
-            $this->throw_validation_exception(Cyclone_Cli_Errors::COMMAND_DESC_NOT_DEF, 103);
+            $this->throw_validation_exception(Errors::COMMAND_DESC_NOT_DEF, 103);
         }
     }
 
@@ -86,21 +89,21 @@ class Cyclone_Cli_library {
 
         if (!empty($data['alias'])) {
             if (!preg_match('/^-[a-zA-Z]$/', $data['alias'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_ALIAS_BAD_FORMAT, 105);
+                $this->throw_validation_exception(Errors::ARG_ALIAS_BAD_FORMAT, 105);
             }
         }
         if (array_key_exists('parameter', $data)) {
             if (isset($data['parameter']) && !is_string($data['parameter'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_BAD_TYPE, 107);
+                $this->throw_validation_exception(Errors::ARG_PARAM_BAD_TYPE, 107);
             }
         } else {
-            $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_PARAM_NOT_DEFINED, 106);
+            $this->throw_validation_exception(Errors::ARG_PARAM_NOT_DEFINED, 106);
         }
         if (array_key_exists('required', $data)) {
             if (!is_bool($data['required'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_BAD_TYPE, 108);
+                $this->throw_validation_exception(Errors::ARG_REQUIRED_BAD_TYPE, 108);
             } else if ($data['required'] && !isset($data['parameter'])) {
-                $this->throw_validation_exception(Cyclone_Cli_Errors::ARG_REQUIRED_NO_SENSE, 109);
+                $this->throw_validation_exception(Errors::ARG_REQUIRED_NO_SENSE, 109);
             }
         }
     }
@@ -111,7 +114,7 @@ class Cyclone_Cli_library {
      * @param int $code  the error code
      */
     private function throw_validation_exception($error, $code) {
-        throw new Cyclone_Cli_Validation_Exception($error, $code, $this->_name, $this->_curr_command, $this->_curr_arg);
+        throw new ValidationException($error, $code, $this->_name, $this->_curr_command, $this->_curr_arg);
     }
 
 }

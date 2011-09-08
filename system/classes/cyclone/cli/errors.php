@@ -1,12 +1,14 @@
 <?php
 
+namespace cyclone\cli;
 /**
  * Contains the error constants for cyclone CLI.
  *
  * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
  * @usedby cli.php
+ * @package cyclone
  */
-class Cyclone_Cli_Errors {
+class Errors {
     const CALL_ERROR = '!!You mustn\'t call this method dircetly! Use cyphp instead.';
     const LIBRARY_VALIDATION_FAILED = '!!LIBRARY VALIDATION FAILED';
     /** Code: 101 */

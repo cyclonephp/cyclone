@@ -1,32 +1,33 @@
 <?php
 
+use cyclone as cy;
 
 class Config_Test extends Kohana_Unittest_TestCase {
 
     /**
-     * @expectedException Config_Exception
+     * @expectedException \cyclone\config\Exception
      */
     public function testAttachDetach() {
-        $file_reader = new Config_Reader_File;
-        $db_reader = new Config_Reader_Database('config', 'key', 'value');
-        Config::inst('test')->attach_reader($file_reader);
-        Config::inst('test')->attach_reader($db_reader);
-        $this->assertEquals(Config::inst('test')->readers, array($file_reader, $db_reader));
-        Config::inst('test')->detach_reader($file_reader);
-        Config::inst('test')->detach_reader($db_reader);
-        $this->assertEquals(Config::inst('test')->readers, array());
-        Config::inst('test')->detach_reader($db_reader);
+        $file_reader = new cy\config\reader\File;
+        $db_reader = new cy\config\reader\Database('config', 'key', 'value');
+        cy\Config::inst('test')->attach_reader($file_reader);
+        cy\Config::inst('test')->attach_reader($db_reader);
+        $this->assertEquals(cy\Config::inst('test')->readers, array($file_reader, $db_reader));
+        cy\Config::inst('test')->detach_reader($file_reader);
+        cy\Config::inst('test')->detach_reader($db_reader);
+        $this->assertEquals(cy\Config::inst('test')->readers, array());
+        cy\Config::inst('test')->detach_reader($db_reader);
     }
 
     public function testSetup() {
-        Config::setup();
-        $this->assertTrue(Config::inst()->readers[0] instanceof Config_Reader_File_Env);
+        cy\Config::setup();
+        $this->assertTrue(cy\Config::inst()->readers[0] instanceof cy\config\reader\FileEnv);
     }
 
     public function testPrependMock() {
-        Config::inst()->prepend_mock();
-        $this->assertEquals(Config_Storage_Mock::inst(), Config::inst()->readers[0]);
-        $this->assertEquals(Config_Storage_Mock::inst(), Config::inst()->writers[0]);
+        cy\Config::inst()->prepend_mock();
+        $this->assertEquals(cy\config\MockStorage::inst(), cy\Config::inst()->readers[0]);
+        $this->assertEquals(cy\config\MockStorage::inst(), cy\Config::inst()->writers[0]);
     }
     
 }

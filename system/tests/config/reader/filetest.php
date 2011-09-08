@@ -1,5 +1,6 @@
 <?php
 
+use cyclone as cy;
 
 class Config_Reader_FileTest extends Kohana_Unittest_TestCase {
 
@@ -7,7 +8,7 @@ class Config_Reader_FileTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
         parent::setUp();
-        $this->reader = new Config_Reader_File;
+        $this->reader = new cy\config\reader\File;
     }
 
     public function testGet() {

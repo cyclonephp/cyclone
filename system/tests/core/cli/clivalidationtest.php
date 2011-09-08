@@ -1,5 +1,7 @@
 <?php
 
+use cyclone\cli;
+
 /**
  * Test class of library validation.
  *
@@ -8,17 +10,17 @@
 class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 101
      */
     public function testNolibraryDescription() {
         $arr = array();
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 102
      */
     public function testNoCommandsArray() {
@@ -27,12 +29,12 @@ class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
             in multi line
             hahaha'
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 102
      */
     public function testEmptyCommandsArray() {
@@ -42,12 +44,12 @@ class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
             hahaha',
             'commands' => array()
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 103
      */
     public function testNoCommandDesc() {
@@ -59,12 +61,12 @@ class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
                 'generate-schema' => array()
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 103
      */
     public function testNoCommandDescEmptyString() {
@@ -76,12 +78,12 @@ class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
                 'generate-schema' => array('desc' => '')
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 104
      */
     public function testNoCommandCallback() {
@@ -93,12 +95,12 @@ class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
                     'descr' => 'description asdasdasd',
             ))
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 105
      */
     public function testbadArgumentAlias() {
@@ -120,12 +122,12 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 106
      */
     public function testArgParamNotDef() {
@@ -147,7 +149,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
@@ -169,12 +171,12 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 107
      */
     public function testArgParamBadDefNumb() {
@@ -196,12 +198,12 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 108
      */
     public function testArgRequiredBadType() {
@@ -223,12 +225,12 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
     /**
-     * @expectedException Cyclone_Cli_Validation_Exception
+     * @expectedException \cyclone\cli\ValidationException
      * @expectedExceptionCode 109
      */
     public function testArgRequiredNoSense() {
@@ -250,7 +252,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
@@ -271,7 +273,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
@@ -294,7 +296,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 
@@ -329,7 +331,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                 )
             )
         );
-        $mod = new Cyclone_Cli_library("no_values", $arr);
+        $mod = new cli\Library("no_values", $arr);
         $mod->validate();
     }
 

@@ -28,14 +28,14 @@ date_default_timezone_set('Europe/Budapest');
 
 //spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
 
-require \cyclone\SYSPATH . 'classes/autoloader/kohana.php';
-Autoloader_Kohana::inst()->register();
-require \cyclone\SYSPATH . 'classes/autoloader/namespaced.php';
-Autoloader_Namespaced::inst()->register();
+require \cyclone\SYSPATH . 'classes/cyclone/autoloader/kohana.php';
+\cyclone\Autoloader\Kohana::inst()->register();
+require \cyclone\SYSPATH . 'classes/cyclone/autoloader/namespaced.php';
+\cyclone\Autoloader\Namespaced::inst()->register();
 
-spl_autoload_register(array('FileSystem', 'autoloader_tests'));
+spl_autoload_register(array('\cyclone\FileSystem', 'autoloader_tests'));
 
-FileSystem::bootstrap(array(
+\cyclone\FileSystem::bootstrap(array(
     'application' => \cyclone\APPPATH,
     'db' => \cyclone\LIBPATH . 'db' . DIRECTORY_SEPARATOR,
     'jork' => \cyclone\LIBPATH . 'jork' . DIRECTORY_SEPARATOR,
@@ -47,30 +47,30 @@ FileSystem::bootstrap(array(
     'system' => \cyclone\SYSPATH,
 ), \cyclone\SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
-Config::setup();
+\cyclone\Config::setup();
 
-FileSystem::run_init_scripts();
+\cyclone\FileSystem::run_init_scripts();
 
-Env::init_legacy();
+\cyclone\Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-Session::instance();
+\cyclone\Session::instance();
 
 /**
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
 
-Route::set('default', '(<controller>(/<action>(/<id>)))')
+\cyclone\Route::set('default', '(<controller>(/<action>(/<id>)))')
         ->defaults(array(
             'controller' => 'index',
             'action' => 'index',
         ));
 
 if ( ! defined('SUPPRESS_REQUEST')) {
-    $request = Request::initial();
-    if (Env::$current != Env::DEV) {
+    $request = \cyclone\Request::initial();
+    if (\cyclone\Env::$current != \cyclone\Env::DEV) {
         try {
             $request->execute();
         } catch (ReflectionException $ex) {
