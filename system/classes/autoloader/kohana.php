@@ -6,11 +6,19 @@ class Autoloader_Kohana implements Autoloader {
 
     private static $_inst;
 
+    /**
+     * @return Autloader_Kohana
+     */
     public static function inst() {
         if (NULL === self::$_inst) {
             self::$_inst = new Autoloader_Kohana;
         }
         return self::$_inst;
+    }
+
+
+    private function  __construct() {
+        // empty private constructor
     }
 
     public function register() {

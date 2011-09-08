@@ -3,5 +3,8 @@
 
 define('SUPPRESS_REQUEST', 'by_cyphp');
 
-
 require realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'index.php';
+
+if (Env::$is_cli) {
+    Cyclone_CLI::bootstrap();
+}

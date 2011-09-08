@@ -30,6 +30,8 @@ date_default_timezone_set('Europe/Budapest');
 
 require SYSPATH . 'classes/autoloader/kohana.php';
 Autoloader_Kohana::inst()->register();
+require SYSPATH . 'classes/autoloader/namespaced.php';
+Autoloader_Namespaced::inst()->register();
 
 spl_autoload_register(array('FileSystem', 'autoloader_tests'));
 
@@ -87,6 +89,4 @@ if ( ! defined('SUPPRESS_REQUEST')) {
 
 
     echo $request->send_headers()->response;
-} elseif (Kohana::$is_cli && 'by_cyphp' === SUPPRESS_REQUEST) {
-    Cyclone_CLI::bootstrap();
 }

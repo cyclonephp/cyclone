@@ -6,11 +6,18 @@ class Autoloader_Namespaced implements Autoloader {
 
     private static $_inst;
 
+    /**
+     * @return Autoloader_Namespaced
+     */
     public static function inst() {
         if (NULL === self::$_inst) {
             self::$_inst = new Autoloader_Namespaced;
         }
         return self::$_inst;
+    }
+
+    private function  __construct() {
+        // empty private constructor
     }
 
     public function register() {
