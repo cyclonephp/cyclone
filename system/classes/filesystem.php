@@ -92,6 +92,15 @@ class FileSystem {
     }
 
     /**
+     * Returns the names of the enabled libraries.
+     *
+     * @return array
+     */
+    public static function enabled_libs() {
+        return array_keys(self::$_roots);
+    }
+
+    /**
      * Tries to create the system cache directory.
      *
      * @see FileSystem::$_cache_dir
@@ -273,6 +282,35 @@ class FileSystem {
             }
         }
         return $rval;
+    }
+
+    /**
+     * Removes a directory from the file system, regardless if it's empty or not
+     * (so it's equivalent to the unix rm -r command).
+     * This helper method has nothing to do with the cascading file system.
+     *
+     * @param string $abs_path
+     * @throws Exception if $abs_path is not a directory
+     */
+    public static function rmdir($abs_path) {
+        if ( ! is_dir($abs_path))
+            throw new Exception("'$abs_path' is not a directory");
+
+        $dir_handle = opendir($abs_path);
+        while($file = readdir($dir_handle)) {
+            if ($file == '.' || $file == '..')
+                continue;
+            $file_abs_path = $abs_path . DIRECTORY_SEPARATOR . $file;
+            if (is_dir($file_abs_path)) {
+                self::rmdir($file_abs_path);
+                continue;
+            }
+            if ( ! @unlink($file_abs_path)) {
+                throw new Exception("failed to unlink '$file'");
+            }
+        }
+        closedir($dir_handle);
+        rmdir($abs_path);
     }
 
     public static function autoloader_kohana($classname) {

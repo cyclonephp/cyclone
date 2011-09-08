@@ -1,6 +1,6 @@
 #!/bin/bash
 totalsum=0;
-for i in application modules/{core,config,cyform,cytpl,simpledb/classes,simpledb/tests,simpledb/docs,jork,logger}
+for i in libs/{cyform,cytpl,db/{classes,config,tests},jork,logger} tools/{cydocs,debug}
 do
 modsum=0;
 for file in `find $i -name '*'`; do

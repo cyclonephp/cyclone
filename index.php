@@ -25,8 +25,11 @@ date_default_timezone_set('Europe/Budapest');
 
 //-- Environment setup --------------------------------------------------------
 
-include SYSPATH . 'classes/filesystem.php';
-spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
+
+//spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
+
+require SYSPATH . 'classes/autoloader/kohana.php';
+Autoloader_Kohana::inst()->register();
 
 spl_autoload_register(array('FileSystem', 'autoloader_tests'));
 
@@ -34,10 +37,8 @@ FileSystem::bootstrap(array(
     'application' => APPPATH,
     'db' => LIBPATH . 'db' . DIRECTORY_SEPARATOR,
     'jork' => LIBPATH . 'jork' . DIRECTORY_SEPARATOR,
-    'core' => LIBPATH . 'core' . DIRECTORY_SEPARATOR,
     'cyform' => LIBPATH . 'cyform' . DIRECTORY_SEPARATOR,
 //    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
-    'config' => LIBPATH . 'config' . DIRECTORY_SEPARATOR,
     'cytpl' => LIBPATH . 'cytpl' . DIRECTORY_SEPARATOR,
     'logger' => LIBPATH . 'logger' . DIRECTORY_SEPARATOR,
     'cydocs' => TOOLPATH . 'cydocs/',
