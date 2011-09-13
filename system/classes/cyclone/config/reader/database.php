@@ -1,6 +1,8 @@
 <?php
 
 namespace cyclone\config\reader;
+use cyclone\db;
+use cyclone as cy;
 
 /**
  * @author Bence Eros <crystal@cyclonephp.com>
@@ -26,7 +28,7 @@ class Database implements \cyclone\config\Reader {
         $this->_val_col = $val_col;
         $this->_database = $database;
         $this->_group = $group;
-        $this->_query = \DB::select($val_col)->from($table);
+        $this->_query = cy\DB::select($val_col)->from($table);
     }
 
     public function read($key) {
@@ -34,13 +36,14 @@ class Database implements \cyclone\config\Reader {
             $segments = explode('.', $key);
             $group = array_shift($segments);
             if ($group != $this->_group)
-                return Config::NOT_FOUND;
+                return cy\Config::NOT_FOUND;
             $key = implode('.', $segments);
         }
-        $this->_query->where_conditions = array(new \DB_Expression_Binary($this->_key_col, '=', DB::esc($key)));
+        $this->_query->where_conditions = array(new db\BinaryExpression($this->_key_col
+                , '=', db\DB::esc($key)));
         $result = $this->_query->exec($this->_database)->as_array();
         if (count($result) == 0)
-            return Config::NOT_FOUND;
+            return cy\Config::NOT_FOUND;
         return $result[0][$this->_val_col];
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
 namespace cyclone\config\writer;
+use cyclone\db;
+use cyclone as cy;
 
 class Database implements \cyclone\config\Writer {
 
@@ -22,14 +24,15 @@ class Database implements \cyclone\config\Writer {
         $this->_val_col = $val_col;
         $this->_database = $database;
         $this->_group = $group;
-        $this->_query = \DB::update($table);
+        $this->_query = cy\DB::update($table);
     }
 
     public function  write($key, $val) {
         $this->_query->values = array(
             $this->_val_col => $val
         );
-        $this->_query->conditions = array(new \DB_Expression_Binary($this->_key_col, '=', DB::esc($key)));
+        $this->_query->conditions = array(new db\BinaryExpression($this->_key_col
+                , '=', db\DB::esc($key)));
         $count = $this->_query->exec($this->_database);
         return $count != 0;
     }

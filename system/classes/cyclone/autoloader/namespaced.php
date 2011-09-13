@@ -2,9 +2,11 @@
 
 namespace cyclone\autoloader;
 
+use cyclone as cy;
+
 require_once __DIR__ . DIRECTORY_SEPARATOR . '../autoloader.php';
 
-class Namespaced implements \cyclone\Autoloader {
+class Namespaced implements cy\Autoloader {
 
     private static $_inst;
 
@@ -30,9 +32,9 @@ class Namespaced implements \cyclone\Autoloader {
         $classname = strtolower($classname);
         $rel_filename = 'classes/' . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 
-        $result = \cyclone\FileSystem::find_file($rel_filename);
+        $result = cy\FileSystem::find_file($rel_filename);
         if ($result) {
-            include_once $result;
+            require_once $result;
             return TRUE;
         }
         return FALSE;
