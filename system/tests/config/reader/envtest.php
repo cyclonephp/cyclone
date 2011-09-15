@@ -18,7 +18,7 @@ class Config_Reader_EnvTest extends Kohana_Unittest_TestCase {
     }
 
     /**
-     * @expectedException Config_Exception
+     * @expectedException cyclone\config\Exception
      */
     public function testEnv() {
         cy\Env::$current = cy\Env::TEST;
