@@ -1,6 +1,14 @@
 <?php
 
-class Dispatcher_Internal extends Dispatcher {
+namespace cyclone\dispatcher;
+
+use cyclone as cy;
+
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package cyclone
+ */
+class InternalDispatcher extends AbstractDispatcher {
 
     const STRATEGY_DEFAULT = 'default';
 
@@ -12,7 +20,7 @@ class Dispatcher_Internal extends Dispatcher {
         if (NULL === $strategy) {
             $strategy = self::$default_strategy;
         }
-        foreach (Route::all() as $route) {
+        foreach (cy\Route::all() as $route) {
             if (($params = $route->matches($this->request)) !== FALSE) {
                 $this->request->params($params);
                 try {
@@ -24,39 +32,39 @@ class Dispatcher_Internal extends Dispatcher {
                             $this->dispatch_lambda($route);
                             break;
                         default:
-                            throw new Dispatcher_Exception('Unknown dispatch strategy: ' . $strategy);
+                            throw new Exception('Unknown dispatch strategy: ' . $strategy);
                     }
-                } catch (Dispatcher_Exception $ex) {
-                    
                 } catch (Exception $ex) {
+                    
+                } catch (\Exception $ex) {
 
                 }
             }
         }
     }
 
-    public function dispatch_default(Route $route) {
+    public function dispatch_default(cy\Route $route) {
         $params = $this->request->params;
-        if ( ! isset($params['controller']) || ! isset($params['action']))
-            throw new Dispatcher_Exception('The default strategy of Dispatcher_Internal requires the "controller" and "action" route parameters');
+        if ( ! (isset($params['controller']) && isset($params['action'])))
+            throw new Exception('The default strategy of InternalDispatcher requires the "controller" and "action" route parameters');
 
         try {
             $action_params = $params;
             unset($action_params['controller'], $action_params['action']);
 
-            $controller_class = new ReflectionClass('controller_' . $params['controller']);
+            $controller_class = new \ReflectionClass('controller_' . $params['controller']);
 
             $controller = $controller_class->newInstance($this->request);
             
             $controller_class->getMethod($action_method = 'action_' . $params['action'])
                     ->invokeArgs($controller, $action_params);
 
-        } catch (ReflectionException $ex) {
-            throw new Dispatcher_Exception($ex->getMessage(), $ex->getCode(), $ex);
+        } catch (\ReflectionException $ex) {
+            throw new Exception($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
-    public function dispatch_lambda(Route $route) {
+    public function dispatch_lambda(cy\Route $route) {
         $controller = $route->lambda_controller;
         $controller($this->request);
     }

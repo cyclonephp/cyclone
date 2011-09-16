@@ -1,6 +1,14 @@
 <?php
 
-class Dispatcher_External extends Dispatcher {
+namespace cyclone\dispatcher;
+
+use cyclone as cy;
+
+/**
+ * @author Bence Eros <crystal@cyclonephp.com>
+ * @package cyclone
+ */
+class ExternalDispatcher extends AbstractDispatcher {
 
     const STRATEGY_CURL = 'curl';
 
@@ -15,7 +23,7 @@ class Dispatcher_External extends Dispatcher {
             $strategy = self::$default_strategy;
         }
 
-        Request::notify_execution_start($this->request);
+        cy\Request::notify_execution_start($this->request);
         
         try {
             if (self::STRATEGY_CURL == $strategy) {
@@ -25,13 +33,13 @@ class Dispatcher_External extends Dispatcher {
             } elseif (self::STRATEGY_PECL_HTTP == $strategy) {
                 return $this->dispatch_stream();
             }
-        } catch (Exception $ex) {
-            Request::notify_execution_finish();
-            throw new Dispatcher_Exception('failed to dispatch request '
+        } catch (\Exception $ex) {
+            cy\Request::notify_execution_finish();
+            throw new Exception('failed to dispatch request '
                     . $this->request->uri, $ex->getCode(), $ex);
         }
         
-        Request::notify_execution_finish();
+        cy\Request::notify_execution_finish();
     }
 
     public function dispatch_curl() {
@@ -39,22 +47,22 @@ class Dispatcher_External extends Dispatcher {
         $method = $request->method;
 
         $curl_options = array(
-            CURLOPT_CUSTOMREQUEST => $method
+            \CURLOPT_CUSTOMREQUEST => $method
         );
 
         switch ($method) {
-            case Request::METHOD_POST:
-                $options[CURLOPT_POSTFIELDS] = http_build_query($request->post, NULL, '&');
+            case cy\Request::METHOD_POST:
+                $options[\CURLOPT_POSTFIELDS] = \http_build_query($request->post, NULL, '&');
                 break;
-            case Request::METHOD_PUT:
+            case cy\Request::METHOD_PUT:
                 
                 // Create a temporary file to hold the body
-                $body = tmpfile();
-                fwrite($body, $request->body);
-                $length = ftell($body);
-                fseek($body, 0);
-                $curl_options[CURLOPT_INFILE]     = $body;
-                $curl_options[CURLOPT_INFILESIZE] = $length;
+                $body = \tmpfile();
+                \fwrite($body, $request->body);
+                $length = \ftell($body);
+                \fseek($body, 0);
+                $curl_options[\CURLOPT_INFILE]     = $body;
+                $curl_options[\CURLOPT_INFILESIZE] = $length;
                 break;
         }
         if ($headers = $request->headers) {
@@ -63,39 +71,39 @@ class Dispatcher_External extends Dispatcher {
                 $http_headers[] = $key . ': ' . $value;
             }
 
-            $curl_options[CURLOPT_HTTPHEADER] = $http_headers;
+            $curl_options[\CURLOPT_HTTPHEADER] = $http_headers;
         }
 
         if ($cookies = $request->cookies) {
-            $curl_options[CURLOPT_COOKIE] = http_build_query($cookies, NULL, '; ');
+            $curl_options[\CURLOPT_COOKIE] = \http_build_query($cookies, NULL, '; ');
 	}
 
-        $curl_options[CURLOPT_RETURNTRANSFER] = TRUE;
+        $curl_options[\CURLOPT_RETURNTRANSFER] = TRUE;
 
         try {
-            $curl_options += Config::inst()->get('core.dispatcher.curl');
-        } catch (Config_Exception $ex) {
+            $curl_options += cy\Config::inst()->get('core.dispatcher.curl');
+        } catch (cy\config\Exception $ex) {
             // no additional cURL options found
         }
 
-        $curl = curl_init($request->uri);
+        $curl = \curl_init($request->uri);
 
-        if ( ! curl_setopt_array($curl, $curl_options)) {
-            throw new Dispatcher_Exception('Failed to set CURL options
+        if ( ! \curl_setopt_array($curl, $curl_options)) {
+            throw new Exception('Failed to set CURL options
                 , check CURL documentation: http://php.net/curl_setopt_array');
 	}
 
-        $resp_body = curl_exec($curl);
-        $resp_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $resp_body = \curl_exec($curl);
+        $resp_code = \curl_getinfo($curl, \CURLINFO_HTTP_CODE);
 
         if (FALSE === $resp_body) {
-            $error = curl_error($curl);
+            $error = \curl_error($curl);
 	}
 
-        curl_close($curl);
+        \curl_close($curl);
 
         if (isset($error)) 
-            throw new Dispatcher_Exception("Error fetching remote {$request->url} [ status {$code} ] {$error}");
+            throw new Exception("Error fetching remote {$request->url} [ status {$code} ] {$error}");
         
         //TODO waiting for response class
         throw new Exception('can\'t return Response');
@@ -113,33 +121,33 @@ class Dispatcher_External extends Dispatcher {
 
     public function dispatch_http() {
         $http_method_mapping = array(
-            Request::GET => HTTPRequest::METH_GET,
-            Request::HEAD => HTTPRequest::METH_HEAD,
-            Request::POST => HTTPRequest::METH_POST,
-            Request::PUT => HTTPRequest::METH_PUT,
-            Request::DELETE => HTTPRequest::METH_DELETE,
-            Request::OPTIONS => HTTPRequest::METH_OPTIONS,
-            Request::TRACE => HTTPRequest::METH_TRACE,
-            Request::CONNECT => HTTPRequest::METH_CONNECT,
+            cy\Request::GET => \HTTPRequest::METH_GET,
+            cy\Request::HEAD => \HTTPRequest::METH_HEAD,
+            cy\Request::POST => \HTTPRequest::METH_POST,
+            cy\Request::PUT => \HTTPRequest::METH_PUT,
+            cy\Request::DELETE => \HTTPRequest::METH_DELETE,
+            cy\Request::OPTIONS => \HTTPRequest::METH_OPTIONS,
+            cy\Request::TRACE => \HTTPRequest::METH_TRACE,
+            cy\Request::CONNECT => \HTTPRequest::METH_CONNECT,
         );
 
-        $http_request = new HTTPRequest($request->uri, $http_method_mapping[$request->method]);
+        $http_request = new \HTTPRequest($this->request->uri, $http_method_mapping[$this->request->method]);
 
         try {
-            $http_request->setOptions(Config::inst()->get('core.dispatcher.http'));
-        } catch (Config_Exception $ex) {
+            $http_request->setOptions(cy\Config::inst()->get('core.dispatcher.http'));
+        } catch (cy\config\Exception $ex) {
             // no additional PECL HTTP options found
         }
 
-        $http_request->setHeaders($request->headers);
-        $http_request->setCookies($request->cookie);
-        $http_request->setBody($request->body);
+        $http_request->setHeaders($this->request->headers);
+        $http_request->setCookies($this->request->cookies);
+        $http_request->setBody($this->request->body);
 
         try {
             $http_request->send();
-	} catch (Exception $ex) {
-            throw new Dispatcher_Exception('failed to execute HTTP request :'
-                        . $request->uri, $ex->getCode(), $ex);
+	} catch (\Exception $ex) {
+            throw new Exception('failed to execute HTTP request :'
+                        . $this->request->uri, $ex->getCode(), $ex);
         }
 
         //TODO waiting for response class
@@ -159,15 +167,15 @@ class Dispatcher_External extends Dispatcher {
     }
 
     public function dispatch_stream() {
-        $mode = ($request->method === Request::GET) ? 'r' : 'r+';
+        $mode = ($this->request->method === cy\Request::GET) ? 'r' : 'r+';
 
-        if ($cookies = $request->cookies) {
-            $request->headers('cookie', http_build_query($cookies, NULL, '; '));
+        if ($cookies = $this->request->cookies) {
+            $this->request->headers('cookie', \http_build_query($cookies, NULL, '; '));
 	}
 
-        $body = $request->body;
+        $body = $this->request->body;
 
-        $request->headers('content-length', strlen($body));
+        $this->request->headers('content-length', strlen($body));
 
         $headers = '';
         foreach ($request->headers as $k => $v) {

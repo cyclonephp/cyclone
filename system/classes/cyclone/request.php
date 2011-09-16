@@ -5,12 +5,13 @@ namespace cyclone;
 /**
  * Represents a request in the HMVC hierarchy.
  *
- * @property-read string uri
+ * @property-read string $uri
  * @property-read array $query
  * @property-read array $post
  * @property-read boolean $is_ajax
  * @property-read string $method
  * @property-read array $params
+ * @property-read array $cookies
  * @package cyclone
  */
 class Request {

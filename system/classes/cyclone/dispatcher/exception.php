@@ -1,3 +1,5 @@
 <?php
 
-class Dispatcher_Exception extends Exception {}
+namespace cyclone\dispatcher;
+
+class Exception extends \Exception {}
