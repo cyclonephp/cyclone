@@ -52,7 +52,16 @@ class InternalDispatcher extends AbstractDispatcher {
             $action_params = $params;
             unset($action_params['controller'], $action_params['action']);
 
-            $controller_class = new \ReflectionClass('controller_' . $params['controller']);
+            if (isset($action_params['namespace'])) {
+                $controller_classname = $action_params['namespace'] . '\\';
+                unset($action_params['namespace']);
+            } else {
+                $controller_classname = '';
+            }
+
+            $controller_classname .= $params['controller'] . 'Controller';
+
+            $controller_class = new \ReflectionClass($controller_class);
 
             $controller = $controller_class->newInstance($this->request);
             

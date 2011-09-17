@@ -238,7 +238,7 @@ class Request {
      *
      * @param string $uri the URI of the request represented by this instance.
      */
-    protected function  __construct($uri) {
+    public function  __construct($uri = NULL) {
         $this->_uri = $uri;
     }
 
@@ -348,6 +348,17 @@ class Request {
      */
     public function method($method) {
         $this->_method = $method;
+        return $this;
+    }
+
+    /**
+     * Sets the \c $protocol property.
+     *
+     * @param string $protocol
+     * @return Request
+     */
+    public function protocol($protocol) {
+        $this->_protocol = $protocol;
         return $this;
     }
 

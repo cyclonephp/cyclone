@@ -324,6 +324,29 @@ class Route {
             $this->_method = $method;
             return $this;
         }
+
+        /**
+         * The setter for the \c $protocol property.
+         *
+         * @param string $protocol
+         * @return Route
+         */
+        public function protocol($protocol) {
+            $this->_protocol = $protocol;
+            return $this;
+        }
+
+        /**
+         * A callback to be executed after the route parameter matching. The
+         * callback can take the route parameters as function parameter.
+         *
+         * @param callback $before
+         * @return Route
+         */
+        public function before($before) {
+            $this->_before = $before;
+            return $this;
+        }
         
         /**
          * The setter of the lambda controller of the route. This callback will
@@ -445,7 +468,7 @@ class Route {
             if ( ! is_null($this->_before)) {
                 
                 if ( ! is_callable($this->_before))
-                     throw new Dispatcher_Exception('Route::$before must be a callable');
+                     throw new dispatcher\Exception('Route::$before must be a callable');
 
                 $before = $this->_before;
                 $before($params);
@@ -586,5 +609,12 @@ class Route {
 
 		return '#^'.$regex.'$#uD';
 	}
+
+        /**
+         * only for unit testing
+         */
+        public static function clear() {
+            self::$_routes = array();
+        }
 
 } // End Route
