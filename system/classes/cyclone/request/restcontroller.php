@@ -1,4 +1,6 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
+
+namespace cyclone\request;
 /**
  * Abstract Controller class for RESTful controller mapping. Supports GET, PUT,
  * POST, and DELETE. By default, these methods will be mapped to these actions:
@@ -28,7 +30,7 @@
  * @copyright  (c) 2009 Kohana Team
  * @license    http://kohanaphp.com/license
  */
-abstract class Controller_REST extends Controller {
+abstract class RESTController extends SkeletonController {
 
 	protected $_action_map = array
 	(
@@ -47,15 +49,15 @@ abstract class Controller_REST extends Controller {
 	 */
 	public function before()
 	{
-		$this->_action_requested = $this->request->action;
+		$this->_action_requested = $this->request->params['action'];
 
-		if ( ! isset($this->_action_map[Request::$method]))
+		if ( ! isset($this->_action_map[$this->_request->method]))
 		{
 			$this->request->action = 'invalid';
 		}
 		else
 		{
-			$this->request->action = $this->_action_map[Request::$method];
+			$this->request->action = $this->_action_map[$this->_request->method];
 		}
 
 		return parent::before();

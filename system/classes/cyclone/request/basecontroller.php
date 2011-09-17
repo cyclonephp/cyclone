@@ -1,49 +1,43 @@
 <?php
 
+namespace cyclone\request;
 
-class Controller_Core extends Controller_Template {
 
-    public static $config;
+class BaseController extends SkeletonController {
+
+    protected $_auto_render = TRUE;
 
     protected $content;
 
-    protected $params = array();
+    protected $_layout_file = 'layout';
 
-    protected $template_params = array();
+    protected $_layout;
 
+    protected $_content;
+
+    protected $_action_file_path;
+
+    /**
+     * If the request is an AJAX request, then it initializes \c $_content as
+     * an empty array. Otherwise it creates the layout view object in \c $_layout
+     * and the content view object in \c $_content.
+     */
     public function before() {
-        parent::before();
-        //$this->process_auth();
-        if (Request::$is_ajax) {
-            $this->auto_render = true;
+        $params = $this->_request->params;
+        $action_file_path = $params['controller']
+                . \DIRECTORY_SEPARATOR
+                . $params['action'];
+        if (isset($params['namespace'])) { // if the namespace exists then prepend it
+            $action_file_path = \str_replace('\\', \DIRECTORY_SEPARATOR, $params['namespace'])
+                    . \DIRECTORY_SEPARATOR . $action_file_path;
         }
-        if ($this->request == Request::instance()) {
-            self::$config = Config::inst();
-        }
+        $this->_action_file_path = $action_file_path;
         
-    }
-
-    protected function process_auth() {
-        try {
-            $auth_cfg = Kohana::config('auth');
-            $controller = $this->request->controller;
-            $action = $this->request->action;
-            foreach (array(
-                array_key_exists('#', $auth_cfg) ? $auth_cfg['#'] : true,
-                Arr::path($auth_cfg, $controller . '.#', true),
-                Arr::path($auth_cfg, $controller . '.' . $action, true)) as $rule) {
-                $this->process_auth_rule($rule);
-            }
-        } catch (Config_Exception $ex) {
-            
-        }
-    }
-
-    protected function process_auth_rule($rule) {
-        if (is_array($rule) && ! $rule[0]) {
-            $this->redirect($rule[1]);
-        } else if ( ! $rule) {
-            $this->redirect('');
+        if ($this->_request->is_ajax) {
+            $this->_content = array();
+        } else {
+            $this->_layout = new View($this->_layout_file);
+            $this->_content = new View($this->_action_file_path);
         }
     }
 
@@ -53,17 +47,17 @@ class Controller_Core extends Controller_Template {
      * @see system/classes/kohana/controller/Kohana_Controller_Template#after()
      */
     public function after() {
-        $this->action_file_path =  str_replace('_', DIRECTORY_SEPARATOR, $this->request->controller)
-                                .DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $this->request->action);
         $this->add_default_resources();
-        if (Request::$is_ajax && $this->auto_render == true) {
+        if ($this->_request->is_ajax && $this->auto_render == true) {
             $this->request->response = is_array($this->content) ?
                 json_encode($this->content) :
                 $this->content;
             $this->auto_render = false;
         }
         if ($this->auto_render == true) {
-            
+            if ($this->_request->is_ajax) {
+                
+            } else {
             $this->template_params['head_resources'] = Asset_Pool::inst()->get_head_view();
             if (NULL == $this->content) {
                 $this->template->_content = new View(
@@ -80,8 +74,11 @@ class Controller_Core extends Controller_Template {
             }
             foreach ($this->template_params as $k => $v)
                 $this->template->$k = $v;
+            }
         }
-        parent::after();
+        if ($this->auto_render == TRUE) {
+            $this->request->response = $this->template;
+	}
     }
 
     protected function add_default_resources() {

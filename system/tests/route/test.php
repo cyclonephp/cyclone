@@ -1,39 +1,39 @@
 <?php
 
-use cyclone as cy;
+use cyclone\request as req;
 
 class Route_Test extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
         parent::setUp();
-        cy\Route::clear();
+        req\Route::clear();
     }
 
     public function testMethodMatch() {
-        $route = new cy\Route;
+        $route = new req\Route;
         $route->method('GeT');
-        $request = new cy\Request;
+        $request = new req\Request;
         $request->method('post');
         $this->assertFalse($route->matches($request));
     }
 
     public function testIsAjaxMatch() {
-        $route = new cy\Route;
+        $route = new req\Route;
         $route->is_ajax(TRUE);
-        $request = new cy\Request;
+        $request = new req\Request;
         $this->assertFalse($route->matches($request));
     }
 
     public function testProtocolMatch() {
-        $route = new cy\Route;
+        $route = new req\Route;
         $route->protocol('https');
-        $request = new cy\Request;
+        $request = new req\Request;
         $request->protocol('http');
         $this->assertFalse($route->matches($request));
     }
 
     public function testMatchesURI() {
-        $route = new cy\Route('<controller>/<action>');
+        $route = new req\Route('<controller>/<action>');
         $route->defaults(array(
             'namespace' => 'app\controller'
         ));
@@ -47,7 +47,7 @@ class Route_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testOptionalRouteParams() {
-        $route = new cy\Route('(<controller>(/<action>))');
+        $route = new req\Route('(<controller>(/<action>))');
         $route->defaults(array(
             'controller' => 'def_ctrl',
             'action' => 'def_action'
@@ -67,7 +67,7 @@ class Route_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testRouteRegex() {
-        $route = new cy\Route('(<action>)', array(
+        $route = new req\Route('(<action>)', array(
             'action' => '(login|logout)'
         ));
         $route->defaults(array('controller' => 'auth'));
@@ -79,11 +79,11 @@ class Route_Test extends Kohana_Unittest_TestCase {
     }
 
     public function testBeforeCall() {
-        $route = new cy\Route('(<controller>(/<action>))');
+        $route = new req\Route('(<controller>(/<action>))');
         $route->before(function(&$params) {
            $params['controller'] = 'changed';
         });
-        $request = new cy\Request('hello/world');
+        $request = new req\Request('hello/world');
         $route->matches($request);
         $this->assertEquals(array(
             'controller' => 'changed',

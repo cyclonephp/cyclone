@@ -1,15 +1,18 @@
 <?php
 
+use cyclone as cy;
+use cyclone\request as req;
+
 define('EXT', '.php');
 
 error_reporting(E_ALL | E_STRICT);
 
-define('cyclone\\DOCROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
+define('cyclone\DOCROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
 
-define('cyclone\\APPPATH', \cyclone\DOCROOT.'app'.DIRECTORY_SEPARATOR);
-define('cyclone\\LIBPATH', \cyclone\DOCROOT.'libs'.DIRECTORY_SEPARATOR);
-define('cyclone\\SYSPATH', \cyclone\DOCROOT.'system'.DIRECTORY_SEPARATOR);
-define('cyclone\\TOOLPATH', \cyclone\DOCROOT.'tools'.DIRECTORY_SEPARATOR);
+define('cyclone\APPPATH', cy\DOCROOT.'app'.DIRECTORY_SEPARATOR);
+define('cyclone\LIBPATH', cy\DOCROOT.'libs'.DIRECTORY_SEPARATOR);
+define('cyclone\SYSPATH', cy\DOCROOT.'system'.DIRECTORY_SEPARATOR);
+define('cyclone\TOOLPATH', cy\DOCROOT.'tools'.DIRECTORY_SEPARATOR);
 
 
 if (file_exists('install'.EXT))
@@ -19,7 +22,7 @@ if (file_exists('install'.EXT))
 }
 
 // Load the base, low-level functions
-require \cyclone\SYSPATH.'base'.EXT;
+require cy\SYSPATH.'base'.EXT;
 
 date_default_timezone_set('Europe/Budapest');
 
@@ -28,57 +31,54 @@ date_default_timezone_set('Europe/Budapest');
 
 //spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
 
-require \cyclone\SYSPATH . 'classes/cyclone/autoloader/kohana.php';
-\cyclone\Autoloader\Kohana::inst()->register();
-require \cyclone\SYSPATH . 'classes/cyclone/autoloader/namespaced.php';
-\cyclone\Autoloader\Namespaced::inst()->register();
+require cy\SYSPATH . 'classes/cyclone/autoloader/kohana.php';
+cy\Autoloader\Kohana::inst()->register();
+require cy\SYSPATH . 'classes/cyclone/autoloader/namespaced.php';
+cy\Autoloader\Namespaced::inst()->register();
 
 spl_autoload_register(array('\cyclone\FileSystem', 'autoloader_tests'));
 
-\cyclone\FileSystem::bootstrap(array(
-    'application' => \cyclone\APPPATH,
-    'db' => \cyclone\LIBPATH . 'db' . DIRECTORY_SEPARATOR,
-    'jork' => \cyclone\LIBPATH . 'jork' . DIRECTORY_SEPARATOR,
-    'cyform' => \cyclone\LIBPATH . 'cyform' . DIRECTORY_SEPARATOR,
+cy\FileSystem::bootstrap(array(
+    'application' => cy\APPPATH,
+    'db' => cy\LIBPATH . 'db' . DIRECTORY_SEPARATOR,
+    'jork' => cy\LIBPATH . 'jork' . DIRECTORY_SEPARATOR,
+    'cyform' => cy\LIBPATH . 'cyform' . DIRECTORY_SEPARATOR,
 //    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
-    'cytpl' => \cyclone\LIBPATH . 'cytpl' . DIRECTORY_SEPARATOR,
-    'logger' => \cyclone\LIBPATH . 'logger' . DIRECTORY_SEPARATOR,
-    'cydocs' => \cyclone\TOOLPATH . 'cydocs/',
-    'system' => \cyclone\SYSPATH,
-), \cyclone\SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
+    'cytpl' => cy\LIBPATH . 'cytpl' . DIRECTORY_SEPARATOR,
+    'logger' => cy\LIBPATH . 'logger' . DIRECTORY_SEPARATOR,
+    'cydocs' => cy\TOOLPATH . 'cydocs/',
+    'system' => cy\SYSPATH,
+), cy\SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
-\cyclone\Config::setup();
+cy\Config::setup();
 
-\cyclone\FileSystem::run_init_scripts();
+cy\FileSystem::run_init_scripts();
 
-\cyclone\Env::init_legacy();
+cy\Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-\cyclone\Session::instance();
+cy\Session::instance();
 
 /**
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
 
-\cyclone\Route::set('default', '(<controller>(/<action>(/<id>)))')
+req\Route::set('default', '(<controller>(/<action>(/<id>)))')
         ->defaults(array(
             'controller' => 'index',
             'action' => 'index',
         ));
 
 if ( ! defined('SUPPRESS_REQUEST')) {
-    $request = \cyclone\Request::initial();
-    if (\cyclone\Env::$current != \cyclone\Env::DEV) {
+    $request = req\Request::initial();
+    if (cy\Env::$current == cy\Env::PROD) {
         try {
             $request->execute();
         } catch (ReflectionException $ex) {
             log_warning('', '404 not found: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 404);
-        } catch (Exception_BadRequest $ex) {
-            log_warning('', '500 bad request: ' . Request::instance()->uri);
-            $request->redirect(URL::base(), 500);
         } catch (Exception $ex) {
             log_error('', '500 internal error: ' . Request::instance()->uri);
             $request->redirect(URL::base(), 500);

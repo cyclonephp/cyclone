@@ -1,6 +1,6 @@
 <?php
 
-namespace cyclone\dispatcher;
+namespace cyclone\request;
 
 use cyclone as cy;
 
@@ -10,8 +10,8 @@ use cyclone as cy;
  */
 abstract class AbstractDispatcher {
     
-    public static function for_request(cy\Request $req) {
-        if (\strpos($req->uri, '://') !== FALSE) // seems to be an absolute URL
+    public static function for_request(Request $req) {
+        if (strpos($req->uri, '://') !== FALSE) // seems to be an absolute URL
             return new ExternalDispatcher($req);
         
         return new InternalDispatcher($req);
@@ -23,7 +23,7 @@ abstract class AbstractDispatcher {
      */
     public $request;
     
-    public final function __construct(cy\Request $request) {
+    public final function __construct(Request $request) {
         $this->request = $request;
     }
     

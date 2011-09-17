@@ -1,6 +1,6 @@
 <?php
 
-namespace cyclone;
+namespace cyclone\request;
 
 /**
  * Abstract controller class. Controllers should only be created using a [Request].
@@ -23,12 +23,12 @@ namespace cyclone;
  * @copyright  (c) 2008-2009 Kohana Team
  * @license    http://kohanaphp.com/license
  */
-abstract class Controller {
+class SkeletonController {
 
 	/**
-	 * @var  object  Request that created the controller
+	 * @var  cyclone\Request  Request that created the controller
 	 */
-	public $request;
+	protected $_request;
 
 	/**
 	 * Creates a new controller instance. Each controller must be constructed
@@ -40,7 +40,7 @@ abstract class Controller {
 	public function __construct(Request $request)
 	{
 		// Assign the request to the controller
-		$this->request = $request;
+		$this->_request = $request;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace cyclone;
+namespace cyclone\request;
 
 /**
  * Represents a HTTP response.
@@ -113,7 +113,7 @@ class Response {
      *
      * @var  string
      */
-    protected $_protocol;
+    protected $_protocol = 'HTTP/1.1';
 
     public function  __construct() {
         $this->_headers = new ArrayObject;
@@ -157,6 +157,23 @@ class Response {
         return $this;
     }
 
+    public function send_headers() {
+        header(
+            $this->_protocol . ' ' . $this->_status . ' ' . self::$messages[$this->_status]
+        );
+
+        foreach ($this->_headers as $key => $val) {
+            if (is_array($val)) {
+                $val = \implode(', ', $val);
+            }
+            header($key . ': ' . $val);
+        }
+
+        foreach ($this->_cookies as $key => $val_cnt) {
+            
+        }
+    }
+
     /**
      *
      * @param string $body
@@ -183,10 +200,14 @@ class Response {
     /**
      *
      * @param string $key
+     * @param int $expiration
      * @param string $val
      */
-    public function cookie($key, $val) {
-        $this->_cookies[$key] = $val;
+    public function cookie($key, $val, $expiration) {
+        $this->_cookies[$key] = array(
+            'value' => $val,
+            'expiration' => $expiration
+        );
     }
 
     /**

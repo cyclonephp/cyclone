@@ -1,6 +1,6 @@
 <?php
 
-namespace cyclone;
+namespace cyclone\request;
 
 /**
  * Represents a request in the HMVC hierarchy.
@@ -136,7 +136,7 @@ class Request {
     protected static $_stack;
 
     public static function notify_execution_start(Request $request) {
-        array_push(self::$_stack, self::$current = $request);
+        \array_push(self::$_stack, self::$current = $request);
     }
 
     /**
@@ -144,9 +144,13 @@ class Request {
      */
     public static function notify_execution_finish() {
         $stack = &self::$_stack;
-        $rval = array_pop($stack);
+        $rval = \array_pop($stack);
         self::$current = $stack[count($stack) - 1];
         return $rval;
+    }
+
+    public static function factory($uri) {
+        return new Request($uri);
     }
 
     /**
@@ -235,14 +239,6 @@ class Request {
     protected $_cookies = array();
 
     /**
-     *
-     * @param string $uri the URI of the request represented by this instance.
-     */
-    public function  __construct($uri = NULL) {
-        $this->_uri = $uri;
-    }
-
-    /**
      * Contains the parameters coming from the matching \c Route instance.
      *
      * Only matters for internal requests.
@@ -272,6 +268,19 @@ class Request {
     protected $_lambda_controller;
 
     /**
+     *
+     * @param string $uri the URI of the request represented by this instance.
+     */
+    public function  __construct($uri = NULL) {
+        $this->_uri = $uri;
+    }
+
+    public function execute($dispatcher_strategy = NULL) {
+        AbstractDispatcher::for_request($this)->dispatch($dispatcher_strategy);
+        //return $this->response;
+    }
+
+    /**
      * If \c $name is one of the readonly properties then it returns the property.
      * Otherwise it throws an exception.
      *
@@ -291,10 +300,10 @@ class Request {
             , 'cookies'
             , 'protocol'
         );
-        if (in_array($name, $enabled_attributes))
+        if (\in_array($name, $enabled_attributes))
             return $this->{'_' . $name};
 
-        throw new Exception('attribute ' . $name . ' of class '
+        throw new \Exception('attribute ' . $name . ' of class '
                 . get_class($this) . ' does not exist or is not readable');
     }
 
@@ -369,7 +378,7 @@ class Request {
     * @return Request
     */
     public function headers($headers) {
-        if ( ! (is_array($headers) || $headers instanceof ArrayAccess))
+        if ( ! (\is_array($headers) || $headers instanceof \ArrayAccess))
             throw new Exception('invalid argument for Request::headers()');
         $this->_headers = $headers;
         return $this;
@@ -382,8 +391,8 @@ class Request {
      * @return Request
      */
     public function cookies($cookies) {
-        if ( ! (is_array($headers) || $headers instanceof ArrayAccess))
-            throw new Exception('invalid argument for Request::cookies()');
+        if ( ! (\is_array($headers) || $headers instanceof \ArrayAccess))
+            throw new \Exception('invalid argument for Request::cookies()');
         $this->_cookies = $cookies;
         return $this;
     }

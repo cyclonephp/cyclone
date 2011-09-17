@@ -1,6 +1,6 @@
 <?php
 
-namespace cyclone\dispatcher;
+namespace cyclone\request;
 
 use cyclone as cy;
 
@@ -23,7 +23,7 @@ class ExternalDispatcher extends AbstractDispatcher {
             $strategy = self::$default_strategy;
         }
 
-        cy\Request::notify_execution_start($this->request);
+        Request::notify_execution_start($this->request);
         
         try {
             if (self::STRATEGY_CURL == $strategy) {
@@ -39,7 +39,7 @@ class ExternalDispatcher extends AbstractDispatcher {
                     . $this->request->uri, $ex->getCode(), $ex);
         }
         
-        cy\Request::notify_execution_finish();
+        Request::notify_execution_finish();
     }
 
     public function dispatch_curl() {

@@ -1,6 +1,8 @@
 <?php
 
-namespace cyclone;
+namespace cyclone\request;
+
+use cyclone as cy;
 
 /**
  * Routes are used to determine the controller and action for a requested URI.
@@ -116,7 +118,7 @@ class Route {
 	 */
 	public static function name(Route $route)
 	{
-		return array_search($route, Route::$_routes);
+		return \array_search($route, Route::$_routes);
 	}
 
 	/**
@@ -174,7 +176,7 @@ class Route {
 	public static function url($name, array $params = NULL, $protocol = NULL)
 	{
 		// Create a URI with the route and convert it to a URL
-		return URL::site(Route::get($name)->uri($params), $protocol);
+		return cy\URL::site(Route::get($name)->uri($params), $protocol);
 	}
 
 	// Route URI string
@@ -378,9 +380,9 @@ class Route {
             static $readonly_attributes = array(
                 'lambda_controller',
             );
-            if (in_array($key, $readonly_attributes))
+            if (\in_array($key, $readonly_attributes))
                 return $this->{'_' . $key};
-            return parent::__get();
+            throw new \Exception("unknown property: '$key'");
         }
 
 	/**
@@ -404,13 +406,13 @@ class Route {
 	 */
 	public function matches_uri($uri)
 	{
-		if ( ! preg_match($this->_route_regex, $uri, $matches))
+		if ( ! \preg_match($this->_route_regex, $uri, $matches))
 			return FALSE;
 
 		$params = array();
 		foreach ($matches as $key => $value)
 		{
-			if (is_int($key))
+			if (\is_int($key))
 			{
 				// Skip all unnamed keys
 				continue;
@@ -454,7 +456,7 @@ class Route {
             if ( ! is_null($this->_is_ajax) && $request->is_ajax !== $this->_is_ajax)
                     return FALSE;
             
-            if ( ! is_null($this->_protocol) 
+            if ( ! is_null($this->_protocol)
                 && strtolower($request->protocol) != strtolower($this->_protocol))
                     return FALSE;
             
@@ -468,7 +470,7 @@ class Route {
             if ( ! is_null($this->_before)) {
                 
                 if ( ! is_callable($this->_before))
-                     throw new dispatcher\Exception('Route::$before must be a callable');
+                     throw new DispatcherException('Route::$before must be a callable');
 
                 $before = $this->_before;
                 $before($params);
@@ -556,7 +558,7 @@ class Route {
 			if ( ! isset($params[$param]))
 			{
 				// Ungrouped parameters are required
-				throw new Kohana_Exception('Required route parameter not passed: :param',
+				throw new DispatcherException('Required route parameter not passed: :param',
 					array(':param' => $param));
 			}
 
