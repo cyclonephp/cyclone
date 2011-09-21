@@ -268,6 +268,11 @@ class Request {
     protected $_lambda_controller;
 
     /**
+     * @var Response
+     */
+    protected $_response;
+
+    /**
      *
      * @param string $uri the URI of the request represented by this instance.
      */
@@ -278,6 +283,10 @@ class Request {
     public function execute($dispatcher_strategy = NULL) {
         AbstractDispatcher::for_request($this)->dispatch($dispatcher_strategy);
         //return $this->response;
+    }
+
+    public function get_response() {
+        
     }
 
     /**
@@ -325,6 +334,20 @@ class Request {
                 = $rval->_action
                 = $rval->_lambda_controller = NULL;
         return $rval;
+    }
+
+    /**
+     * Returns the response for this request. The response protocol will be
+     * the same as the request protocol.
+     *
+     * @return Response
+     */
+    public function get_response() {
+        if (NULL == $this->_response) {
+            $this->_response = new Response;
+            $this->_response->protocol($this->_protocol);
+        }
+        return $this->_response;
     }
 
     /**
@@ -457,8 +480,13 @@ class Request {
         return $this;
     }
 
-    public function add_header($key, $value) {
-        
+    /**
+     * @param array $headers
+     * @return Request
+     */
+    public function add_headers($headers) {
+        $this->_headers = $headers + $this->_headers;
+        return $this;
     }
 
 

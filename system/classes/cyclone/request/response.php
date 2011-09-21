@@ -10,7 +10,7 @@ namespace cyclone\request;
  * @property-read $body
  * @property-read $status
  * @property-read $headers
- * @property-read $cookies
+ * @property-read $protocol
  * 
  * @author Bence Erős <crystal@cyclonephp.com>
  * @package cyclone
@@ -234,7 +234,6 @@ class Response {
         static $enabled_attributes = array(
             'body',
             'status',
-            'cookies',
             'headers',
             'protocol',
             'status'

@@ -2,6 +2,8 @@
 
 namespace cyclone\request;
 
+use cyclone as cy;
+
 
 class BaseController extends SkeletonController {
 
@@ -17,6 +19,8 @@ class BaseController extends SkeletonController {
 
     protected $_action_file_path;
 
+    protected $_controller_file_path;
+
     /**
      * If the request is an AJAX request, then it initializes \c $_content as
      * an empty array. Otherwise it creates the layout view object in \c $_layout
@@ -24,28 +28,25 @@ class BaseController extends SkeletonController {
      */
     public function before() {
         $params = $this->_request->params;
-        $action_file_path = $params['controller']
-                . \DIRECTORY_SEPARATOR
-                . $params['action'];
+
+        $controller_file_path = $params['controller'];
         if (isset($params['namespace'])) { // if the namespace exists then prepend it
-            $action_file_path = \str_replace('\\', \DIRECTORY_SEPARATOR, $params['namespace'])
-                    . \DIRECTORY_SEPARATOR . $action_file_path;
+            $controller_file_path = \str_replace('\\', \DIRECTORY_SEPARATOR, $params['namespace'])
+                    . \DIRECTORY_SEPARATOR . $controller_file_path;
         }
-        $this->_action_file_path = $action_file_path;
+
+        $this->_controller_file_path = $controller_file_path;
+        $this->_action_file_path = $controller_file_path . \DIRECTORY_SEPARATOR . $params['action'];
         
         if ($this->_request->is_ajax) {
             $this->_content = array();
         } else {
-            $this->_layout = new View($this->_layout_file);
-            $this->_content = new View($this->_action_file_path);
+            $this->_layout = cy\View::factory($this->_layout_file);
+            $this->_content = cy\View::factory($this->_action_file_path);
         }
     }
 
-    /**
-     * creates content view for the template view then renders response
-     *
-     * @see system/classes/kohana/controller/Kohana_Controller_Template#after()
-     */
+    
     public function after() {
         $this->add_default_resources();
         if ($this->_request->is_ajax && $this->auto_render == true) {
@@ -82,32 +83,26 @@ class BaseController extends SkeletonController {
     }
 
     protected function add_default_resources() {
-        $asset_path = 'assets/';
-        $js_path = $asset_path.'js';
-        $css_path = $asset_path.'css';
-        
-        if (Kohana::find_file($js_path, $this->action_file_path, 'js')) {
-            $this->add_js($this->action_file_path);
-        }
-        if (Kohana::find_file($js_path, $this->request->controller, 'js')) {
-            $this->add_js($this->request->controller);
-        }
+        try {
+            $this->add_js($this->_action_file_path);
+        } catch (\Exception $ex) {}
+        try {
+            $this->add_js($this->_controller_file_path);
+        } catch (\Exception $ex) {}
 
-        if (Kohana::find_file($js_path, 'template', 'js')) {
-            $this->add_js('template');
-        }
+        try {
+            $this->add_js($this->_layout_file);
+        } catch (\Exception $ex) {}
 
-        if (Kohana::find_file($css_path, $this->action_file_path, 'css')) {
+        try {
             $this->add_css($this->action_file_path);
-        }
-        if (Kohana::find_file($css_path, $this->request->controller, 'css')) {
-            $this->add_css($this->request->controller);
-        }
-
-        if (Kohana::find_file($css_path, 'template', 'css')) {
-            $this->add_css('template');
-        }
-
+        } catch (\Exception $ex) {}
+        try {
+            $this->add_css($this->_controller_file_path);
+        } catch (\Exception $ex) {}
+        try {
+            $this->add_css($this->_layout_file);
+        } catch (\Exception $ex) {}
     }
 
     /**

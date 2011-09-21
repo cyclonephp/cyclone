@@ -36,6 +36,7 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
         self::$beforeCalled = self::$afterCalled = self::$actionCalled = FALSE;
         req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_DEFAULT;
         req\Route::set('default-test', '<controller>(/<action>)');
+        // i'm really sorry about this =)
         eval('class TestController extends cyclone\request\SkeletonController {
         function before() {
             DispatcherTest::$beforeCalled = TRUE;

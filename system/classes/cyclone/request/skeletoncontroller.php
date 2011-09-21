@@ -26,9 +26,33 @@ namespace cyclone\request;
 class SkeletonController {
 
 	/**
-	 * @var  cyclone\Request  Request that created the controller
+         * The request that the controller was created for.
+         *
+	 * @var  Request
 	 */
 	protected $_request;
+
+        /**
+         * The response for \c $_request . Same as
+         * <code>$this->_request->get_response()</code
+         *
+         * @var Response
+         */
+        protected $_response;
+
+        /**
+         * Alias for \c $_request
+         *
+         * @var Request
+         */
+        protected $_req;
+
+        /**
+         * Alias for \c $_response
+         *
+         * @var Response
+         */
+        protected $_resp;
 
 	/**
 	 * Creates a new controller instance. Each controller must be constructed
@@ -40,7 +64,8 @@ class SkeletonController {
 	public function __construct(Request $request)
 	{
 		// Assign the request to the controller
-		$this->_request = $request;
+		$this->_req = $this->_request = $request;
+                $this->_resp = $this->_response = $request->get_response();
 	}
 
 	/**
