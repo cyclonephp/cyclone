@@ -1,4 +1,6 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
+
+namespace cyclone;
 /**
  * @package    Kohana
  * @category   Exceptions
@@ -6,7 +8,7 @@
  * @copyright  (c) 2009 Kohana Team
  * @license    http://kohanaphp.com/license
  */
-class Validate_Exception extends Kohana_Exception {
+class ValidationException extends \Exception {
 
 	/**
 	 * @var  object  Validate instance

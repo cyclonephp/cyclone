@@ -72,8 +72,8 @@ class Env {
      * @usedby Env::init_legacy()
      */
     public static function init() {
-        self::$is_cli = PHP_SAPI === 'cli';
-        self::$is_windows = DIRECTORY_SEPARATOR == '\\';
+        self::$is_cli = \PHP_SAPI === 'cli';
+        self::$is_windows = \DIRECTORY_SEPARATOR == '\\';
         self::$current = getenv('CYCLONEPHP_ENV');
         if ( ! self::$current) {
             self::$current = self::DEV;

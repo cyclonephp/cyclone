@@ -116,8 +116,8 @@ class Response {
     protected $_protocol = 'HTTP/1.1';
 
     public function  __construct() {
-        $this->_headers = new ArrayObject;
-        $this->_cookies = new ArrayObject;
+        $this->_headers = new \ArrayObject;
+        $this->_cookies = new \ArrayObject;
     }
 
     /**

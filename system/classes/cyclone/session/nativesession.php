@@ -13,7 +13,7 @@ use cyclone as cy;
  * @copyright  (c) 2008-2009 Kohana Team
  * @license    http://kohanaphp.com/license
  */
-class Native extends cy\Session {
+class NativeSession extends cy\Session {
 
 	protected function _read($id = NULL)
 	{

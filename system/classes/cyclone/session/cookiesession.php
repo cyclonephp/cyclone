@@ -1,4 +1,8 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
+
+namespace cyclone\session;
+
+use cyclone as cy;
 /**
  * Cookie-based session class.
  *
@@ -8,11 +12,11 @@
  * @copyright  (c) 2008-2009 Kohana Team
  * @license    http://kohanaphp.com/license
  */
-class Session_Cookie extends Session {
+class CookieSession extends cy\Session {
 
 	protected function _read($id = NULL)
 	{
-		return Cookie::get($this->_name, NULL);
+		return cy\Cookie::get($this->_name, NULL);
 	}
 
 	protected function _regenerate()
@@ -23,12 +27,12 @@ class Session_Cookie extends Session {
 
 	protected function _write()
 	{
-		return Cookie::set($this->_name, $this->__toString(), $this->_lifetime);
+		return cy\Cookie::set($this->_name, $this->__toString(), $this->_lifetime);
 	}
 
 	protected function _destroy()
 	{
-		return Cookie::delete($this->_name);
+		return cy\Cookie::delete($this->_name);
 	}
 
 } // End Session_Cookie

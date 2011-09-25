@@ -220,7 +220,7 @@ class Kohana {
 		}
 
 		// Enable the Kohana shutdown handler, which catches E_FATAL errors.
-		register_shutdown_function(array('Kohana', 'shutdown_handler'));
+		//register_shutdown_function(array('cyclone\Kohana', 'shutdown_handler'));
 
 		if (ini_get('register_globals'))
 		{
@@ -801,7 +801,7 @@ class Kohana {
 	 * @param   object   exception object
 	 * @return  boolean
 	 */
-	public static function exception_handler(Exception $e)
+	public static function exception_handler(\Exception $e)
 	{
 		try
 		{
@@ -835,7 +835,7 @@ class Kohana {
 			// Get the exception backtrace
 			$trace = $e->getTrace();
 
-			if ($e instanceof ErrorException)
+			if ($e instanceof \ErrorException)
 			{
 				if (isset(Kohana::$php_errors[$code]))
 				{
@@ -878,7 +878,7 @@ class Kohana {
 
 			return TRUE;
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
 			// Clean the output buffer if one exists
 			ob_get_level() and ob_clean();
@@ -925,7 +925,7 @@ class Kohana {
 			ob_get_level() and ob_clean();
 
 			// Fake an exception for nice debugging
-			Kohana::exception_handler(new ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
+			Kohana::exception_handler(new \ErrorException($error['message'], $error['type'], 0, $error['file'], $error['line']));
 
 			// Shutdown now to avoid a "death loop"
 			exit(1);
@@ -940,7 +940,7 @@ class Kohana {
 	 * @param   object  Exception
 	 * @return  string
 	 */
-	public static function exception_text(Exception $e)
+	public static function exception_text(\Exception $e)
 	{
 		return sprintf('%s [ %s ]: %s ~ %s [ %d ]',
 			get_class($e), $e->getCode(), strip_tags($e->getMessage()), Kohana::debug_path($e->getFile()), $e->getLine());

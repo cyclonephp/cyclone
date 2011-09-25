@@ -2,6 +2,8 @@
 
 namespace cyclone\request;
 
+use cyclone as cy;
+
 /**
  * Represents a request in the HMVC hierarchy.
  *
@@ -58,16 +60,16 @@ class Request {
                 throw new Kohana_Exception('Unable to detect the URI using PATH_INFO, REQUEST_URI, or PHP_SELF');
 
             // Get the path from the base URL, including the index file
-            $base_url = parse_url(Kohana::$base_url, PHP_URL_PATH);
+            $base_url = parse_url(cy\Kohana::$base_url, PHP_URL_PATH);
 
             if (strpos($uri, $base_url) === 0) {
                 // Remove the base URL from the URI
                 $uri = substr($uri, strlen($base_url));
             }
 
-            if (Kohana::$index_file AND strpos($uri, Kohana::$index_file) === 0) {
+            if (cy\Kohana::$index_file AND strpos($uri, cy\Kohana::$index_file) === 0) {
                 // Remove the index file from the URI
-                $uri = substr($uri, strlen(Kohana::$index_file));
+                $uri = substr($uri, strlen(cy\Kohana::$index_file));
             }
         }
 
@@ -136,7 +138,7 @@ class Request {
     protected static $_stack;
 
     public static function notify_execution_start(Request $request) {
-        \array_push(self::$_stack, self::$current = $request);
+        array_push(self::$_stack, self::$current = $request);
     }
 
     /**
@@ -144,7 +146,7 @@ class Request {
      */
     public static function notify_execution_finish() {
         $stack = &self::$_stack;
-        $rval = \array_pop($stack);
+        $rval = array_pop($stack);
         self::$current = $stack[count($stack) - 1];
         return $rval;
     }
@@ -283,10 +285,6 @@ class Request {
     public function execute($dispatcher_strategy = NULL) {
         AbstractDispatcher::for_request($this)->dispatch($dispatcher_strategy);
         //return $this->response;
-    }
-
-    public function get_response() {
-        
     }
 
     /**

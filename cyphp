@@ -1,10 +1,12 @@
 #!/usr/bin/php
 <?php
 
-define('SUPPRESS_REQUEST', 'by_cyphp');
+use cyclone as cy;
+
+define('cyclone\SUPPRESS_REQUEST', TRUE);
 
 require realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'index.php';
 
-if (Env::$is_cli) {
-    Cyclone_CLI::bootstrap();
+if (cy\Env::$is_cli) {
+    cy\CLI::bootstrap();
 }

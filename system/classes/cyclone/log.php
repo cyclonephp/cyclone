@@ -144,7 +144,7 @@ class Log {
 	 * @return  void
 	 */
 	public function write()
-	{
+	{echo __METHOD__ . "()\n";
 		if (empty($this->_messages))
 		{
 			// There is nothing to write, move along

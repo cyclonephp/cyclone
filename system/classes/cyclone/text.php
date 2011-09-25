@@ -46,10 +46,10 @@ class Text {
 	 *
 	 *     $text = Text::limit_chars($text);
 	 *
-	 * @param   string   phrase to limit characters of
-	 * @param   integer  number of characters to limit to
-	 * @param   string   end character or entity
-	 * @param   boolean  enable or disable the preservation of words while limiting
+	 * @param   string $str  phrase to limit characters of
+	 * @param   integer $limit number of characters to limit to
+	 * @param   string $end_char  end character or entity
+	 * @param   boolean $preserve_words enable or disable the preservation of words while limiting
 	 * @return  string
 	 * @uses    UTF8::strlen
 	 */
@@ -104,9 +104,8 @@ class Text {
 
 	/**
 	 * Generates a random string of a given type and length.
-	 *
-	 *
-	 *     $str = Text::random(); // 8 character random string
+	 * Example: @code
+	 *     $str = Text::random(); // 8 character random string @endcode
 	 *
 	 * The following types are supported:
 	 *
@@ -125,10 +124,10 @@ class Text {
 	 * You can also create a custom type by providing the "pool" of characters
 	 * as the type.
 	 *
-	 * @param   string   a type of pool, or a string of characters to use as the pool
-	 * @param   integer  length of string to return
+	 * @param   string $type  a type of pool, or a string of characters to use as the pool
+	 * @param   integer $length length of string to return
 	 * @return  string
-	 * @uses    UTF8::split
+	 * @uses    UTF8::split()
 	 */
 	public static function random($type = 'alnum', $length = 8)
 	{
@@ -193,8 +192,8 @@ class Text {
 
 	/**
 	 * Reduces multiple slashes in a string to single slashes.
-	 *
-	 *     $str = Text::reduce_slashes('foo//bar/baz'); // "foo/bar/baz"
+	 * Example: @code
+	 *     $str = Text::reduce_slashes('foo//bar/baz'); // "foo/bar/baz" @endcode
 	 *
 	 * @param   string  string to reduce slashes of
 	 * @return  string
@@ -212,12 +211,12 @@ class Text {
 	 *         'frick' => '#####',
 	 *     ));
 	 *
-	 * @param   string   phrase to replace words in
-	 * @param   array    words to replace
-	 * @param   string   replacement string
-	 * @param   boolean  replace words across word boundries (space, period, etc)
+	 * @param   string $str  phrase to replace words in
+	 * @param   array  $badwords  words to replace
+	 * @param   string $replacement  replacement string
+	 * @param   boolean $replace_partial_words replace words across word boundries (space, period, etc)
 	 * @return  string
-	 * @uses    UTF8::strlen
+	 * @uses    UTF8::strlen()
 	 */
 	public static function censor($str, $badwords, $replacement = '#', $replace_partial_words = TRUE)
 	{
@@ -247,10 +246,10 @@ class Text {
 
 	/**
 	 * Finds the text that is similar between a set of words.
+	 * Example: @code
+	 *     $match = Text::similar(array('fred', 'fran', 'free'); // "fr" @endcode
 	 *
-	 *     $match = Text::similar(array('fred', 'fran', 'free'); // "fr"
-	 *
-	 * @param   array   words to find similar text of
+	 * @param   array  $words words to find similar text of
 	 * @return  string
 	 */
 	public static function similar(array $words)
@@ -275,13 +274,13 @@ class Text {
 	/**
 	 * Converts text email addresses and anchors into links. Existing links
 	 * will not be altered.
+	 * Example: @code
+	 *     echo Text::auto_link($text); @endcode
 	 *
-	 *     echo Text::auto_link($text);
-	 *
-	 * @param   string   text to auto link
+	 * @param   string $text  text to auto link
 	 * @return  string
-	 * @uses    Text::auto_link_urls
-	 * @uses    Text::auto_link_emails
+	 * @uses    Text::auto_link_urls()
+	 * @uses    Text::auto_link_emails()
 	 */
 	public static function auto_link($text)
 	{
@@ -294,9 +293,9 @@ class Text {
 	 *
 	 *     echo Text::auto_link_urls($text);
 	 *
-	 * @param   string   text to auto link
+	 * @param   string $text  text to auto link
 	 * @return  string
-	 * @uses    HTML::anchor
+	 * @uses    HTML::anchor()
 	 */
 	public static function auto_link_urls($text)
 	{
@@ -329,9 +328,9 @@ class Text {
 	 *
 	 *     echo Text::auto_link_emails($text);
 	 *
-	 * @param   string   text to auto link
+	 * @param   string $text  text to auto link
 	 * @return  string
-	 * @uses    HTML::mailto
+	 * @uses    HTML::mailto()
 	 */
 	public static function auto_link_emails($text)
 	{
@@ -358,8 +357,8 @@ class Text {
 	 *
 	 * [!!] This method is not foolproof since it uses regex to parse HTML.
 	 *
-	 * @param   string   subject
-	 * @param   boolean  convert single linebreaks to <br />
+	 * @param   string $str  subject
+	 * @param   boolean $br convert single linebreaks to <br />
 	 * @return  string
 	 */
 	public static function auto_p($str, $br = TRUE)
@@ -411,13 +410,13 @@ class Text {
 	 * Returns human readable sizes. Based on original functions written by
 	 * [Aidan Lister](http://aidanlister.com/repos/v/function.size_readable.php)
 	 * and [Quentin Zervaas](http://www.phpriot.com/d/code/strings/filesize-format/).
+	 * Example: @code
+	 *     echo Text::bytes(filesize($file)); @endcode
 	 *
-	 *     echo Text::bytes(filesize($file));
-	 *
-	 * @param   integer  size in bytes
-	 * @param   string   a definitive unit
-	 * @param   string   the return string format
-	 * @param   boolean  whether to use SI prefixes or IEC
+	 * @param   integer $bytes size in bytes
+	 * @param   string $force_unit  a definitive unit
+	 * @param   string  $format the return string format
+	 * @param   boolean $si whether to use SI prefixes or IEC
 	 * @return  string
 	 */
 	public static function bytes($bytes, $force_unit = NULL, $format = NULL, $si = TRUE)
@@ -453,7 +452,7 @@ class Text {
 	 *
 	 *     echo Text::widont($text);
 	 *
-	 * @param   string  text to remove widows from
+	 * @param   string  $str text to remove widows from
 	 * @return  string
 	 */
 	public static function widont($str)

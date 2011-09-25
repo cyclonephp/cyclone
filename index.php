@@ -57,7 +57,6 @@ cy\FileSystem::run_init_scripts();
 cy\Env::init_legacy();
 
 ini_set('unserialize_callback_func', 'spl_autoload_call');
-
 cy\Session::instance();
 
 /**
@@ -71,7 +70,7 @@ req\Route::set('default', '(<controller>(/<action>(/<id>)))')
             'action' => 'index',
         ));
 
-if ( ! defined('SUPPRESS_REQUEST')) {
+if ( ! defined('cyclone\SUPPRESS_REQUEST')) {
     $request = req\Request::initial();
     if (cy\Env::$current == cy\Env::PROD) {
         try {

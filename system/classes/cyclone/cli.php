@@ -73,11 +73,11 @@ class CLI {
 
         /** function has not called from cyphp */
         if ($_SERVER['argv'][0] != 'cyphp' && $_SERVER['argv'][0] != './cyphp') {
-            echo Cyclone_Cli_Errors::CALL_ERROR . PHP_EOL;
+            echo cli\Errors::CALL_ERROR . PHP_EOL;
             return;
         }
 
-        $library_handler = Cyclone_Cli_library_Handler::inst();
+        $library_handler = cli\LibraryHandler::inst();
         $param_num = count($_SERVER['argv']);
 
         if ($param_num == 1 || $library_handler->is_exists($_SERVER['argv'][1]) === false) {
@@ -87,12 +87,12 @@ class CLI {
             $library = $library_handler->get_library($_SERVER['argv'][1]);
             try {
                 $library->validate();
-            } catch (Cyclone_Cli_Validation_Exception $ex) {
+            } catch (cli\ValidationException $ex) {
                 echo $ex->getMessage();
                 return;
             }
 
-            $input_validator = new Cyclone_Cli_Input_Validator($_SERVER['argv'], $library);
+            $input_validator = new cli\InputValidator($_SERVER['argv'], $library);
             $input_validator->validate();
         }
     }

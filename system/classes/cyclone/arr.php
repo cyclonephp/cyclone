@@ -22,7 +22,7 @@ class Arr {
 	 *     // Returns FALSE
 	 *     Arr::is_assoc('foo', 'bar');
 	 *
-	 * @param   array   array to check
+	 * @param   array $array  array to check
 	 * @return  boolean
 	 */
 	public static function is_assoc(array $array)

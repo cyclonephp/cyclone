@@ -1,4 +1,6 @@
-<?php defined('SYSPATH') or die('No direct access');
+<?php
+
+namespace cyclone\kohana;
 /**
  * Kohana exception class. Translates exceptions using the [I18n] class.
  *
@@ -8,7 +10,7 @@
  * @copyright  (c) 2008-2009 Kohana Team
  * @license    http://kohanaphp.com/license
  */
-class Kohana_Exception extends Exception {
+class Exception extends \Exception {
 
 	/**
 	 * Creates a new translated exception.

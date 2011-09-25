@@ -16,7 +16,7 @@ abstract class Session {
 	/**
 	 * @var  string  default session adapter
 	 */
-	public static $default = 'native';
+	public static $default = 'Native';
 
 	// Session instances
 	protected static $instances = array();
@@ -49,7 +49,7 @@ abstract class Session {
 			$config = Config::inst()->get('session');
 
 			// Set the session class name
-			$class = '\\cyclone\\Session\\' . $type;
+			$class = '\cyclone\session\\' . $type . 'Session';
 
 			// Create a new session instance
 			Session::$instances[$type] = $session = new $class($config, $id);
@@ -134,7 +134,7 @@ abstract class Session {
 		if ($this->_encrypted)
 		{
 			// Encrypt the data using the default key
-			$data = Encrypt::instance($this->_encrypted)->encode($data);
+			$data = cy\Encrypt::instance($this->_encrypted)->encode($data);
 		}
 		else
 		{
@@ -241,7 +241,7 @@ abstract class Session {
 				// Unserialize the data
 				$data = unserialize($data);
 			}
-			catch (Exception $e)
+			catch (\Exception $e)
 			{
 				// Ignore all reading errors
 			}
@@ -279,7 +279,7 @@ abstract class Session {
 	 * @uses    Kohana::$log
 	 */
 	public function write()
-	{
+	{echo __METHOD__ . '()';
 		if (headers_sent() OR $this->_destroyed)
 		{
 			// Session cannot be written when the headers are sent or when
@@ -294,11 +294,10 @@ abstract class Session {
 		{
 			return $this->_write();
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
 			// Log & ignore all errors when a write fails
-			Kohana::$log->add(Kohana::ERROR, Kohana::exception_text($e))->write();
-
+			log_error($this, Kohana::exception_text($e));
 			return FALSE;
 		}
 	}
