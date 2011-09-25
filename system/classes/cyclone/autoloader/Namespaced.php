@@ -2,22 +2,23 @@
 
 namespace cyclone\autoloader;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR .  '../autoloader.php';
+use cyclone as cy;
 
-class Kohana implements \cyclone\Autoloader {
+require_once __DIR__ . DIRECTORY_SEPARATOR . '../Autoloader.php';
+
+class Namespaced implements cy\Autoloader {
 
     private static $_inst;
 
     /**
-     * @return Autloader_Kohana
+     * @return Autoloader_Namespaced
      */
     public static function inst() {
         if (NULL === self::$_inst) {
-            self::$_inst = new Kohana;
+            self::$_inst = new Namespaced;
         }
         return self::$_inst;
     }
-
 
     private function  __construct() {
         // empty private constructor
@@ -28,12 +29,11 @@ class Kohana implements \cyclone\Autoloader {
     }
 
     public function autoload($classname) {
-        $classname = strtolower($classname);
-        $rel_filename = 'classes/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
+        $rel_filename = 'classes/' . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 
-        $result = \cyclone\FileSystem::find_file($rel_filename);
+        $result = cy\FileSystem::find_file($rel_filename);
         if ($result) {
-            include_once $result;
+            require_once $result;
             return TRUE;
         }
         return FALSE;
@@ -46,5 +46,5 @@ class Kohana implements \cyclone\Autoloader {
     public function  list_testcases($libs = NULL) {
         ;
     }
-
+    
 }

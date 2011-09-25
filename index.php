@@ -31,9 +31,9 @@ date_default_timezone_set('Europe/Budapest');
 
 //spl_autoload_register(array('FileSystem', 'autoloader_kohana'));
 
-require cy\SYSPATH . 'classes/cyclone/autoloader/kohana.php';
+require cy\SYSPATH . 'classes/cyclone/autoloader/Kohana.php';
 cy\Autoloader\Kohana::inst()->register();
-require cy\SYSPATH . 'classes/cyclone/autoloader/namespaced.php';
+require cy\SYSPATH . 'classes/cyclone/autoloader/Namespaced.php';
 cy\Autoloader\Namespaced::inst()->register();
 
 spl_autoload_register(array('\cyclone\FileSystem', 'autoloader_tests'));

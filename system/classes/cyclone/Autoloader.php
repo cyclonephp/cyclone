@@ -2,7 +2,7 @@
 
 namespace cyclone;
 
-require \cyclone\SYSPATH . 'classes/cyclone/filesystem.php';
+require \cyclone\SYSPATH . 'classes/cyclone/FileSystem.php';
 
 interface Autoloader {
 

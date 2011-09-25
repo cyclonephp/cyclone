@@ -279,7 +279,7 @@ abstract class Session {
 	 * @uses    Kohana::$log
 	 */
 	public function write()
-	{echo __METHOD__ . '()';
+	{
 		if (headers_sent() OR $this->_destroyed)
 		{
 			// Session cannot be written when the headers are sent or when
