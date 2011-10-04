@@ -1166,7 +1166,7 @@ class Kohana {
 	}
 
 	/**
-	 * Removes application, system, modpath, or docroot from a filename,
+	 * Removes application, system, modpath, or SYSROOT from a filename,
 	 * replacing them with the plain text equivalents. Useful for debugging
 	 * when you want to display a shorter path.
 	 *
@@ -1190,9 +1190,13 @@ class Kohana {
 		{
 			$file = 'MODPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(MODPATH));
 		}
-		elseif (strpos($file, DOCROOT) === 0)
+                elseif (strpos($file, TOOLPATH) === 0)
 		{
-			$file = 'DOCROOT'.DIRECTORY_SEPARATOR.substr($file, strlen(DOCROOT));
+			$file = 'MODPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(TOOLPATH));
+		}
+		elseif (strpos($file, SYSROOT) === 0)
+		{
+			$file = 'SYSROOT'.DIRECTORY_SEPARATOR.substr($file, strlen(SYSROOT));
 		}
 
 		return $file;

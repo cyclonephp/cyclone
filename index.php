@@ -7,12 +7,12 @@ define('EXT', '.php');
 
 error_reporting(E_ALL | E_STRICT);
 
-define('cyclone\DOCROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
+define('cyclone\SYSROOT', realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR);
 
-define('cyclone\APPPATH', cy\DOCROOT.'app'.DIRECTORY_SEPARATOR);
-define('cyclone\LIBPATH', cy\DOCROOT.'libs'.DIRECTORY_SEPARATOR);
-define('cyclone\SYSPATH', cy\DOCROOT.'system'.DIRECTORY_SEPARATOR);
-define('cyclone\TOOLPATH', cy\DOCROOT.'tools'.DIRECTORY_SEPARATOR);
+define('cyclone\APPPATH', cy\SYSROOT.'app'.DIRECTORY_SEPARATOR);
+define('cyclone\LIBPATH', cy\SYSROOT.'libs'.DIRECTORY_SEPARATOR);
+define('cyclone\SYSPATH', cy\SYSROOT.'system'.DIRECTORY_SEPARATOR);
+define('cyclone\TOOLPATH', cy\SYSROOT.'tools'.DIRECTORY_SEPARATOR);
 
 
 if (file_exists('install'.EXT))
@@ -47,7 +47,7 @@ cy\FileSystem::bootstrap(array(
     'cytpl' => cy\LIBPATH . 'cytpl' . DIRECTORY_SEPARATOR,
     'logger' => cy\LIBPATH . 'logger' . DIRECTORY_SEPARATOR,
     'cydocs' => cy\TOOLPATH . 'cydocs/',
-    'system' => cy\SYSPATH,
+    'cyclone' => cy\SYSPATH,
 ), cy\SYSPATH . '.cache' . DIRECTORY_SEPARATOR);
 
 cy\Config::setup();

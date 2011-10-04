@@ -100,7 +100,7 @@ class Env {
     public static function init_legacy() {
         self::init();
         define('MODPATH', \cyclone\LIBPATH);
-        define('DOCROOT', \cyclone\DOCROOT);
+        define('DOCROOT', \cyclone\SYSROOT);
         define('SYSPATH', \cyclone\SYSPATH);
         define('APPPATH', \cyclone\APPPATH);
         Kohana::$environment = self::$current;

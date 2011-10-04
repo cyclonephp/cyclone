@@ -48,13 +48,13 @@ class AssetPool {
                     $max_latest_mod = $tmp;
                 }
             } else {
-                $rel_path = substr($abs_path, strlen(DOCROOT));
+                $rel_path = substr($abs_path, strlen(SYSROOT));
                 $new_resources []= $rel_path;
             }
         }
         if ( ! empty($all_files)) {
             $minified_file_rel_path = Config::inst()->get('core.asset_path').$type.DIRECTORY_SEPARATOR.sha1(implode('', $all_files)).'.'.$type;
-            $minified_file_abs_path = DOCROOT.$minified_file_rel_path;
+            $minified_file_abs_path = SYSROOT.$minified_file_rel_path;
             if ( ! file_exists($minified_file_abs_path)
                     || filemtime($minified_file_abs_path) < $max_latest_mod) {
                 $all_src = '';
@@ -111,7 +111,7 @@ class AssetPool {
                 $path = 'assets'.DIRECTORY_SEPARATOR.$type;
                 foreach ($this->assets[$type] as $file => $minify) {
                     $abs_path = Kohana::find_file($path, $file, $type);
-                    $new_assets []= substr($abs_path, strlen(DOCROOT));
+                    $new_assets []= substr($abs_path, strlen(SYSROOT));
                 }
                 $this->assets[$type] = $new_assets;
             }
