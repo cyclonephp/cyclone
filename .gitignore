@@ -1,7 +1,0 @@
-.htaccess
-system/.cache
-phpunit-report
-docs
-error_log
-app
-index.php
