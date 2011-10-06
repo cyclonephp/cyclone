@@ -32,8 +32,8 @@ class Config {
         $reader = new \cyclone\config\reader\File;
         foreach ($reader->read($setupfile) as $name => $instance) {
             $cfg = new Config;
-            $cfg->readers = &$instance['readers'];
-            $cfg->writers = &$instance['writers'];
+            $cfg->readers = $instance['readers'];
+            $cfg->writers = $instance['writers'];
             self::$_instances [$name]= $cfg;
         }
     }

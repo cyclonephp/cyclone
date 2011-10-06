@@ -338,5 +338,42 @@ class FileSystem {
         }
         return FALSE;
     }
+
+
+    public static function mktree($dirs, $parent_root = NULL) {
+        if (NULL === $parent_root) {
+            $parent_root = '.';
+        }
+        foreach ($dirs as $name => $content) {
+            $file_path = $parent_root . \DIRECTORY_SEPARATOR . $name;
+            if (is_array($content)) {
+                mkdir($file_path);
+                self::mktree($content, $file_path);
+            }
+            else file_put_contents($file_path, $content);
+        }
+    }
+
+    /**
+     * Called by CLI.
+     *
+     * @param array $args
+     */
+    public static function init_lib_dirs($args) {
+        $root_dir = $args['--directory'];
+        self::mktree(array(
+            $root_dir => array(
+                'config' => array(
+                    'dev' => array(),
+                    'test' => array(),
+                    'prod' => array()
+                ),
+                'classes' => array(),
+                'views' => array(),
+                'tests' => array(),
+                'manual' => array()
+            )
+        ));
+    }
 }
 ?>

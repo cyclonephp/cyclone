@@ -10,7 +10,7 @@ namespace cyclone\cli;
  */
 class ValidationException extends \Exception {
 
-    public function __construct($error, $code, $library_name, $command_name, $arg_name) {
+    public function __construct($error, $code = NULL, $library_name = NULL, $command_name = NULL, $arg_name = NULL) {
         $this->code = $code;
         $msg = Errors::LIBRARY_VALIDATION_FAILED . PHP_EOL .
                 "\tat library: $library_name" . PHP_EOL;
@@ -18,7 +18,7 @@ class ValidationException extends \Exception {
             $msg .= "\tat command: $command_name" . PHP_EOL;
         }
         if (!empty($arg_name)) {
-            $msg .= "\tat argumentum: $arg_name". PHP_EOL;
+            $msg .= "\tat argument: $arg_name". PHP_EOL;
         }
         $msg .= "\tcause: $error" . PHP_EOL . PHP_EOL;
         $this->message = $msg;

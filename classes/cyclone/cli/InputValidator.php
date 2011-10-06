@@ -73,6 +73,7 @@ class InputValidator {
 
     /**
      * Check that, the given argumentum has parameter.
+     * 
      * @param string $arg_name existing argumentum
      * @param array $arguments argumentum array of a library command
      */
@@ -86,6 +87,7 @@ class InputValidator {
 
     /**
      * Fills the callback array with the not passed arguments.
+     * 
      * @param array $cbarray callback array
      * @param array $arguments argumentum array of a library command
      */
@@ -126,14 +128,20 @@ class InputValidator {
      */
     private function add_defaults(&$parsed_args, $command) {
         foreach ($command['arguments'] as $arg_name => $arg_details) {
-            if ( ! isset($parsed_args[$arg_name]) && isset($arg_details['default'])) {
-                $parsed_args[$arg_name] = $arg_details['default'];
+            if ( ! isset($parsed_args[$arg_name])) {
+                $parsed_args[$arg_name] = isset($arg_details['default'])
+                        ? $arg_details['default']
+                        : NULL;
             }
+            if (isset($arg_details['required']) && $arg_details['required']
+                    && $parsed_args[$arg_name] === NULL)
+                throw new InputException("required argument '$arg_name' is missing.");
         }
     }
 
     /**
      * This command choosed in the input, it parses the rest of the user input.
+     * 
      * @param array $command choosed command's array
      */
     private function parse_command($command) {
@@ -142,7 +150,6 @@ class InputValidator {
         $i = 0;
 
         if (count($input_args) == 0) {
-            $this->suplement_callback_array($cbarray, $command['arguments']);
             $this->add_defaults($cbarray, $command);
             call_user_func($command['callback'], $cbarray);
             return;
@@ -153,7 +160,7 @@ class InputValidator {
             if ($arg_name != null) {
                 if ($this->argument_has_param($arg_name, $command['arguments'])) {
                     ++$i;
-                    // test that, the next argumentum is a parameter
+                    // test if the next argument is a parameter
                     if (empty($input_args[$i]) || preg_match('/^-/', $input_args[$i])) {
                         echo "!!$arg_name needs a parameter." . PHP_EOL;
                         return;
@@ -169,7 +176,6 @@ class InputValidator {
             }
             ++$i;
         }
-        $this->suplement_callback_array($cbarray, $command['arguments']);
         $this->add_defaults($cbarray, $command);
         call_user_func($command['callback'], $cbarray);
     }

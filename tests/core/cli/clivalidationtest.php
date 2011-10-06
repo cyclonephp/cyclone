@@ -167,7 +167,7 @@ Iterates on all classes named Record_*, instantiates each one and creates databa
                             'descr' => 'Database schema will be generated for classes in library <library name>'
                         )
                     ),
-                    'callback' => array('SimpleDB_Schema_Generator', 'generate_schema')
+                    'callback' => array('DB_Schema_Generator', 'generate_schema')
                 )
             )
         );

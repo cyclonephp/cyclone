@@ -92,8 +92,13 @@ class CLI {
                 return;
             }
 
-            $input_validator = new cli\InputValidator($_SERVER['argv'], $library);
-            $input_validator->validate();
+            try {
+                $input_validator = new cli\InputValidator($_SERVER['argv'], $library);
+                $input_validator->validate();
+            } catch (cli\InputException $ex) {
+                echo "invalid arguments: ";
+                echo $ex->getMessage() . PHP_EOL;
+            }
         }
     }
 
