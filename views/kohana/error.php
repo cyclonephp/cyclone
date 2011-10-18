@@ -1,5 +1,6 @@
 <?php
 
+use cyclone as cy; 
 // Unique error identifier
 $error_id = uniqid('error');
 
@@ -48,17 +49,17 @@ function koggle(elem)
 }
 </script>
 <div id="kohana_error">
-	<h1><span class="type"><?php echo $type ?> [ <?php echo $code ?> ]:</span> <span class="message"><?php echo html::chars($message) ?></span></h1>
+	<h1><span class="type"><?php echo $type ?> [ <?php echo $code ?> ]:</span> <span class="message"><?php echo cy\html::chars($message) ?></span></h1>
 	<div id="<?php echo $error_id ?>" class="content">
-		<p><span class="file"><?php echo Kohana::debug_path($file) ?> [ <?php echo $line ?> ]</span></p>
-		<?php echo Kohana::debug_source($file, $line) ?>
+		<p><span class="file"><?php echo cy\Kohana::debug_path($file) ?> [ <?php echo $line ?> ]</span></p>
+		<?php echo cy\Kohana::debug_source($file, $line) ?>
 		<ol class="trace">
-		<?php foreach (Kohana::trace($trace) as $i => $step): ?>
+		<?php foreach (cy\Kohana::trace($trace) as $i => $step): ?>
 			<li>
 				<p>
 					<span class="file">
 						<?php if ($step['file']): $source_id = $error_id.'source'.$i; ?>
-							<a href="#<?php echo $source_id ?>" onclick="return koggle('<?php echo $source_id ?>')"><?php echo Kohana::debug_path($step['file']) ?> [ <?php echo $step['line'] ?> ]</a>
+							<a href="#<?php echo $source_id ?>" onclick="return koggle('<?php echo $source_id ?>')"><?php echo cy\Kohana::debug_path($step['file']) ?> [ <?php echo $step['line'] ?> ]</a>
 						<?php else: ?>
 							{<?php echo __('PHP internal call') ?>}
 						<?php endif ?>
@@ -72,7 +73,7 @@ function koggle(elem)
 					<?php foreach ($step['args'] as $name => $arg): ?>
 						<tr>
 							<td><code><?php echo $name ?></code></td>
-							<td><pre><?php echo Kohana::dump($arg) ?></pre></td>
+							<td><pre><?php echo cy\Kohana::dump($arg) ?></pre></td>
 						</tr>
 					<?php endforeach ?>
 					</table>
@@ -94,7 +95,7 @@ function koggle(elem)
 			<table cellspacing="0">
 				<?php foreach ($included as $file): ?>
 				<tr>
-					<td><code><?php echo Kohana::debug_path($file) ?></code></td>
+					<td><code><?php echo cy\Kohana::debug_path($file) ?></code></td>
 				</tr>
 				<?php endforeach ?>
 			</table>
@@ -105,7 +106,7 @@ function koggle(elem)
 			<table cellspacing="0">
 				<?php foreach ($included as $file): ?>
 				<tr>
-					<td><code><?php echo Kohana::debug_path($file) ?></code></td>
+					<td><code><?php echo cy\Kohana::debug_path($file) ?></code></td>
 				</tr>
 				<?php endforeach ?>
 			</table>
@@ -117,8 +118,8 @@ function koggle(elem)
 			<table cellspacing="0">
 				<?php foreach ($GLOBALS[$var] as $key => $value): ?>
 				<tr>
-					<td><code><?php echo HTML::chars($key) ?></code></td>
-					<td><pre><?php echo Kohana::dump($value) ?></pre></td>
+					<td><code><?php echo cy\HTML::chars($key) ?></code></td>
+					<td><pre><?php echo cy\Kohana::dump($value) ?></pre></td>
 				</tr>
 				<?php endforeach ?>
 			</table>
