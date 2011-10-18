@@ -226,7 +226,7 @@ class FileSystem {
             foreach (self::$_roots as $library => $root_path) {
                 $candidate = $root_path . $rel_filename;
                 if (file_exists($candidate)) {
-                    $rval = Arr::merge($rval, require $candidate);
+                    $rval = Arr::merge(require $candidate, $rval);
                 }
             }
         } else {

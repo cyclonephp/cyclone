@@ -1343,16 +1343,16 @@ class Kohana {
 					{
 						if (method_exists($step['class'], $step['function']))
 						{
-							$reflection = new ReflectionMethod($step['class'], $step['function']);
+							$reflection = new \ReflectionMethod($step['class'], $step['function']);
 						}
 						else
 						{
-							$reflection = new ReflectionMethod($step['class'], '__call');
+							$reflection = new \ReflectionMethod($step['class'], '__call');
 						}
 					}
 					else
 					{
-						$reflection = new ReflectionFunction($step['function']);
+						$reflection = new \ReflectionFunction($step['function']);
 					}
 
 					// Get the function parameters
