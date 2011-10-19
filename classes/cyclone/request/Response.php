@@ -2,6 +2,8 @@
 
 namespace cyclone\request;
 
+use cyclone as cy;
+
 /**
  * Represents a HTTP response.
  *
@@ -170,8 +172,9 @@ class Response {
         }
 
         foreach ($this->_cookies as $key => $val_cnt) {
-            
+            cy\Cookie::set($key, $val_cnt['value'], $val_cnt['expiration']);
         }
+        return $this;
     }
 
     /**
