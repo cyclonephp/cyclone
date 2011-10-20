@@ -63,7 +63,7 @@ class InternalDispatcher extends AbstractDispatcher {
                 $controller_classname = '';
             }
 
-            $controller_classname .= $params['controller'] . 'Controller';
+            $controller_classname .= ucfirst($params['controller']) . 'Controller';
 
             if ( ! \class_exists($controller_classname))
                 throw new DispatcherException("controller '{$params['controller']}' not found. Class '$controller_classname' does not exist.");
