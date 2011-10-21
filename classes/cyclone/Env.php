@@ -18,6 +18,13 @@ class Env {
     const DEV = 'dev';
 
     /**
+     * Constant for marking the environment of unit test running.
+     *
+     * @usedby Env::$current
+     */
+    const UNITTEST = 'unittest';
+
+    /**
      * Constant for marking a testing environment.
      *
      * @usedby Env::$current
