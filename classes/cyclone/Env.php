@@ -85,6 +85,7 @@ class Env {
         if ( ! self::$current) {
             self::$current = self::DEV;
         }
+        Config::setup();
         self::$magic_quotes = get_magic_quotes_gpc();
 
         self::$eol = self::$is_cli ? PHP_EOL : '<br />';
