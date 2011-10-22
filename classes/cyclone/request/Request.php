@@ -366,7 +366,7 @@ class Request {
      * @return Request $this
      */
     public function post($post) {
-        $this->_post = $postdata;
+        $this->_post = $post;
         return $this;
     }
 
@@ -412,7 +412,7 @@ class Request {
      * @return Request
      */
     public function cookies($cookies) {
-        if ( ! (\is_array($headers) || $headers instanceof \ArrayAccess))
+        if ( ! (is_array($cookies) || $cookies instanceof \ArrayAccess))
             throw new \Exception('invalid argument for Request::cookies()');
         $this->_cookies = $cookies;
         return $this;
