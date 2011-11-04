@@ -306,6 +306,8 @@ class Request {
             , 'headers'
             , 'cookies'
             , 'protocol'
+            , 'referrer'
+            , 'user_agent'
         );
         if (\in_array($name, $enabled_attributes))
             return $this->{'_' . $name};
@@ -389,6 +391,28 @@ class Request {
      */
     public function protocol($protocol) {
         $this->_protocol = $protocol;
+        return $this;
+    }
+
+    /**
+     * Sets the \c $referrer property.
+     *
+     * @param $referrer string
+     * @return Request
+     */
+    public function referrer($referrer) {
+        $this->_referrer = $referrer;
+        return $this;
+    }
+
+    /**
+     * Sets the \c $user_agent property.
+     *
+     * @param string $user_agent
+     * @return Request
+     */
+    public function user_agent($user_agent) {
+        $this->_user_agent = $user_agent;
         return $this;
     }
 
