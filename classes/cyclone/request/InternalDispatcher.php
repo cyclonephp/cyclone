@@ -75,12 +75,12 @@ class InternalDispatcher extends AbstractDispatcher {
             if ( ! $controller instanceof \cyclone\request\SkeletonController)
                 throw new DispatcherException("controller class '$controller_classname' is not a subclass of cyclone\controller\SkeletonController");
 
+            $action_name = 'action_' . $params['action'];
+
             if ( ! method_exists($controller, $action_name))
                     throw new DispatcherException("action '$action_name' of controller '{$params['controller']}' not found. Method $controller_classname::$action_name() does not exist");
 
             $controller->before();
-
-            $action_name = 'action_' . $params['action'];
 
             $controller->$action_name($action_params);
 
