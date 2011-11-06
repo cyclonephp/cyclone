@@ -351,6 +351,33 @@ class Request {
     }
 
     /**
+     * Redirects as the request response. If the URL does not include a
+     * protocol, it will be converted into a complete URL.
+     *
+     *     $request->redirect($url);
+     *
+     * No further processing can be done after this method is called!
+     *
+     * @param   string $url redirect location
+     * @param   int $status the HTTP status code of the response.
+     * @return  void
+     * @uses    URL::site
+     * @uses    Request::send_headers
+     */
+    public function redirect($url, $code = 302) {
+        if (strpos($url, '://') === FALSE) {
+            // Make the URI into a URL
+            $url = URL::site($url, TRUE);
+        }
+
+        $this->get_response()->status($code)
+                ->header('Location', $url)
+                ->send_headers();
+        // Stop execution
+        exit;
+    }
+
+    /**
      * Sets the \c $query property (the query parameters of the request).
      *
      * @param array $query

@@ -3,18 +3,19 @@
 namespace cyclone\request;
 
 /**
- * Abstract controller class. Controllers should only be created using a [Request].
+ * Abstract controller class. Controllers should only be created using a \c Request.
  *
  * Controllers methods will be automatically called in the following order by
  * the request:
- *
- *     $controller = new Controller_Foo($request);
+ * @code
+ *     $controller = new namespace\FooController($request);
  *     $controller->before();
  *     $controller->action_bar();
  *     $controller->after();
- *
+ * @endcode
+ * 
  * The controller action should add the output it creates to
- * `$this->request->response`, typically in the form of a [View], during the
+ * `$this->response`, typically in the form of a View, during the
  * "action" part of execution.
  *
  * @package    cyclone
@@ -61,11 +62,11 @@ class SkeletonController {
 	 * @param   object  Request that created the controller
 	 * @return  void
 	 */
-	public function __construct(Request $request)
+	public function __construct(Request $request, Response $response)
 	{
 		// Assign the request to the controller
 		$this->_req = $this->_request = $request;
-                $this->_resp = $this->_response = $request->get_response();
+                $this->_resp = $this->_response = $response;
 	}
 
 	/**
