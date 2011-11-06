@@ -20,6 +20,15 @@ class LibraryHandler {
         $this->_libraries = cy\FileSystem::list_files('cli.php', true);
     }
 
+    /**
+     * @param array $libs
+     * @return LibraryHandler
+     */
+    public function set_libs($libs) {
+        $this->_libraries = $libs;
+        return $this;
+    }
+
     public static function inst() {
         if (self::$_instance === null) {
             self::$_instance = new LibraryHandler;

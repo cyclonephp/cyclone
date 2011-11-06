@@ -1,0 +1,172 @@
+@section Introduction
+
+CyclonePHP is a modern web application development framework designed to fit the needs
+of enterprise application development. CyclonePHP is originally build on Kohana 3.0, but
+currently it is not compatible with any version of Kohana.
+
+The framework itself basically consists of a small - even optional - core library (or kernel),
+and some loosely coupled libraries. The core library provides an autoloader, a request dispatcher 
+and a good set of helper (utility) classes.
+
+After downloading CyclonePHP you will find the following files and directories in it:
+<ul>
+	<li><code>example.index.php</code>: a general example for bootstrapping the framework</li>
+	<li><code>cyphp</code></li>: a very simple PHP script for running the CLI commands of the framework.</li>
+	<li><code>example.htaccess</code>: an example apache .htaccess file for using the framework.</li>
+	<li><code>cyclone/</code>: this is the core library of CyclonePHP (note that it's not the
+	same as the whole CyclonePHP framework)</li>
+	<li><code>libs/</code>: official libraries of the framework</li>
+	<li><code>tools/</code>: in general, the <code>tools/</code> directory also contains libraries,
+		but these libraries are development tools, not really libraries that can be used by your
+		application itself.</li>
+	<li><code>example.app/</code> an example application directory structure.</li>
+</ul>
+
+The directory layout of each library (including the core lib) may contain the following
+subdirectories:
+<ul>
+	<li><code>assets</code>: contains javascript files and stylesheets, maybe optional images too</li>
+	<li><code>config/</code>: holds configuration files. By default, configuration files are <code>.php</code>
+		files that return configuration data as PHP arrays.</li>
+	<li><code>classes/</code>: you can think about the <code>classes/</code> directory of a library
+		as the root directory of a PSR-0 compliant class library. All the official classes of the framework
+		are under the <code>cyclone</code> namespace, so all the <code>classes/</code> directories of the
+		libraries contain a <code>cyclone</code> subdirectory and nothing else. More about the class loading
+		later.</li>
+	<li><code>i18n/</code>: contains internationalization config files, also as PHP arrays. More about it later.</li>
+	<li>views/</li>: contains HTML template files.
+	<li><code>init.php</code>: this file can contain some procedural bootstrap code for the library,
+		executed on each request. In most cases, these only contain some minimal code.</li>
+	<li><code>cli.php</code>: in this file the library can declare its own commands that can be
+		executed from the command line. Mainly libraries under the <code>tools/</code> utilize this feature.</li>
+</ul>
+
+Above these examples, the libraries can have any other subdirectories and files,but these are the 
+typical examples.
+
+The application itself is handled by the framework as a library too, so generally the <code>example.app/</code>
+directory will have a similar directory layout as the other libraries, but by default it contains 3 additional
+directories and files:
+<ul>
+	<li><code>.cache/</code>: used to store some framework metadata</li>
+	<li><code>logs/</code>: used by the default log adapter (writer) to write the log messages.
+	<li><code>config/setup.php</code>: the configuration of the configuration handler</li>
+</ul>
+
+If you don't change the default configuration of the logger and the FileSystem class (see below), then both
+directories must be writable by PHP.
+
+@subsection bootstrap
+
+The framework bootstrap is done by some procedural code, which typically exists in the <code>index.php</code>
+of the framework. In the <code>example.index.php </code> you can see the followings:
+<ul>
+	<li>few constant declarations</li>
+	<li>autoloader setup</li>
+	<li>a library loading method call (see the next chapter for details)</li>
+	<li>some further initialization and environment setup</li>
+	<li>a request dispatching</code>
+</ul>
+
+The configuration of the framework is mainly done in configuration files, but partly in the <code>index.php</code>
+programmatically.
+
+Please note that the <code>example.index.php</code> is really just an example, you can have really
+different bootstrap codes in your application. The constants and the library bootstrap will
+be needed for sure, but the request dispatch can simply be omitted eg. if you want to use some of the
+libraries of the framework in a project built on an other framework or CMS.
+
+@subsection cfs The cascading file system
+
+The cascading file system (CFS) has the same meaning in CyclonePHP as in Kohana. In short, when the framework
+searches for a file given by its relative path, it iterates on the loaded libraries, and checks
+if the relative path exists in the root directory of the library. The result of the search will be cached
+and stored in the <code><application-root-path>.cache/filepaths.txt</code>. See the 
+\c cyclone\FileSystem::bootstrap() method for more details. The method must be called in the index.php,
+its first argument is an associative array of library name => library root path pairs, and the second
+argument is the path of the cache directory. In the first argument, it's recommended to pass the root
+directory of your application as the first array item.
+
+The cascading file system has some side effects. First of all, in your application you can override the files
+of the libraries, or even libraries can rewrite the files of other libraries by loading them before
+the library then want to override. This behavior works very well on configuration files, or even
+forms, HTML templates, assets, etc, by taking the advantage of CFS you can easily build highly customizable
+libraries. See \c @FileSystem::find_file() for more details.
+
+The CFS also lets you to override classes of libraries, but it is not recommended, in a properly designed
+OO system it shouldn't be needed, so overriding class declarations is only to be used if nothing else works.
+
+@section req-exec Request execution flow
+
+CyclonePHP is an action-based framework, and as in all such frameworks, the first step is dispatching
+the incoming HTTP request. It means deciding based on the request details what code should be executed, then
+dispatching the execution to a function or method. This function is called controller and/or action. The implementation
+of the controller is the task of the programmer, this is the point where the application-specific processing
+of the request starts. Most PHP frameworks are action-based, therefore if CyclonePHP is not the first framework
+you use, then you are probably familiar with the theory of request dispatching.
+
+The first step of the request dispatching process is setting up your routes. A route in general a pattern,
+that a HTTP request can match or not. The most important part of a route is its URI pattern, which is a regex-like
+string that contains some parameters, which will be passed to the controller. A route can have other constraints to be
+checked against a request, for example the HTTP method, or the request protocoll.
+
+When you set up your routes, you can set up multiple routes just after each other. When the framework searches for a matching
+route, it iterates over the set up routes, and the first matching route will be the matching route - therefore it is 
+important to take care about the ordering of your routes. The route setup is done in most cases programmatically 
+in the <code>index.php</code>, let's see an example:
+@code
+use cyclone\request as req;
+
+	req\Route::set('default', '(<controller>(/<action>(/<id>)))')
+        ->defaults(array(
+			'namespace' => 'myapp\\controller',
+            'controller' => 'index',
+            'action' => 'index',
+        ));
+@endcode
+This route named "default" has an URI pattern with 3 optional parameters. All parameter names should be between
+&lt; and &gt;, and putting them between ( and ) makes them optional. After the <code> req\Route::set() </code> call you can
+pass the default values of the optional parameters, and you can add further route constraints by method chaining (in the
+example above we didn't). Furthermore, you can set up a callback using \c cyclone\request\Route::before() which will
+be executed only when the route matches a request, and the URI parameters are already extracted from the URI. We will see
+a use-case of this callback later.
+
+If a route matches a cyclone\request\Request instance, then the parameters extracted from the request URI will be stored
+in the array \c cyclone\request\Request::$params . In your controller, you will be able to access the Request instance
+and its URI parameters too, that's why the route URI pattern and its parameters are important and an essential part of
+the framework. By using the route parameters for passing data it's very easy to create user-friendly URL-s for your
+application.
+
+After the matching route has been found and the URI parameters have been extracted, the request will be
+dispatched to a controller, this is done by \c cyclone\request\InternalDispatcher::dispatch() (note: in the <code>index.php</code>
+you can see <code>$request->execute()</code> but in general it just calls the <code>dispatch()</code> method.
+
+The <code>InternalDispatcher::dispatch($strategy)</code> method accepts a parameter which should be
+<code>InternalDispatcher::STRATEGY_DEFAULT</code> or <code>InternalDispatcher::STRATEGY_LAMBDA</code>.
+Based on this parameter a default dispatching or a lambda dispatching will be performed. In most cases
+you will likely use the default strategy, which will create an instance of a so-called controller class,
+and will execute one of its action methods - this is where your code comes.
+
+@subsection The default internal dispatcher
+
+If you want to dispatch a request using the default dispatching strategy, then after the route matching
+the request should have 2 mandatory URI parameters: <code>controller</code> and <code>action</code>. Both
+of these parameters can be defined in the URI pattern of the route, and/or can be set up as default route parameters.
+If any of these request parameters are missing, the dispatcher will throw a \c cyclone\request\DispatcherException .
+It's not mandatory but strongly recommended to put your controller classes into a namespace, to do that, you
+will have to have a request parameter <code>namespace</code> too - see the above example.
+
+Let's take an incoming HTTP request with a request URI <code>/user/view</code>.
+
+
+Using these request parameters, the dispatcher will 
+<ul>
+	<li>instantiate the controller class. In our example, it will be <code>myapp\controller\<b>User</b>Controller</code>.
+		This class should be a subclass of \c cyclone\request\SkeletonController otherwise a \c cyclone\request\DispatcherException will be thrown.</li>
+	<li>call the <code>before()</code> method of the controller</li>
+	<li>call the action method of the controller. In our example, the expected name of the
+		action method will be <code>action_<b>view</b></code></li>
+	<li>call the <code>after()</code> method of the controller</li>
+</ul>
+
+In the action method you can access the Request object 

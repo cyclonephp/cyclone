@@ -51,10 +51,11 @@ class InputValidator {
     }
 
     /**
-     * Return with the argumentum name, if it exists.
-     * If the argumentum was an alias, return with the "true" name.
+     * Return with the argument name, if it exists.
+     * If the argument was an alias, return with the "true" name.
      * If no such argumentum like $var, then return with null;
-     * @param string $var input argumentum
+     * @param string $var input argument
+     * 
      * @param array $arguments argumentum array of a library command
      */
     private function get_argument_name($var, $arguments) {
@@ -170,6 +171,8 @@ class InputValidator {
                 } else {
                     $cbarray[$arg_name] = true;
                 }
+            } elseif ($compact_args = $this->parse_compact_args($input_args, $i, $command['arguments'])) {
+                $cbarray += $compact_args;
             } else {
                 echo '!!Paramter given without specified argument OR no such argument. Cause: ' . $input_args[$i] . PHP_EOL;
                 return;
@@ -178,6 +181,31 @@ class InputValidator {
         }
         $this->add_defaults($cbarray, $command);
         call_user_func($command['callback'], $cbarray);
+    }
+
+    private function parse_compact_args($input_args, &$i, $command_args) {
+        $rval = array();
+        $compact_arg = $input_args[$i];
+        if ($compact_arg{0} != '-')
+            return FALSE;
+        
+        $compact_arg = substr($compact_arg, 1); // cutting the leading '-'
+
+        for ($c = 0; $c < strlen($compact_arg); ++$c) {
+            $arg_name = $this->get_argument_name('-' . $compact_arg{$c}, $command_args);
+            if (NULL === $arg_name)
+                return FALSE;
+            if ($this->argument_has_param($arg_name, $command_args)) {
+                if ($c != strlen($compact_arg) - 1 // only the last alias can have parameter
+                        || empty($input_args[$i + 1]) // the next argument should exist
+                        || ($input_args[$i + 1]{0} == '-')) // and it shouldn't start with '-' since that notates the next parameter
+                    return FALSE;
+                $rval[$arg_name] = $input_args[++$i];
+            } else {
+                $rval[$arg_name] = TRUE;
+            }
+        }
+        return $rval;
     }
 
     /**
