@@ -49,7 +49,7 @@ class InternalDispatcher extends AbstractDispatcher {
                 . $this->request->uri . '\'');
     }
 
-    public function dispatch_default(Route $route) {
+    public function dispatch_default(Route $route = NULL) {
         $params = $this->request->params;
         if ( ! (isset($params['controller']) && isset($params['action'])))
             throw new DispatcherException('The default strategy of InternalDispatcher requires the "controller" and "action" route parameters');

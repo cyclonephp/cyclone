@@ -14,6 +14,9 @@ use cyclone as cy;
  * @property-read string $method
  * @property-read array $params
  * @property-read array $cookies
+ * @property-read string $referrer
+ * @property-read string $user_agent
+ * @property-read string $protocol
  * @package cyclone
  */
 class Request {
