@@ -4,11 +4,31 @@ namespace cyclone\view;
 
 use cyclone as cy;
 
+/**
+ * Abstract implementation of the \c View interface. Implements all methods of
+ * View and declares a new abstract protected method named <code>capture()</code>.
+ * Concrete implementations of the View interface should be extended from this
+ * class and in the <code>capture()</code> implementation the template should be
+ * processed and the resulting HTML should be returned. <code>AbstractView</code>
+ * also adds some magic methods to conveniently handle template variables.
+ *
+ * Most part of this class has been copied from the View class of Kohana.
+ *
+ * @package cyclone
+ * @author Kohana Team
+ * @author Bence Eros <crystal@cyclonephp.com>
+ */
 abstract class AbstractView implements View {
 
     // Array of global variables
     protected static $_global_data = array();
 
+    /**
+     * The file name extension of the template files (including the
+     * leading dot).
+     *
+     * @var string
+     */
     protected static $_file_extension = '.php';
 
 

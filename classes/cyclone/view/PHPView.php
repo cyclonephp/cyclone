@@ -2,10 +2,16 @@
 
 namespace cyclone\view;
 
+/**
+ * 
+ *
+ * @package cyclone
+ * @author Bence Eros <crystal@cyclonephp.com>
+ */
 class PHPView extends AbstractView {
 
     /**
-     * Returns a new View object. If you do not define the "file" parameter,
+     * Returns a new PHPView object. If you do not define the "file" parameter,
      * you must call \c AbstractView::set_filename() before calling \c render().
      *
      * @param string $file view filename
@@ -13,7 +19,7 @@ class PHPView extends AbstractView {
      * @param boolean $is_absolute
      * @return PHPView
      */
-    public static function factory($file = NULL, array $data = NULL, $is_absolute) {
+    public static function factory($file = NULL, array $data = NULL, $is_absolute = FALSE) {
         return new PHPView($file, $data, $is_absolute);
     }
 
