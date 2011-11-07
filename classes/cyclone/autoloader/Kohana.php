@@ -33,7 +33,7 @@ class Kohana implements \cyclone\Autoloader {
 
         $result = \cyclone\FileSystem::find_file($rel_filename);
         if ($result) {
-            include_once $result;
+            include $result;
             return TRUE;
         }
         return FALSE;

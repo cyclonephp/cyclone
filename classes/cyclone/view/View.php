@@ -16,9 +16,9 @@ interface View {
 
    public static function set_global($key, $val);
 
-   public static function bind_global($key, $val);
+   public static function bind_global($key, &$val);
 
-   public function set_filename($filename);
+   public function set_template($filename, $is_absolute = FALSE);
 
    public function render();
 

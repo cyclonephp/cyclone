@@ -3,6 +3,7 @@
 namespace cyclone\request;
 
 use cyclone as cy;
+use cyclone\view;
 
 /**
  * The mainly used basic controller, in most cases the concrete
@@ -113,8 +114,8 @@ class BaseController extends SkeletonController {
         if ($this->_request->is_ajax) {
             $this->_content = array();
         } else {
-            $this->_layout = cy\View::factory($this->_layout_file);
-            $this->_content = cy\View::factory($this->_action_file_path);
+            $this->_layout = view\AbstractView::factory($this->_layout_file);
+            $this->_content = view\AbstractView::factory($this->_action_file_path);
         }
     }
 
@@ -127,7 +128,7 @@ class BaseController extends SkeletonController {
             $this->_resp->body(json_encode($this->_content));
         } else {
             $this->add_default_resources();
-            $this->_layout->set('head_script', cyclone\AssetPool::inst()->get_head_view());
+            $this->_layout->set('head_script', cy\AssetPool::inst()->get_head_view());
             $this->_layout->set('content', $this->_content);
             $this->_resp->body($this->_layout);
         }

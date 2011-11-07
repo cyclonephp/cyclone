@@ -30,10 +30,9 @@ class Namespaced implements cy\Autoloader {
 
     public function autoload($classname) {
         $rel_filename = 'classes/' . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
-
         $result = cy\FileSystem::find_file($rel_filename);
         if ($result) {
-            require_once $result;
+            include $result;
             return TRUE;
         }
         return FALSE;

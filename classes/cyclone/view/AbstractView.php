@@ -162,7 +162,7 @@ abstract class AbstractView implements View {
      * as <code>self::$_global_data</code>. Both the template data and the global
      * template data should be accessible as (global) variables in the template file.
      */
-    protected abstract static function capture();
+    protected abstract function capture();
 
     /**
      * Alias for \c render() .

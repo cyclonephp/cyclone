@@ -28,7 +28,7 @@ class PHPView extends AbstractView {
      * @param   array   variables
      * @return  string
      */
-    protected static function capture() {
+    protected function capture() {
         // Import the view variables to local namespace
         extract($this->_data, EXTR_SKIP);
 
