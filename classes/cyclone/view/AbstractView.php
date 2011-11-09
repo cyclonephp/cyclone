@@ -31,6 +31,13 @@ abstract class AbstractView implements View {
      */
     protected static $_file_extension = '.php';
 
+    public static $default = 'cyclone\\view\\PHPView';
+
+    public static function factory($file = NULL, $data = NULL, $is_absolute = FALSE) {
+        $classname = self::$default;
+        return new $classname($file, $data, $is_absolute);
+    }
+
 
     /**
      * The path of the template
@@ -65,14 +72,16 @@ abstract class AbstractView implements View {
      */
     public function set_template($file, $is_absolute = FALSE) {
         if (!$is_absolute) {
-            if (($file = cy\FileSystem::find_file('views/'
+            if (($abs_file = cy\FileSystem::find_file('views/'
                             . $file
                             . static::$_file_extension)) === FALSE) {
                 throw new ViewException("The requested view '$file' could not be found");
             }
+        } else {
+            $abs_file = $file;
         }
 
-        $this->_template = $file;
+        $this->_template = $abs_file;
 
         return $this;
     }

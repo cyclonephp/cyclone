@@ -194,7 +194,7 @@ class Response {
      */
     public function cookies($cookies) {
         if (is_array($cookies)) {
-            $cookies = new ArrayObject($cookies);
+            $cookies = new \ArrayObject($cookies);
         }
         $this->_cookies = $cookies;
         return $this;
@@ -239,12 +239,13 @@ class Response {
             'status',
             'headers',
             'protocol',
-            'status'
+            'status',
+            'cookies'
         );
         if (in_array($key, $enabled_attributes))
             return $this->{'_' . $key};
 
-        throw new Exception('non-existent or unreadable attribute: ' . $key);
+        throw new cy\Exception('non-existent or unreadable attribute: ' . $key);
     }
 
 }

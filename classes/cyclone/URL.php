@@ -43,7 +43,7 @@ class URL {
 		}
 
 		// Start with the configured base URL
-		$base_url = Kohana::$base_url;
+        	$base_url = Kohana::$base_url;
 
 		if ($index === TRUE AND ! empty(Kohana::$index_file))
 		{

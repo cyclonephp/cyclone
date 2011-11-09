@@ -15,17 +15,19 @@ class AssetPool {
 
     public $js_params = array();
 
-    private static $instance;
+    private static $_inst;
 
     /**
      * @return Asset_Pool
      */
     public static function inst() {
-        if (NULL === self::$instance) {
-            self::$instance = new AssetPool;
+        if (NULL === self::$_inst) {
+            self::$_inst = new AssetPool;
         }
-        return self::$instance;
+        return self::$_inst;
     }
+
+    public $asset_root_url;
 
     private function  __construct() {
         //empty private constructor
@@ -94,7 +96,7 @@ class AssetPool {
 
 
     public function get_head_view() {
-        $head_view = new View('head_resources');
+        $head_view = new view\PHPView('head_resources');
         $this->transform_assets();
         $head_view->res = $this->assets;
         $head_view->server_params = $this->js_params;
@@ -110,7 +112,7 @@ class AssetPool {
                 $new_assets = array();
                 $path = 'assets'.DIRECTORY_SEPARATOR.$type;
                 foreach ($this->assets[$type] as $file => $minify) {
-                    $abs_path = Kohana::find_file($path, $file, $type);
+                    $abs_path = FileSystem::find_file($path . DIRECTORY_SEPARATOR . $file . '.' . $type);
                     $new_assets []= substr($abs_path, strlen(SYSROOT));
                 }
                 $this->assets[$type] = $new_assets;
