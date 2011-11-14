@@ -99,7 +99,7 @@ class AssetPool {
         $head_view = new view\PHPView('head_resources');
         $this->transform_assets();
         $head_view->res = $this->assets;
-        $head_view->server_params = $this->js_params;
+        $head_view->js_params = $this->js_params;
         return $head_view;
     }
 

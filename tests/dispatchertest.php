@@ -14,6 +14,9 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
     public function  setUp() {
         parent::setUp();
         req\Route::clear();
+        if ( ! class_exists('TestController')) {
+            $this->create_mock_controller();
+        }
     }
 
     /**
@@ -36,20 +39,7 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
         self::$beforeCalled = self::$afterCalled = self::$actionCalled = FALSE;
         req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_DEFAULT;
         req\Route::set('default-test', '<controller>(/<action>)');
-        // i'm really sorry about this =)
-        eval('class TestController extends cyclone\request\SkeletonController {
-        function before() {
-            DispatcherTest::$beforeCalled = TRUE;
-        }
-
-        function after() {
-            DispatcherTest::$afterCalled = TRUE;
-        }
-
-        function action_act() {
-            DispatcherTest::$actionCalled = TRUE;
-        }
-}');
+        
         req\Request::factory('test/act')->execute();
         $this->assertTrue(self::$beforeCalled, 'before called');
         $this->assertTrue(self::$afterCalled, 'after called');
@@ -64,6 +54,35 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
             }
             $this->assertTrue($failed, 'failure of URI ' . $uri);
         }
+    }
+
+    public function testInternalQuery() {
+        self::$beforeCalled = self::$actionCalled = self::$afterCalled = FALSE;
+        req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_QUERY;
+        req\Request::factory('/')->query(array(
+            'controller' => 'test',
+            'action' => 'act'
+        ))->execute();
+        $this->assertTrue(self::$beforeCalled, 'before called');
+        $this->assertTrue(self::$afterCalled, 'after called');
+        $this->assertTrue(self::$actionCalled, 'action called');
+    }
+
+    private function create_mock_controller() {
+        // i'm really sorry about this =)
+        eval('class TestController extends cyclone\request\SkeletonController {
+        function before() {
+            DispatcherTest::$beforeCalled = TRUE;
+        }
+
+        function after() {
+            DispatcherTest::$afterCalled = TRUE;
+        }
+
+        function action_act() {
+            DispatcherTest::$actionCalled = TRUE;
+        }
+}');
     }
 
 }

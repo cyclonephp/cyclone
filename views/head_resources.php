@@ -4,10 +4,10 @@
 <? endforeach; ?>
 <? foreach ($res['js'] as $file) : ?><script type="text/javascript" src="<?= $file ?>"></script>
 <? endforeach; ?>
-<? if (count($server_params)) : ?>
+<? if (count($js_params)) : ?>
 <script type="text/javascript">
     if ( ! $) {
         $ = {};
     }
-    $.cy = {params: <?= json_encode($server_params) ?>}
+    $.cy = {params: <?= json_encode($js_params) ?>}
 </script><? endif; ?>
