@@ -82,7 +82,7 @@ class InternalDispatcher extends AbstractDispatcher {
 
         $controller_classname .= ucfirst($params['controller']) . 'Controller';
 
-        $action_name = 'action_' . $params['action'];
+        $action_name = $params['action'];
 
         $this->exec_request($controller_classname, $action_name);
     }
@@ -107,6 +107,8 @@ class InternalDispatcher extends AbstractDispatcher {
             if (!$controller instanceof \cyclone\request\SkeletonController)
                 throw new DispatcherException("controller class '$controller_classname' is not a subclass of cyclone\controller\SkeletonController");
 
+            $action_name = 'action_' . $action_name;
+            
             if (!method_exists($controller, $action_name))
                 throw new DispatcherException("Action $controller_classname::$action_name() does not exist");
 
@@ -123,10 +125,12 @@ class InternalDispatcher extends AbstractDispatcher {
 
     public function dispatch_query() {
         $request = $this->request;
-        $query_params = $request->params;
+        $query_params = $request->query;
 
         $ns_key = self::$query_keys['namespace'];
-        $controller_classname = ($query_params[$ns_key] ?: self::$default_query_values['namespace']);
+        $controller_classname = (isset($query_params[$ns_key])
+                ? $query_params[$ns_key]
+                : self::$default_query_values['namespace']);
         if ($controller_classname != '') {
             $controller_classname .= '\\';
         }
