@@ -109,7 +109,7 @@ class Request {
         }
 
         if (isset($_SERVER['HTTP_REFERER'])) {
-            $rval->_referrer = $_SERVER['referrer'];
+            $rval->_referrer = $_SERVER['HTTP_REFERER'];
         }
 
         if (isset($_SERVER['HTTP_USER_AGENT'])) {

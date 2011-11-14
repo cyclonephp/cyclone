@@ -118,7 +118,9 @@ class Response {
     protected $_protocol = 'HTTP/1.1';
 
     public function  __construct() {
-        $this->_headers = new \ArrayObject;
+        $this->_headers = new \ArrayObject(array(
+			'Content-Type' => 'text/html; charset=' . cy\Env::$charset
+        ));
         $this->_cookies = new \ArrayObject;
     }
 
