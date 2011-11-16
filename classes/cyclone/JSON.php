@@ -53,10 +53,7 @@ class JSON {
     }
 
     public static function decode($json) {
-        
+        return json_decode($json);
     }
 
-    public static function pretty_print($val) {
-        
-    }
 }
