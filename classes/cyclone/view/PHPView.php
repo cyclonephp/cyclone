@@ -19,7 +19,7 @@ class PHPView extends AbstractView {
      * @param boolean $is_absolute
      * @return PHPView
      */
-    public static function factory($file = NULL, $data = NULL, $is_absolute = FALSE) {
+    public static function factory($file = NULL, $data = array(), $is_absolute = FALSE) {
         return new PHPView($file, $data, $is_absolute);
     }
 

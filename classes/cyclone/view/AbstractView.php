@@ -33,7 +33,7 @@ abstract class AbstractView implements View {
 
     public static $default = 'cyclone\\view\\PHPView';
 
-    public static function factory($file = NULL, $data = NULL, $is_absolute = FALSE) {
+    public static function factory($file = NULL, $data = array(), $is_absolute = FALSE) {
         $classname = self::$default;
         return new $classname($file, $data, $is_absolute);
     }
@@ -56,7 +56,7 @@ abstract class AbstractView implements View {
      *  is an absolute path, not a path relative to <code>views/</code>
      * @uses AbstractView::set_filename
      */
-    public function __construct($file = NULL, array $data = NULL, $is_absolute = FALSE) {
+    public function __construct($file = NULL, $data = array(), $is_absolute = FALSE) {
         if ($file !== NULL) {
             $this->set_template($file, $is_absolute);
         }
@@ -180,7 +180,7 @@ abstract class AbstractView implements View {
             throw new ViewException('You must set the file to use within your view before rendering');
 
         // Combine local and global data and capture the output
-        return static::capture();
+        return $this->capture();
     }
 
     /**
@@ -202,7 +202,7 @@ abstract class AbstractView implements View {
     public function __toString() {
         try {
             return $this->render();
-        } catch (Exception $e) {
+        } catch (Exception $e) { die($e->getMessage());
             // Display the exception message
             cy\Kohana::exception_handler($e);
             return '';
