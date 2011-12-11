@@ -128,9 +128,10 @@ class InternalDispatcher extends AbstractDispatcher {
         $query_params = $request->query;
 
         $ns_key = self::$query_keys['namespace'];
-        $controller_classname = (isset($query_params[$ns_key])
-                ? $query_params[$ns_key]
-                : self::$default_query_values['namespace']);
+        if ( ! isset($query_params[$ns_key])) {
+            $query_params[$ns_key] = $request->query[$ns_key] = self::$default_query_values['namespace'];
+        }
+        $controller_classname = $query_params[$ns_key];
         if ($controller_classname != '') {
             $controller_classname .= '\\';
         }

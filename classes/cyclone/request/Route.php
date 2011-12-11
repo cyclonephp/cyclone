@@ -449,6 +449,7 @@ class Route {
          *      the parameters extracted from the URI
          */
         public function matches(Request $request) {
+            
             if ( ! is_null($this->_method) 
                 && strtolower($request->method) != strtolower($this->_method))
                     return FALSE;

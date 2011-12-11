@@ -94,7 +94,7 @@ class Request {
             parse_str(file_get_contents('php://input'), $_POST);
         }
 
-        $rval->_query = $_GET;
+        $rval->_query = new \ArrayObject($_GET);
         $rval->_post = $_POST;
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
