@@ -10,8 +10,6 @@ interface Autoloader {
 
     public function autoload($classname);
 
-    public function list_classes($libs = NULL);
-
-    public function list_testcases($libs = NULL);
+    public function list_classes($namespace, $with_subnamespaces = TRUE);
 
 }

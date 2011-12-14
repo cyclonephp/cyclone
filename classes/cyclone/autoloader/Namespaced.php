@@ -4,14 +4,14 @@ namespace cyclone\autoloader;
 
 use cyclone as cy;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . '../Autoloader.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'AbstractAutoloader.php';
 
-class Namespaced implements cy\Autoloader {
+class Namespaced extends AbstractAutoloader {
 
     private static $_inst;
 
     /**
-     * @return Autoloader_Namespaced
+     * @return cyclone\autoloader\Namespaced
      */
     public static function inst() {
         if (NULL === self::$_inst) {
@@ -24,7 +24,7 @@ class Namespaced implements cy\Autoloader {
         // empty private constructor
     }
 
-    public function register() {
+    protected function _register() {
         spl_autoload_register(array($this, 'autoload'));
     }
 
@@ -38,12 +38,34 @@ class Namespaced implements cy\Autoloader {
         return FALSE;
     }
 
-    public function  list_classes($libs = NULL) {
-        ;
+    public function  list_classes($namespace, $with_subnamespaces = TRUE) {
+        $rel_path = 'classes';
+        if (strlen($namespace) == 0 || $namespace{0} != '\\') {
+            $rel_path .= DIRECTORY_SEPARATOR;
+        }
+
+        $rel_path .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
+        
+        $files = cy\FileSystem::list_directory($rel_path);
+        return $this->extract_classnames($files);
     }
 
-    public function  list_testcases($libs = NULL) {
-        ;
+    private function extract_classnames($dir) {
+        $rval = array();
+        foreach ($dir as $rel_path => $file) {
+            if (is_array($file)) {
+                $rval = cy\Arr::merge($rval, $this->extract_classnames($file));
+            } else {
+                $rval []= $this->extract_classname($rel_path);
+            }
+        }
+        return $rval;
     }
-    
+
+    private function extract_classname($rel_path) {
+        $strlen_classes = strlen('classes/');
+        $classname = substr($rel_path, $strlen_classes, (strlen($rel_path) - $strlen_classes - strlen('.php')));
+        return str_replace(DIRECTORY_SEPARATOR, '\\', $classname);
+    }
+
 }

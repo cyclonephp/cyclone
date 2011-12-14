@@ -2,14 +2,14 @@
 
 namespace cyclone\autoloader;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR .  '../Autoloader.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'AbstractAutoloader.php';
 
-class Kohana implements \cyclone\Autoloader {
+class Kohana extends AbstractAutoloader {
 
     private static $_inst;
 
     /**
-     * @return Autloader_Kohana
+     * @return cyclone\autoloader\Kohana
      */
     public static function inst() {
         if (NULL === self::$_inst) {
@@ -23,7 +23,7 @@ class Kohana implements \cyclone\Autoloader {
         // empty private constructor
     }
 
-    public function register() {
+    protected function _register() {
         spl_autoload_register(array($this, 'autoload'));
     }
 
@@ -39,12 +39,30 @@ class Kohana implements \cyclone\Autoloader {
         return FALSE;
     }
 
-    public function  list_classes($libs = NULL) {
-        ;
+    public function  list_classes($namespace, $with_subnamespaces = TRUE) {
+        $rel_path = 'classes' . DIRECTORY_SEPARATOR;
+        $rel_path .= str_replace('_', DIRECTORY_SEPARATOR, $namespace);
+
+        $files = cy\FileSystem::list_directory($rel_path);
+        return $this->extract_classnames($files);
     }
 
-    public function  list_testcases($libs = NULL) {
-        ;
+    private function extract_classnames($dir) {
+        $rval = array();
+        foreach ($dir as $rel_path => $file) {
+            if (is_array($file)) {
+                $rval = cy\Arr::merge($rval, $this->extract_classnames($file));
+            } else {
+                $rval []= $this->extract_classname($rel_path);
+            }
+        }
+        return $rval;
+    }
+
+    private function extract_classname($rel_path) {
+        $strlen_classes = strlen('classes/');
+        $classname = substr($rel_path, $strlen_classes, (strlen($rel_path) - $strlen_classes - strlen('.php')));
+        return str_replace(DIRECTORY_SEPARATOR, '_', $classname);
     }
 
 }
