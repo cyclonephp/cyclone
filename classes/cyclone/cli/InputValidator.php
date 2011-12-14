@@ -128,6 +128,9 @@ class InputValidator {
      * @usedby Cyclone_CLI_Validator::parse_command()
      */
     private function add_defaults(&$parsed_args, $command) {
+        if ( ! isset($command['arguments']))
+            return;
+        
         foreach ($command['arguments'] as $arg_name => $arg_details) {
             if ( ! isset($parsed_args[$arg_name])) {
                 $parsed_args[$arg_name] = isset($arg_details['default'])

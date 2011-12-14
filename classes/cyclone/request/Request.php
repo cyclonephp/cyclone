@@ -387,6 +387,9 @@ class Request {
      * @return Request $this
      */
     public function query($query) {
+        if (is_array($query)) {
+            $query = new \ArrayObject($query);
+        }
         $this->_query = $query;
         return $this;
     }
