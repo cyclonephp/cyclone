@@ -47,14 +47,16 @@ class Namespaced extends AbstractAutoloader {
         $rel_path .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
         
         $files = cy\FileSystem::list_directory($rel_path);
-        return $this->extract_classnames($files);
+        return $this->extract_classnames($files, $with_subnamespaces);
     }
 
-    private function extract_classnames($dir) {
+    private function extract_classnames($dir, $with_subnamespaces) {
         $rval = array();
         foreach ($dir as $rel_path => $file) {
             if (is_array($file)) {
-                $rval = cy\Arr::merge($rval, $this->extract_classnames($file));
+                if ($with_subnamespaces) {
+                    $rval = cy\Arr::merge($rval, $this->extract_classnames($file, TRUE));
+                }
             } else {
                 $rval []= $this->extract_classname($rel_path);
             }
