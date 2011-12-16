@@ -38,6 +38,9 @@ class JSON {
     }
 
     private static function encode_as_object($val) {
+		if (is_object($val) && ! ($val instanceof \Iterable))
+			return (string) $val;
+			
         $rval = '{';
         $first = TRUE;
         foreach ($val as $key => $item) {
