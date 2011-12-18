@@ -96,7 +96,7 @@ class BaseController extends SkeletonController {
 
     /**
      * If the request is an AJAX request, then it initializes \c $_content as
-     * an empty array. Otherwise it creates the layout view object in \c $_layout
+     * an empty <code>ArrayObject</code>. Otherwise it creates the layout view object in \c $_layout
      * and the content view object in \c $_content.
      */
     public function before() {
@@ -112,8 +112,8 @@ class BaseController extends SkeletonController {
         $this->_action_file_path = $controller_file_path . \DIRECTORY_SEPARATOR . $params['action'];
         
         if ($this->_request->is_ajax) {
-            $this->_content = array();
-        } else {
+            $this->_content = new \ArrayObject(array(), \ArrayObject::ARRAY_AS_PROPS);
+        } elseif ($this->_auto_render) {
             $this->_layout = view\AbstractView::factory($this->_layout_file);
             $this->_content = view\AbstractView::factory($this->_action_file_path);
         }
@@ -191,18 +191,18 @@ class BaseController extends SkeletonController {
     }
 
     public static function add_css($str, $minify = TRUE) {
-        Asset_Pool::inst()->add_asset($str, 'css', $minify);
+        cy\AssetPool::inst()->add_asset($str, 'css', $minify);
     }
 
     public static function add_js($str, $minify = TRUE) {
-        Asset_Pool::inst()->add_asset($str, 'js', $minify);
+        cy\AssetPool::inst()->add_asset($str, 'js', $minify);
     }
 
     public static function add_js_param($key, $value) {
-        Asset_Pool::inst()->js_params[$key] = $value;
+        cy\AssetPool::inst()->js_params[$key] = $value;
     }
 
     public static function add_js_params(array $params) {
-        Asset_Pool::inst()->js_params += $params;
+        cy\AssetPool::inst()->js_params += $params;
     }
 }

@@ -18,7 +18,7 @@ use cyclone as cy;
  * @author Kohana Team
  * @author Bence Eros <crystal@cyclonephp.com>
  */
-abstract class AbstractView implements View {
+abstract class AbstractView implements View, \ArrayAccess {
 
     // Array of global variables
     protected static $_global_data = array();
@@ -202,7 +202,7 @@ abstract class AbstractView implements View {
     public function __toString() {
         try {
             return $this->render();
-        } catch (Exception $e) { die($e->getMessage());
+        } catch (\Exception $e) { die($e->getMessage());
             // Display the exception message
             cy\Kohana::exception_handler($e);
             return '';
@@ -253,15 +253,29 @@ abstract class AbstractView implements View {
     }
 
     /**
-     * Magic method, unsets a given variable.
-     *
-     *     unset($view->foo);
+     * Magic method, unsets a given template variable.
      *
      * @param   string  variable name
      * @return  void
      */
     public function __unset($key) {
         unset($this->_data[$key], self::$_global_data[$key]);
+    }
+
+    public function offsetSet($key, $value) {
+        return $this->set($key, $value);
+    }
+
+    public function offsetGet($key) {
+        return $this->__get($key);
+    }
+
+    public function offsetExists($key) {
+        return $this->__isset($key);
+    }
+
+    public function offsetUnset($key) {
+        return $this->__unset($key);
     }
 
 }
