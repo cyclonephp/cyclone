@@ -15,14 +15,11 @@ namespace cyclone\request;
  * @endcode
  * 
  * The controller action should add the output it creates to
- * `$this->response`, typically in the form of a View, during the
+ * <code>$this->response</code>, typically in the form of a View, during the
  * "action" part of execution.
  *
  * @package    cyclone
- * @category   Controller
- * @author     Kohana Team
- * @copyright  (c) 2008-2009 Kohana Team
- * @license    http://kohanaphp.com/license
+ * @author     Bence Eros <crystal@cyclonephp.org>
  */
 class SkeletonController {
 
@@ -59,8 +56,7 @@ class SkeletonController {
 	 * Creates a new controller instance. Each controller must be constructed
 	 * with the request object that created it.
 	 *
-	 * @param   object  Request that created the controller
-	 * @return  void
+	 * @param  Request $request  Request that created the controller
 	 */
 	public function __construct(Request $request, Response $response)
 	{

@@ -24,8 +24,7 @@ namespace cyclone\request;
  * due to most web browsers only supporting the GET and POST methods.
  * Generally, this class should only be used for web services and APIs.
  *
- * @package    Kohana
- * @category   Controller
+ * @package    cyclone
  * @author     Kohana Team
  * @copyright  (c) 2009 Kohana Team
  * @license    http://kohanaphp.com/license

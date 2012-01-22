@@ -142,12 +142,13 @@ dispatched to a controller, this is done by \c cyclone\request\InternalDispatche
 you can see <code>$request->execute()</code> but in general it just calls the <code>dispatch()</code> method.
 
 The <code>InternalDispatcher::dispatch($strategy)</code> method accepts a parameter which should be
-<code>InternalDispatcher::STRATEGY_DEFAULT</code> or <code>InternalDispatcher::STRATEGY_LAMBDA</code>.
+<code>InternalDispatcher::STRATEGY_DEFAULT</code> or <code>InternalDispatcher::STRATEGY_QUERY</code>
+or <code>InternalDispatcher::STRATEGY_LAMBDA</code>.
 Based on this parameter a default dispatching or a lambda dispatching will be performed. In most cases
 you will likely use the default strategy, which will create an instance of a so-called controller class,
 and will execute one of its action methods - this is where your code comes.
 
-@subsection The default internal dispatcher
+@subsection cyclone-request-internal-default The default internal dispatcher
 
 If you want to dispatch a request using the default dispatching strategy, then after the route matching
 the request should have 2 mandatory URI parameters: <code>controller</code> and <code>action</code>. Both
@@ -169,4 +170,69 @@ Using these request parameters, the dispatcher will
 	<li>call the <code>after()</code> method of the controller</li>
 </ul>
 
-In the action method you can access the Request object 
+In the action method you can access the <code>Request</code> object can be accessed using the <code>$this->_request</code> or
+<code>$this->_req</code> references. The <code>Response</code> object can be accessed using the
+<code>$this->_response</code> or <code>$this->_resp</code> references (or <code>$this->_request->get_response()</code>
+will be the same object too). In general that's all what the \c cyclone\request\SkeletonController class
+provides, you can access the incoming request data using the request instance, and you should write
+the response headers and body into the response instance which will be flushed when the control flow
+returns to <code>index.php</code>. Let's see a hello-world example:
+
+@code
+<?php
+
+namespace app\controller;
+
+use cyclone as cy;
+use cyclone\request;
+
+class IndexController extends request\SkeletonController {
+	
+	public function action_index() {
+		$name = isset($this->_req->query['name']) ? $this->_req->query['name'] : 'world';
+		$this->_resp->body('hello ' . $name);
+	}
+	
+}
+@endcode
+
+As you can see the <code>SkeletonController</code> in fact doesn't provide any functionality, it just
+helps to put together the request-controller-response triad in an OO context. In most cases it is recommended
+to use the \c cyclone\request\BaseController class as the subclass of the concrete controller classes.
+See the API docs for more details. Furthermore it's recommended to create a general
+ancestor controller for the application to handle application-specific (but general
+at the application-level) tasks.
+
+@subsection cyclone-request-int-query The query-parameter based internal dispatcher
+
+The query-based internal request dispatcher (indicated by <code>InternalDispatcher::STRATEGY_QUERY</code>)
+is very similar to the default dispatcher. The only difference if that it picks
+the controller namespace, classname and action method name parameters from the query
+parameters (<code>$_GET</code>) and not from the routing parameters. The route
+matching process is omitted at all which can be useful in 2 cases:
+<ul>
+    <li>your task is to re-write a legacy web application that used some sort
+    of query parameter-based routing and the new application should support the
+    legacy URL-s</li>
+    <li>dispatching ajax requests using the query-based dispatcher can make sense
+    since it's a bit faster (no regex matching) and it doesn't have any disadvantage
+    (the URLs of ajax requests don't have to be SEO-friendly).</li>
+</ul>
+
+Examples:
+
+<em>TODO</em>
+
+@subsection cyclone-request-int-lambda The lambda-based internal dispatcher
+
+The CyclonePHP core also includes a lambda function-based request dispatcher which
+lets you use CyclonePHP in a MicroMVC style. MicroMVC frameworks are fairly new
+in the web development world and in fact anyone hasn't written a more or less
+exact definition of what is a MicroMVC framework. In general these frameworks have
+the following common features:
+<ul>
+    <li>their key concept is to dispatch the request execution to a lambda function</li>
+    <li>they are designed to be much faster then most heavyweight web frameworks</li>
+    <li>the lambda controllers are tightly coupled with the route definitions</li>
+</ul>
+
