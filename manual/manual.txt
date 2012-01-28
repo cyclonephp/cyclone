@@ -236,3 +236,58 @@ the following common features:
     <li>the lambda controllers are tightly coupled with the route definitions</li>
 </ul>
 
+In CyclonePHP to dispatch a request using the lambda dispatcher you need to call its <code>execute()</code>
+method this way:
+@code
+    use cyclone\request as req;
+    // ...
+    $request->execute(req\InternalDispatcher::STRATEGY_LAMBDA);
+@endcode
+
+Alternatively if you use mainly lambda controllers in your application then it is
+better to set the default dispatching strategy to lambda in your bootstrap:
+@code
+    use cyclone\req;
+
+    req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_LAMBDA;
+    // ...
+    $request->execute();
+@endcode
+
+Creating lambda controllers is basically about setting the <code>controller</code>
+property of the \c cyclone\request\Route instances. The value of this property should
+be a lambda function that takes the incoming \c cyclone\request\Request instance
+as its only parameter. This controller function will be executed if the request
+is dispatched using the <code>cyclone\request\InternalDispatcher::STRATEGY_LAMBDA</code> 
+strategy and it (the request) matches the given route. The task of this function
+is to create the response for the request, which means populating the properties
+of the \c cyclone\request\Response instance which can be obtained by calling
+\c cyclone\request\Request::get_response() . Example:
+@code
+// index.php
+use cyclone as cy;
+use cyclone\request as req;
+
+// other bootstrap code here
+// ...
+// Setting the default dispatching strategy to the lamdba strategy
+req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_LAMBDA;
+
+// Setting up the default route with the lamda controller
+req\Route::set('hello', 'hello/<name>')
+    ->controller(function($req) {
+        $req->get_response()->body('Hello ' . $req->params['name']);
+    });
+
+req\Request::initial()->execute();
+@endcode
+
+In this example we simply set the response body to a string. In most cases
+you will need to use a \c cyclone\view\AbstractView instance or a JSON-encoded
+array.
+
+That's all to be known about the lambda dispatcher. Keep in mind that using this
+dispatcher is mainly useful at application prototyping and for providing mock data
+for UI demos. For complex applications it is <b>not</b> recommended, since it
+messes up the route definitions with the controllers - all defined as the part of
+the bootstrap mechanism.
