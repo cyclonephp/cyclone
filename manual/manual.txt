@@ -291,3 +291,134 @@ dispatcher is mainly useful at application prototyping and for providing mock da
 for UI demos. For complex applications it is <b>not</b> recommended, since it
 messes up the route definitions with the controllers - all defined as the part of
 the bootstrap mechanism.
+
+@section cyclone-cli The CLI API
+
+The CyclonePHP core lets the libraries define their related command-line tasks
+in a common way. The command-line tasks shipped by the libraries are mainly development
+tools like the API docs generator. Your application (which is just a library too)
+will probably define other types of CLI tasks, mainly scheduled tasks executed by the
+system scheduler - such cron-jobs are an essential parts of most web applications.
+The CyclonePHP CLI API provides a common way to define these CLI tasks, including
+their parameters and help texts. The CLI tasks are defined using a simple associative
+array based DSL. Every library can define its CLI tasks in a file named <code>cli.php</code>
+in its root directory. Let's see the <code>cli.php</code> of the CyDocs tool to examine
+what can be defined in a <code>cli.php</code> and how:
+@code
+<?php
+
+use cyclone as cy;
+
+return array(
+    // every cli.php assoc. array should have exactly one key with the name of the
+    // library.
+    'docs' => array(
+        // The 'descr' or 'description' key stores a short description of the library
+        'descr' => 'Documentation generator tool for CyclonePHP',
+        // The 'commands' array will store the CLI commands provided by the library
+        'commands' => array(
+            // In this case or first (and only) command is 'api'
+            'api' => array(
+                // The 'descr' key holds the brief description of the command
+                'descr' => 'generates API docs for the classes in the enables libraries',
+                // The callback holds a callable which will be called by the CLI API
+                // when the command is executed. The actual values of the
+                // subsequent arguments will be passed as an associative array.
+                'callback' => array(cy\Docs::inst(), 'cli_api_bootstrap'),
+                // The 'arguments' array holds the definitions of the command arguments
+                'arguments' => array(
+                    // The array keys will be the names of the arguments
+                    '--output-dir' => array(
+                        // a shorter alias can be optionally defined
+                        'alias' => '-o',
+                        // the default value of the argument
+                        'default' => cy\SYSROOT . 'docs/',
+                        // the formal name of the argument which will be displayed
+                        // in the help text. If this 'parameter' key is missing
+                        // from the argument definition or its value is NULL then
+                        // the argument will be treated as a flag and the CLI API
+                        //  won't accept actual value for this parameter.
+                        'parameter' => '<output-dir>',
+                        // a description of the argument
+                        'descr' => 'the root directory of the generated documentation'
+                    ),
+                    // ...further arguments
+                    '--internal' => array(
+                        'alias' => '-i',
+                        'default' => FALSE,
+                        'parameter' => NULL,
+                        'descr' => 'include internal documentation too (recommmended for people who develop CyclonePHP itself)'
+                    ),
+                    '--lib' => array(
+                        'parameter' => '<libraries>',
+                        'alias' => '-l',
+                        'descr' => 'a comma-separated list of libraries that\'s docs should be generated. all stands for all libs (including the application)',
+                        'default' => 'all'
+                    ),
+                    '--stylesheet' => array(
+                        'parameter' => '<path>',
+                        'alias' => '-s',
+                        'descr' => 'the stylesheet file that should be applied to the output',
+                        'default' => cy\FileSystem::get_root_path('cydocs') . 'assets/css/cydocs/default.css'
+                    ),
+                    '--pdf' => array(
+                        'alias' => '-p',
+                        'default' => FALSE,
+                        'descr' => 'flag marking that PDF output should be generated instead of HTML',
+                        'parameter' => NULL
+                    ),
+                    '--forced' => array(
+                        'parameter' => NULL,
+                        'default' => FALSE,
+                        'alias' => '-f',
+                        'descr' => 'the generator removes all existing docs directories if passed'
+                    ),
+                    '--measure' => array(
+                        'parameter' => NULL,
+                        'default' => FALSE,
+                        'alias' => '-m',
+                        'descr' => 'flag marking if the execution time and memory usage'
+                    ),
+                    '--title' => array(
+                        'parameter' => '<title>',
+                        'alias' => '-t',
+                        'default' => '',
+                        'descr' => 'The title of the generated documentation. Only used if the generation goes for multiple libraries.'
+                    ),
+                    '--preface' => array(
+                        'parameter' => '<html-file-containing-preface>',
+                        'alias' => '-p',
+                        'default' => FALSE,
+                        'descr' => 'The main page of the output. Only used if the generation goes for multiple libraries.'
+                    ),
+                    '--line-numbers' => array(
+                        'parameter' => NULL,
+                        'alias' => '-L',
+                        'descr' => 'show line numbers o code examples'
+                    )
+                )
+            )
+        )
+    )
+);
+@endcode
+
+The CLI tasks can be executed using the <code>cyphp</code> script in the root
+directory of the CyclonePHP installation. Example usages:
+<ol>
+    <li>Listing the installed libraries with CLI tasks:<br/>
+        <code>./cyphp help</code></li>
+    <li>Listing the CLI commands of the <code>docs</code> library:<br/>
+        <code>./cyphp docs help</code></li>
+    <li>Listing the available arguments of the <code>api</code> task of the
+        <code>docs</code> library:<br/>
+        <code>./cyphp docs help api</code></li>
+     <li>Executing the <code>api</code> command of the <code>docs</code> library:<br/>
+        <code>./cyphp docs api --line-numbers --internal --forced --output-dir /tmp/cydocs/</code></li>
+     <li>Using argument aliases:<br/>
+        <code>./cyphp docs api -L -i -f -o /tmp/cydocs/</code></li>
+     <li>Using compact argument aliases:<br/>
+        <code>./cyphp docs api -Lifo /tmp/cydocs/</code></li>
+</ol>
+
+
