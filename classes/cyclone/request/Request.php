@@ -150,7 +150,11 @@ class Request {
     public static function notify_execution_finish() {
         $stack = &self::$_stack;
         $rval = array_pop($stack);
-        self::$current = $stack[count($stack) - 1];
+        if (empty(self::$_stack)) {
+            self::$current = NULL;
+        } else {
+            self::$current = $stack[count($stack) - 1];
+        }
         return $rval;
     }
 
