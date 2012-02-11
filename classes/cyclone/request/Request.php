@@ -138,7 +138,7 @@ class Request {
      */
     public static $current;
 
-    protected static $_stack;
+    protected static $_stack = array();
 
     public static function notify_execution_start(Request $request) {
         array_push(self::$_stack, self::$current = $request);
@@ -370,7 +370,7 @@ class Request {
     public function redirect($url, $code = 302) {
         if (strpos($url, '://') === FALSE) {
             // Make the URI into a URL
-            $url = URL::site($url, TRUE);
+            $url = cy\URL::site($url, TRUE);
         }
 
         $this->get_response()->status($code)

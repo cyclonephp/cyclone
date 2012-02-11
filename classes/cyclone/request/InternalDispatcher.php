@@ -84,7 +84,9 @@ class InternalDispatcher extends AbstractDispatcher {
 
         $action_name = $params['action'];
 
+        Request::notify_execution_start($this->request);
         $this->exec_request($controller_classname, $action_name);
+        Request::notify_execution_finish();
     }
 
     public function dispatch_lambda(Route $route) {
@@ -92,7 +94,9 @@ class InternalDispatcher extends AbstractDispatcher {
         if ( ! is_callable($controller))
             throw new DispatcherException('failed to dispatch request by default strategy: the matching route does not have a lambda controller');
 
+        Request::notify_execution_start($this->request);
         $controller($this->request);
+        Request::notify_execution_finish();
     }
 
     protected function exec_request($controller_classname, $action_name) {
@@ -141,7 +145,10 @@ class InternalDispatcher extends AbstractDispatcher {
 
         $action_key = self::$query_keys['action'];
         $action_name = $query_params[$action_key] ?: self::$default_query_values['action'];
+
+        Request::notify_execution_start($this->request);
         $this->exec_request($controller_classname, $action_name);
+        Request::notify_execution_finish();
     }
 
 }

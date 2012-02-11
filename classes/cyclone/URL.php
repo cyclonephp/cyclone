@@ -2,6 +2,8 @@
 
 namespace cyclone;
 
+use cyclone\request as req;
+
 /**
  * URL helper class.
  *
@@ -39,7 +41,7 @@ class URL {
 		if ($protocol === TRUE)
 		{
 			// Use the current protocol
-			$protocol = Request::$protocol;
+			$protocol = req\Request::$current->protocol;
 		}
 
 		// Start with the configured base URL

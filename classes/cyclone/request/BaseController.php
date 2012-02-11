@@ -123,7 +123,7 @@ class BaseController extends SkeletonController {
     public function after() {
         if ( ! $this->_auto_render)
             return;
-        
+
         if ($this->_req->is_ajax) {
             $this->_resp->body(json_encode($this->_content));
         } else {
