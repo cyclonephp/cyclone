@@ -115,7 +115,12 @@ class BaseController extends SkeletonController {
             $this->_content = new \ArrayObject(array(), \ArrayObject::ARRAY_AS_PROPS);
         } elseif ($this->_auto_render) {
             $this->_layout = view\AbstractView::factory($this->_layout_file);
-            $this->_content = view\AbstractView::factory($this->_action_file_path);
+            $this->_content = view\AbstractView::factory();
+            try {
+                $this->_content->set_template($this->_action_file_path);
+            } catch (view\ViewException $ex) {
+                // the template file doesn't exist - failing silently
+            }
         }
     }
 
