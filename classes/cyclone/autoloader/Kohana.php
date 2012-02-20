@@ -1,6 +1,7 @@
 <?php
 
 namespace cyclone\autoloader;
+use cyclone as cy;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'AbstractAutoloader.php';
 

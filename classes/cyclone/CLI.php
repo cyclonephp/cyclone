@@ -89,17 +89,26 @@ class CLI {
                 $library->validate();
             } catch (cli\ValidationException $ex) {
                 echo $ex->getMessage();
-                return;
+                return 1;
             }
 
             try {
                 $input_validator = new cli\InputValidator($_SERVER['argv'], $library);
-                $input_validator->validate();
+                return $input_validator->validate();
             } catch (cli\InputException $ex) {
                 echo "invalid arguments: ";
                 echo $ex->getMessage() . PHP_EOL;
+                $rval = $ex->getCode();
+            } catch (\Exception $ex) {
+                echo get_class($ex) . ': ' . $ex->getMessage() . PHP_EOL;
+                $rval = $ex->getCode();
             }
+            if ( ! $rval) {
+                $rval = 1;
+            }
+            return $rval;
         }
+        return 0;
     }
 
 }

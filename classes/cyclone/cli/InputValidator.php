@@ -41,13 +41,15 @@ class InputValidator {
             } else {
                 if ($this->command_exists($this->_input[0])) {
                     $command = $this->_data['commands'][$this->_input[0]];
-                    $this->parse_command($command);
+                    return $this->parse_command($command);
                 } else {
                     echo "!!No such command as " . $this->_input[0] . PHP_EOL;
                     $this->show_library_help();
+                    return 1;
                 }
             }
         }
+        return 0;
     }
 
     /**
@@ -155,8 +157,7 @@ class InputValidator {
 
         if (count($input_args) == 0) {
             $this->add_defaults($cbarray, $command);
-            call_user_func($command['callback'], $cbarray);
-            return;
+            return call_user_func($command['callback'], $cbarray);
         }
 
         while ($i < count($input_args)) {
@@ -183,7 +184,7 @@ class InputValidator {
             ++$i;
         }
         $this->add_defaults($cbarray, $command);
-        call_user_func($command['callback'], $cbarray);
+        return call_user_func($command['callback'], $cbarray);
     }
 
     private function parse_compact_args($input_args, &$i, $command_args) {

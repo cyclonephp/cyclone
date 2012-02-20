@@ -17,7 +17,7 @@ abstract class AbstractAutoloader implements cy\Autoloader {
     public static function get_classnames($namespace, $with_subnamespaces = TRUE) {
         $rval = array();
         foreach (self::$_pool as $autoloader) {
-            $rval = Arr::merge($rval, $autoloader->list_classes($namespace
+            $rval = cy\Arr::merge($rval, $autoloader->list_classes($namespace
                     , $with_subnamespaces));
         }
         return $rval;
