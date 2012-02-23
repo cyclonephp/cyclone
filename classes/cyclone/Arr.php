@@ -265,6 +265,31 @@ class Arr {
 		return $array;
 	}
 
+        /**
+         * Helper method to replace the in-built <code>array_diff()</code>
+         * function. This method also works if there are objects without
+         * <code>__toString()</code> items in the arrays.
+         *
+         * @param array $a1
+         * @param array $a2
+         * @param array ...
+         * @return array
+         */
+        public static function diff($a1, $a2) {
+            $args = func_get_args();
+            $rval = $args[0];
+            $arg_count = count($args);
+            for ($i = 1; $i < $arg_count; ++$i) {
+                foreach ($args[$i] as $item) {
+                    $idx = array_search($item, $rval, TRUE);
+                    if ($idx !== FALSE) {
+                        unset($rval[$idx]);
+                    }
+                }
+            }
+            return $rval;
+        }
+
 	/**
 	 * Merges one or more arrays recursively and preserves all keys.
 	 * Note that this does not work the same as [array_merge_recursive](http://php.net/array_merge_recursive)!
@@ -308,7 +333,7 @@ class Arr {
 						else
 						{
 							// Find the values that are not already present
-							$diff = array_diff($val, $result[$key]);
+							$diff = Arr::diff($val, $result[$key]);
 
 							// Indexed arrays are merged to prevent duplicates
 							$result[$key] = array_merge($result[$key], $diff);
