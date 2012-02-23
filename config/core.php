@@ -2,11 +2,11 @@
 return array(
     'minify' => array(
         'css' => TRUE,
-        'js' => false
+        'js' => FALSE
     ),
     'asset_path' => 'assets'.DIRECTORY_SEPARATOR,
     'uri' => array(
         'index_file' => FALSE,
-        'base_url' => 'http://local.cyclonephp/'
+        'base_url' => 'http://localhost/cyclonephp/'
     )
 );
