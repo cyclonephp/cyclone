@@ -5,8 +5,8 @@ namespace cyclone;
 /**
  * Helper class to handle the Cascading File System.
  *
- * @author Lajos Pajger <pajla@cyclonephp.com>
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Lajos Pajger <pajla@cyclonephp.org>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
 class FileSystem {
@@ -361,7 +361,7 @@ class FileSystem {
      */
     public static function init_lib_dirs($args) {
         $root_dir = $args['--directory'];
-        self::mktree(array(
+        $fs_tree = array(
             $root_dir => array(
                 'config' => array(
                     'dev' => array(),
@@ -373,7 +373,34 @@ class FileSystem {
                 'tests' => array(),
                 'manual' => array()
             )
-        ));
+        );
+        try {
+            $sys_root = self::get_root_path('cyclone');
+        } catch (Exception $ex) {
+            // maybe the cyclone core is named system
+            $sys_root = self::get_root_path('system');
+        }
+        if ($args['--app']) {
+            $app_files = array(
+                $root_dir => array(
+                    'logs' => array(),
+                    '.cache' => array(),
+                    'config' => array(
+                        'core.php' => file_get_contents($sys_root . 'config/core.php'),
+                        'setup.php' => file_get_contents($sys_root . 'config/setup.php')
+                    ),
+                    'views' => array(
+                        'layout.php' => file_get_contents($sys_root . 'examples/views/layout.php')
+                    )
+                )
+            );
+            $fs_tree = Arr::merge($fs_tree, $app_files);
+        }
+	self::mktree($fs_tree);
+        if ($args['--app']) {
+            chmod(realpath($root_dir) . '/.cache', 0777);
+            chmod(realpath($root_dir) . '/logs', 0777);
+        }
     }
 }
 ?>

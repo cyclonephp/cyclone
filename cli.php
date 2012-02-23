@@ -14,6 +14,11 @@ return array(
                         'descr' => 'The root directory of the new library',
                         'required' => true
                     ),
+		   '--app' => array(
+			'alias' => '-a',
+			'parameter' => NULL,
+			'descr' => 'If TRUE then the new library will be initialized as an application. Default config and layout view will be included.'
+		   )
                 ),
                 'callback' => array('cyclone\\FileSystem', 'init_lib_dirs')
             )
