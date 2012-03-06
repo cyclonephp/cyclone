@@ -202,7 +202,7 @@ abstract class AbstractView implements View, \ArrayAccess {
     public function __toString() {
         try {
             return $this->render();
-        } catch (\Exception $e) { die($e->getMessage());
+        } catch (\Exception $e) {
             // Display the exception message
             cy\Kohana::exception_handler($e);
             return '';
