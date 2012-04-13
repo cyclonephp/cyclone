@@ -65,19 +65,25 @@ class I18n {
 	 * @param   string   text to translate
 	 * @return  string
 	 */
-	public static function get($string)
-	{
-		if ( ! isset(I18n::$_cache[I18n::$lang]))
-		{
-			// Load the translation table
-			I18n::load(I18n::$lang);
-		}
+        public static function get($string, $values = array(), $lang = NULL) {
+            if (NULL === $lang) {
+                $lang = static::$lang;
+            }
+            
+            if ( ! isset(I18n::$_cache[$lang])) {
+                // Load the translation table
+                I18n::load($lang);
+            }
 
-		// Return the translated string if it exists
-		return isset(I18n::$_cache[I18n::$lang][$string]) ? I18n::$_cache[I18n::$lang][$string] : $string;
-	}
+            $rval = isset(I18n::$_cache[$lang][$string]) ? I18n::$_cache[$lang][$string] : $string;
 
-	/**
+            $rval = strtr($string, $values);
+
+            // Return the translated string if it exists
+            return $rval;
+        }
+
+    /**
 	 * Returns the translation table for a given language.
 	 *
 	 *     // Get all defined Spanish messages
@@ -102,22 +108,22 @@ class I18n {
 		do
 		{
 			// Create a path for this set of parts
-			$path = implode(DIRECTORY_SEPARATOR, $parts);
+			$path = implode(\DIRECTORY_SEPARATOR, $parts);
 
-			if ($files = Kohana::find_file('i18n', $path, NULL, TRUE))
+			/*if ($t += FileSystem::list_files("i18n/$path.php", TRUE))
 			{
 				$t = array();
 				foreach ($files as $file)
 				{
 					// Merge the language strings into the sub table
-					$t = array_merge($t, Kohana::load($file));
+					$t = array_merge($t, require $file);
 				}
 
 				// Append the sub table, preventing less specific language
 				// files from overloading more specific files
 				$table += $t;
-			}
-
+			}*/
+                        $table += FileSystem::list_files("i18n/$path.php", TRUE);
 			// Remove the last part
 			array_pop($parts);
 		}
