@@ -121,5 +121,21 @@ class ValidationAggregate {
         }
         throw new Exception("property cyclone\\ValidationAggregate::\$$name does not exists");
     }
+
+    /**
+     * Runs the internal field validators.
+     *
+     * @return boolean <code>TRUE</code> if all validation rules of all the internal
+     *   validators passed, otherwise <code>FALSE</code>.
+     */
+    public function validate() {
+        $valid = TRUE;
+        foreach ($this->_validators as $validator) {
+            if ( ! $validator->validate()) {
+                $valid = FALSE;
+            }
+        }
+        return $valid;
+    }
 }
 
