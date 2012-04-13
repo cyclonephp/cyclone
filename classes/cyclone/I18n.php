@@ -58,12 +58,19 @@ class I18n {
 
 	/**
 	 * Returns translation of a string. If no translation exists, the original
-	 * string will be returned. No parameters are replaced.
+	 * string will be returned. Example: @code
 	 *
-	 *     $hello = I18n::get('Hello friends, my name is :name');
+	 *     $hello = I18n::get('Hello :name !', array(
+         *          ':name' => 'World'
+         *     )); @endocde
+         *
+         *
 	 *
-	 * @param   string   text to translate
-	 * @return  string
+	 * @param string   text to translate
+         * @param array $values key-value pairs to be replaced in the translated text
+         * @param string $lang can be used to specify the target language. If it is
+         *  null then the method will fall back to @c I18n::$lang
+	 * @return string the transtaled text with the parameters replaced
 	 */
         public static function get($string, $values = array(), $lang = NULL) {
             if (NULL === $lang) {
