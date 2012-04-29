@@ -5,7 +5,7 @@ namespace cyclone\config\reader;
 use cyclone as cy;
 
 /**
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package Config
  */
 class FileEnv implements \cyclone\config\Reader {

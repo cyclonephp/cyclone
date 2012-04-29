@@ -3,7 +3,7 @@
 namespace cyclone\request;
 
 /**
- * Abstract controller class. Controllers should only be created using a \c Request.
+ * Abstract controller class. Controllers should only be created using a @c Request.
  *
  * Controllers methods will be automatically called in the following order by
  * the request:
@@ -31,7 +31,7 @@ class SkeletonController {
 	protected $_request;
 
         /**
-         * The response for \c $_request . Same as
+         * The response for @c $_request . Same as
          * <code>$this->_request->get_response()</code
          *
          * @var Response
@@ -39,14 +39,14 @@ class SkeletonController {
         protected $_response;
 
         /**
-         * Alias for \c $_request
+         * Alias for @c $_request
          *
          * @var Request
          */
         protected $_req;
 
         /**
-         * Alias for \c $_response
+         * Alias for @c $_response
          *
          * @var Response
          */

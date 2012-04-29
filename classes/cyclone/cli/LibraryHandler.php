@@ -7,7 +7,7 @@ use cyclone as cy;
 /**
  * Library handler class of Cycle CLI.
  *
- * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
+ * @author Zoltan Toth <zoltan.toth@cyclonephp.org>
  * @usedby cli.php
  * @package cyclone
  */

@@ -4,7 +4,7 @@ namespace cyclone\cli;
 /**
  * Contains the error constants for cyclone CLI.
  *
- * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
+ * @author Zoltan Toth <zoltan.toth@cyclonephp.org>
  * @usedby cli.php
  * @package cyclone
  */

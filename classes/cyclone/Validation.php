@@ -19,7 +19,7 @@ class Validation {
     /**
      * @var array
      */
-    protected $_rules;
+    protected $_rules = array();
 
     /**
      * @var boolean

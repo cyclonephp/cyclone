@@ -5,7 +5,7 @@ use cyclone\cli;
 /**
  * Test class of library validation.
  *
- * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
+ * @author Zoltan Toth <zoltan.toth@cyclonephp.org>
  */
 class Core_Cli_ValidationTest extends Kohana_Unittest_TestCase {
 

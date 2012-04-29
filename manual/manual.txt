@@ -1,4 +1,4 @@
-@section Introduction
+@section cyclone-intro Introduction
 
 CyclonePHP is a modern web application development framework designed to fit the needs
 of enterprise application development. CyclonePHP is originally build on Kohana 3.0, but
@@ -56,7 +56,7 @@ directories and files:
 If you don't change the default configuration of the logger and the FileSystem class (see below), then both
 directories must be writable by PHP.
 
-@subsection bootstrap
+@subsection cyclone-bootstrap bootstrap
 
 The framework bootstrap is done by some procedural code, which typically exists in the <code>index.php</code>
 of the framework. In the <code>example.index.php </code> you can see the followings:
@@ -82,7 +82,7 @@ The cascading file system (CFS) has the same meaning in CyclonePHP as in Kohana.
 searches for a file given by its relative path, it iterates on the loaded libraries, and checks
 if the relative path exists in the root directory of the library. The result of the search will be cached
 and stored in the <code><application-root-path>.cache/filepaths.txt</code>. See the 
-\c cyclone\FileSystem::bootstrap() method for more details. The method must be called in the index.php,
+@c cyclone\FileSystem::bootstrap() method for more details. The method must be called in the index.php,
 its first argument is an associative array of library name => library root path pairs, and the second
 argument is the path of the cache directory. In the first argument, it's recommended to pass the root
 directory of your application as the first array item.
@@ -91,7 +91,7 @@ The cascading file system has some side effects. First of all, in your applicati
 of the libraries, or even libraries can rewrite the files of other libraries by loading them before
 the library then want to override. This behavior works very well on configuration files, or even
 forms, HTML templates, assets, etc, by taking the advantage of CFS you can easily build highly customizable
-libraries. See \c @FileSystem::find_file() for more details.
+libraries. See @c FileSystem::find_file() for more details.
 
 The CFS also lets you to override classes of libraries, but it is not recommended, in a properly designed
 OO system it shouldn't be needed, so overriding class declarations is only to be used if nothing else works.
@@ -127,18 +127,18 @@ use cyclone\request as req;
 This route named "default" has an URI pattern with 3 optional parameters. All parameter names should be between
 &lt; and &gt;, and putting them between ( and ) makes them optional. After the <code> req\Route::set() </code> call you can
 pass the default values of the optional parameters, and you can add further route constraints by method chaining (in the
-example above we didn't). Furthermore, you can set up a callback using \c cyclone\request\Route::before() which will
+example above we didn't). Furthermore, you can set up a callback using @c cyclone\request\Route::before() which will
 be executed only when the route matches a request, and the URI parameters are already extracted from the URI. We will see
 a use-case of this callback later.
 
 If a route matches a cyclone\request\Request instance, then the parameters extracted from the request URI will be stored
-in the array \c cyclone\request\Request::$params . In your controller, you will be able to access the Request instance
+in the array @c cyclone\request\Request::$params . In your controller, you will be able to access the Request instance
 and its URI parameters too, that's why the route URI pattern and its parameters are important and an essential part of
 the framework. By using the route parameters for passing data it's very easy to create user-friendly URL-s for your
 application.
 
 After the matching route has been found and the URI parameters have been extracted, the request will be
-dispatched to a controller, this is done by \c cyclone\request\InternalDispatcher::dispatch() (note: in the <code>index.php</code>
+dispatched to a controller, this is done by @c cyclone\request\InternalDispatcher::dispatch() (note: in the <code>index.php</code>
 you can see <code>$request->execute()</code> but in general it just calls the <code>dispatch()</code> method.
 
 The <code>InternalDispatcher::dispatch($strategy)</code> method accepts a parameter which should be
@@ -153,7 +153,7 @@ and will execute one of its action methods - this is where your code comes.
 If you want to dispatch a request using the default dispatching strategy, then after the route matching
 the request should have 2 mandatory URI parameters: <code>controller</code> and <code>action</code>. Both
 of these parameters can be defined in the URI pattern of the route, and/or can be set up as default route parameters.
-If any of these request parameters are missing, the dispatcher will throw a \c cyclone\request\DispatcherException .
+If any of these request parameters are missing, the dispatcher will throw a @c cyclone\request\DispatcherException .
 It's not mandatory but strongly recommended to put your controller classes into a namespace, to do that, you
 will have to have a request parameter <code>namespace</code> too - see the above example.
 
@@ -163,7 +163,7 @@ Let's take an incoming HTTP request with a request URI <code>/user/view</code>.
 Using these request parameters, the dispatcher will 
 <ul>
 	<li>instantiate the controller class. In our example, it will be <code>myapp\controller\<b>User</b>Controller</code>.
-		This class should be a subclass of \c cyclone\request\SkeletonController otherwise a \c cyclone\request\DispatcherException will be thrown.</li>
+		This class should be a subclass of @c cyclone\request\SkeletonController otherwise a @c cyclone\request\DispatcherException will be thrown.</li>
 	<li>call the <code>before()</code> method of the controller</li>
 	<li>call the action method of the controller. In our example, the expected name of the
 		action method will be <code>action_<b>view</b></code></li>
@@ -173,7 +173,7 @@ Using these request parameters, the dispatcher will
 In the action method you can access the <code>Request</code> object can be accessed using the <code>$this->_request</code> or
 <code>$this->_req</code> references. The <code>Response</code> object can be accessed using the
 <code>$this->_response</code> or <code>$this->_resp</code> references (or <code>$this->_request->get_response()</code>
-will be the same object too). In general that's all what the \c cyclone\request\SkeletonController class
+will be the same object too). In general that's all what the @c cyclone\request\SkeletonController class
 provides, you can access the incoming request data using the request instance, and you should write
 the response headers and body into the response instance which will be flushed when the control flow
 returns to <code>index.php</code>. Let's see a hello-world example:
@@ -198,7 +198,7 @@ class IndexController extends request\SkeletonController {
 
 As you can see the <code>SkeletonController</code> in fact doesn't provide any functionality, it just
 helps to put together the request-controller-response triad in an OO context. In most cases it is recommended
-to use the \c cyclone\request\BaseController class as the subclass of the concrete controller classes.
+to use the @c cyclone\request\BaseController class as the subclass of the concrete controller classes.
 See the API docs for more details. Furthermore it's recommended to create a general
 ancestor controller for the application to handle application-specific (but general
 at the application-level) tasks.
@@ -255,14 +255,14 @@ better to set the default dispatching strategy to lambda in your bootstrap:
 @endcode
 
 Creating lambda controllers is basically about setting the <code>controller</code>
-property of the \c cyclone\request\Route instances. The value of this property should
-be a lambda function that takes the incoming \c cyclone\request\Request instance
+property of the @c cyclone\request\Route instances. The value of this property should
+be a lambda function that takes the incoming @c cyclone\request\Request instance
 as its only parameter. This controller function will be executed if the request
 is dispatched using the <code>cyclone\request\InternalDispatcher::STRATEGY_LAMBDA</code> 
 strategy and it (the request) matches the given route. The task of this function
 is to create the response for the request, which means populating the properties
-of the \c cyclone\request\Response instance which can be obtained by calling
-\c cyclone\request\Request::get_response() . Example:
+of the @c cyclone\request\Response instance which can be obtained by calling
+@c cyclone\request\Request::get_response() . Example:
 @code
 // index.php
 use cyclone as cy;
@@ -283,7 +283,7 @@ req\Request::initial()->execute();
 @endcode
 
 In this example we simply set the response body to a string. In most cases
-you will need to use a \c cyclone\view\AbstractView instance or a JSON-encoded
+you will need to use a @c cyclone\view\AbstractView instance or a JSON-encoded
 array.
 
 That's all to be known about the lambda dispatcher. Keep in mind that using this

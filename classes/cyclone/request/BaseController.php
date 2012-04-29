@@ -8,7 +8,7 @@ use cyclone\view;
 /**
  * The mainly used basic controller, in most cases the concrete
  * controller classes are extended from this class. As in the case
- * of \c cyclone\request\SkeletonController, you will have to implement
+ * of @c cyclone\request\SkeletonController, you will have to implement
  * action methods in the concrete controller class.
  *
  * In the action methods it's not necessary to populate the HTTP response
@@ -18,14 +18,14 @@ use cyclone\view;
  * method (which is executed before
  * the action method) will create two View objects:
  * <ul>
- *  <li> \c BaseController::$_layout will be a view created for rendering the
+ *  <li> @c BaseController::$_layout will be a view created for rendering the
  *      <code>views/layout.php</code> HTML template.</li>
- *  <li> \c BaseController::$_content will be a view created for the current controller and action.
+ *  <li> @c BaseController::$_content will be a view created for the current controller and action.
  *      For example the current actoin method is <code>myapp\controller\FooController::action_bar()</code>
  *      then the content HTML template will be <code>views/myapp/controller/foo/bar.php</code></li>
  * </ul>
  *
- * If the request is an ajax request (see \c Request::$is_ajax ) then <code>BaseController::$_layout</code>
+ * If the request is an ajax request (see @c Request::$is_ajax ) then <code>BaseController::$_layout</code>
  * won't be created, and <code>BaseController::$_content</code> will be an empty array by default,
  * and it can be used to transfer JSON-encoded data.
  *
@@ -40,7 +40,7 @@ use cyclone\view;
  *  <li>in the case of ajax requests, encode <code>$this->_content</code> into JSON
  *      and assign it to <code>$this->_response->body</code>.</li>
  *  <li>in the case of non-ajax requests it will assign the head script created
- *      by \c AssetPool::get_head_view() to the <code>head_script</code> template variable of
+ *      by @c AssetPool::get_head_view() to the <code>head_script</code> template variable of
  *      <code>$this->_layout</code> (so in the <code>app/layout.php</code> you can access it
  *          as the <code>$head_script</code> variable), and it will assign the
  *          <code>$this->_content</code> view object to the <code>content</code> template
@@ -53,7 +53,7 @@ use cyclone\view;
  * concrete controller subclass, and you have to do it <b>before calling <code>parent::before()</code></b>.
  *
  * In the case of non-ajax requests the <code>after()</code> method will also add some default
- * resource (asset) files to the \c AssetPool if they are present. These are the followings:
+ * resource (asset) files to the @c AssetPool if they are present. These are the followings:
  * <ul>
  *  <li>assets/css/<code>&lt;action_file_path&gt;</code>.css</li>
  *  <li>assets/js/<code>&lt;action_file_path&gt;</code>.js</li>
@@ -76,7 +76,7 @@ use cyclone\view;
  * methods too.
  *
  * @package cyclone
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  */
 class BaseController extends SkeletonController {
 
@@ -95,9 +95,9 @@ class BaseController extends SkeletonController {
     protected $_controller_file_path;
 
     /**
-     * If the request is an AJAX request, then it initializes \c $_content as
-     * an empty <code>ArrayObject</code>. Otherwise it creates the layout view object in \c $_layout
-     * and the content view object in \c $_content.
+     * If the request is an AJAX request, then it initializes @c $_content as
+     * an empty <code>ArrayObject</code>. Otherwise it creates the layout view object in @c $_layout
+     * and the content view object in @c $_content.
      */
     public function before() {
         $params = $this->_request->params;

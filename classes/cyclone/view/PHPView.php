@@ -6,13 +6,13 @@ namespace cyclone\view;
  * 
  *
  * @package cyclone
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  */
 class PHPView extends AbstractView {
 
     /**
      * Returns a new PHPView object. If you do not define the "file" parameter,
-     * you must call \c AbstractView::set_filename() before calling \c render().
+     * you must call @c AbstractView::set_filename() before calling @c render().
      *
      * @param string $file view filename
      * @param array $data array of values

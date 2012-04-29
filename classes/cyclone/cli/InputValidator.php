@@ -5,7 +5,7 @@ namespace cyclone\cli;
 /**
  * Input validator and callbacker of Cyclone CLI.
  *
- * @author Zoltan Toth <zoltan.toth@cyclonephp.com>
+ * @author Zoltan Toth <zoltan.toth@cyclonephp.org>
  * @usedby cli.php
  * @package cyclone
  */

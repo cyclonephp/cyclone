@@ -3,7 +3,7 @@
 namespace cyclone;
 
 /**
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package Config
  */
 class Config {

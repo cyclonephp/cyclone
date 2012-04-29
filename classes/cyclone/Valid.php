@@ -549,4 +549,26 @@ class Valid {
 		return ($array[$field] === $array[$match]);
 	}
 
+    /**
+     * Checks if the number of items in <code>$array</code> is the same as <code>$expected_count</code>
+     *
+     * @param $array array
+     * @param $expected_count int
+     * @return bool
+     */
+    public static function arr_count($array, $expected_count) {
+        return count($array) === $expected_count;
+    }
+
+    /**
+     * Calls <code>in_array()</code> in reverse parameter order.
+     *
+     * @param $array
+     * @param $needle
+     * @return bool
+     */
+    public static function in_array($array, $needle) {
+        return in_array($needle, $array);
+    }
+
 } // End Valid

@@ -5,7 +5,7 @@ namespace cyclone;
 /**
  * Static class that represents runtime environment configuration.
  *
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
 class Env {

@@ -3,7 +3,7 @@
 namespace cyclone\config;
 
 /**
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
 class MockStorage implements Reader, Writer {

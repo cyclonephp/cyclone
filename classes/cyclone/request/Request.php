@@ -248,7 +248,7 @@ class Request {
     protected $_cookies = array();
 
     /**
-     * Contains the parameters coming from the matching \c Route instance.
+     * Contains the parameters coming from the matching @c Route instance.
      *
      * Only matters for internal requests.
      *
@@ -295,7 +295,7 @@ class Request {
     }
 
     /**
-     * If \c $name is one of the readonly properties then it returns the property.
+     * If @c $name is one of the readonly properties then it returns the property.
      * Otherwise it throws an exception.
      *
      * @param string $name
@@ -324,8 +324,8 @@ class Request {
     }
 
     /**
-     * Creates a subrequest of the request. The \c $uri property of the subrequest
-     * will be the \c $uri parameter. The \c $params, \c $directory, \c $action
+     * Creates a subrequest of the request. The @c $uri property of the subrequest
+     * will be the @c $uri parameter. The @c $params, @c $directory, @c $action
      * properties will be set to NULL, every other properties will be inherited
      * from the parent request.
      *
@@ -385,7 +385,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $query property (the query parameters of the request).
+     * Sets the @c $query property (the query parameters of the request).
      *
      * @param array $query
      * @return Request $this
@@ -399,7 +399,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $post property (the POSTDATA of the request).
+     * Sets the @c $post property (the POSTDATA of the request).
      *
      * @param array $post
      * @return Request $this
@@ -410,7 +410,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $method property (the HTTP method of the request).
+     * Sets the @c $method property (the HTTP method of the request).
      * 
      * @param string $method
      * @return Request $this
@@ -421,7 +421,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $protocol property.
+     * Sets the @c $protocol property.
      *
      * @param string $protocol
      * @return Request
@@ -432,7 +432,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $referrer property.
+     * Sets the @c $referrer property.
      *
      * @param $referrer string
      * @return Request
@@ -443,7 +443,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $user_agent property.
+     * Sets the @c $user_agent property.
      *
      * @param string $user_agent
      * @return Request
@@ -480,7 +480,7 @@ class Request {
     }
 
     /**
-     * Sets the \c $is_ajax property of the request.
+     * Sets the @c $is_ajax property of the request.
      * 
      * @param boolean $is_ajax
      * @return Request
@@ -518,7 +518,7 @@ class Request {
     }
 
     /**
-     * Merges \c $query with the existing query parameters of the request.
+     * Merges @c $query with the existing query parameters of the request.
      *
      * @param array $query
      * @return Request
@@ -529,7 +529,7 @@ class Request {
     }
 
     /**
-     * Merges \c $post with the existing post parameters of the request.
+     * Merges @c $post with the existing post parameters of the request.
      *
      * @param array $post
      * @return Request

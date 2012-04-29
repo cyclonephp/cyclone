@@ -3,7 +3,7 @@
 namespace cyclone\config\reader;
 
 /**
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
 class File implements \cyclone\config\Reader {

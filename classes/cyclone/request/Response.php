@@ -14,7 +14,7 @@ use cyclone as cy;
  * @property-read $headers
  * @property-read $protocol
  * 
- * @author Bence Erős <crystal@cyclonephp.com>
+ * @author Bence Erős <crystal@cyclonephp.org>
  * @package cyclone
  */
 class Response {

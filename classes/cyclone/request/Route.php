@@ -207,11 +207,11 @@ class Route {
         
         /**
          * Protocol constraint. If it's value is not null then the route will
-         * match only if the request's \c $protocol attribute is the same as
+         * match only if the request's @c $protocol attribute is the same as
          * this value. Note that you can set programmatically any protocols
-         * for the request using the \c Request::protocol() method, but for the
-         * initial request (created by \c Request::initial() ) the protocol will
-         * always be \c 'http' or \c 'https' .
+         * for the request using the @c Request::protocol() method, but for the
+         * initial request (created by @c Request::initial() ) the protocol will
+         * always be @c 'http' or @c 'https' .
          *
          * @var string
          */
@@ -222,10 +222,10 @@ class Route {
 
         /**
          * A callback - typically a lambda function - that will be called by
-         * \c Dispatcher_Internal if this lambda controller is not null, and
-         * the request is dispatched using the \c Dispatcher_Internal::STRATEGY_LAMBDA
+         * @c Dispatcher_Internal if this lambda controller is not null, and
+         * the request is dispatched using the @c Dispatcher_Internal::STRATEGY_LAMBDA
          * strategy. The callback should take the assoc. array of parameters
-         * extracted by the matching \c Route (from the request URI).
+         * extracted by the matching @c Route (from the request URI).
          *
          * @var callback
          */
@@ -306,7 +306,7 @@ class Route {
 	}
 
         /**
-         * The setter of the \c $is_ajax property
+         * The setter of the @c $is_ajax property
          *
          * @param boolean $is_ajax
          * @return Route
@@ -317,7 +317,7 @@ class Route {
         }
 
         /**
-         * The setter of the \c $method property.
+         * The setter of the @c $method property.
          *
          * @param string $method
          * @return Route
@@ -328,7 +328,7 @@ class Route {
         }
 
         /**
-         * The setter for the \c $protocol property.
+         * The setter for the @c $protocol property.
          *
          * @param string $protocol
          * @return Route
@@ -353,7 +353,7 @@ class Route {
         /**
          * The setter of the lambda controller of the route. This callback will
          * be invoked if a request matches this route, and is dispatched by the
-         * internal request, using the \c Dispatcher_Internal::STRATEGY_LAMBA
+         * internal request, using the @c Dispatcher_Internal::STRATEGY_LAMBA
          * strategy. The callback must accept two parameters: a Request and a 
          * Response instance.
          * 
@@ -435,12 +435,14 @@ class Route {
 	}
 
         /**
-         * Checks if the \& $request matches the route constraints, including
-         * - the URI pattern
-         * - \c $is_ajax
-         * - \c $method
-         * - \c $protocol
-         * 
+         * Checks if the <code>$request</code> matches the route constraints, including
+         * <ul>
+         *  <li>the URI pattern</li>
+         *  <li>@c $is_ajax</li>
+         *  <li>@c $method</li>
+         *  <li>@c $protocol</li>
+         * </ul>
+         *
          * If matches, then it passes the route pattern parameters to the request
          * and the lambda controller if exists.
          *

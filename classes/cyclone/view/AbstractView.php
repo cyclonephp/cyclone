@@ -5,7 +5,7 @@ namespace cyclone\view;
 use cyclone as cy;
 
 /**
- * Abstract implementation of the \c View interface. Implements all methods of
+ * Abstract implementation of the @c View interface. Implements all methods of
  * View and declares a new abstract protected method named <code>capture()</code>.
  * Concrete implementations of the View interface should be extended from this
  * class and in the <code>capture()</code> implementation the template should be
@@ -16,7 +16,7 @@ use cyclone as cy;
  *
  * @package cyclone
  * @author Kohana Team
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  */
 abstract class AbstractView implements View, \ArrayAccess {
 
@@ -88,7 +88,7 @@ abstract class AbstractView implements View, \ArrayAccess {
 
 
     /**
-     * Sets a global variable, similar to \c set(), except that the
+     * Sets a global variable, similar to @c set(), except that the
      * variable will be accessible to all views.
      *
      * @param   string $key variable name or an array of variables
@@ -105,7 +105,7 @@ abstract class AbstractView implements View, \ArrayAccess {
     }
 
     /**
-     * Assigns a global variable by reference, similar to \c bind(), except
+     * Assigns a global variable by reference, similar to @c bind(), except
      * that the variable will be accessible to all views.
      *
      * @param   string $key variable name
@@ -194,7 +194,7 @@ abstract class AbstractView implements View, \ArrayAccess {
     protected abstract function capture();
 
     /**
-     * Alias for \c render() .
+     * Alias for @c render() .
      *
      * @return  string
      * @uses    render()

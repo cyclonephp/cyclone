@@ -31,7 +31,7 @@ class Validate extends \ArrayObject {
 	 */
 	public static function not_empty($value)
 	{
-		if (is_object($value) AND $value instanceof ArrayObject)
+		if (is_object($value) AND $value instanceof \ArrayObject)
 		{
 			// Get the array from the ArrayObject
 			$value = $value->getArrayCopy();
@@ -251,7 +251,7 @@ class Validate extends \ArrayObject {
 			return FALSE;
 		}
 
-		$cards = Kohana::config('credit_cards');
+		$cards = Config::inst()->get('credit_cards');
 
 		// Check card type
 		$type = strtolower($type);
@@ -721,12 +721,6 @@ class Validate extends \ArrayObject {
 	 */
 	public function check($allow_empty = FALSE)
 	{
-		if (Kohana::$profiling === TRUE)
-		{
-			// Start a new benchmark
-			$benchmark = Profiler::start('Validation', __FUNCTION__);
-		}
-
 		// New data set
 		$data = $this->_errors = array();
 
@@ -821,7 +815,7 @@ class Validate extends \ArrayObject {
 				if (strpos($filter, '::') === FALSE)
 				{
 					// Use a function call
-					$function = new ReflectionFunction($filter);
+					$function = new \ReflectionFunction($filter);
 
 					// Call $function($this[$field], $param, ...) with Reflection
 					$value = $function->invokeArgs($params);
@@ -832,7 +826,7 @@ class Validate extends \ArrayObject {
 					list($class, $method) = explode('::', $filter, 2);
 
 					// Use a static method call
-					$method = new ReflectionMethod($class, $method);
+					$method = new \ReflectionMethod($class, $method);
 
 					// Call $Class::$method($this[$field], $param, ...) with Reflection
 					$value = $method->invokeArgs(NULL, $params);
@@ -864,7 +858,7 @@ class Validate extends \ArrayObject {
 				if (method_exists($this, $rule))
 				{
 					// Use a method in this object
-					$method = new ReflectionMethod($this, $rule);
+					$method = new \ReflectionMethod($this, $rule);
 
 					if ($method->isStatic())
 					{
@@ -880,7 +874,7 @@ class Validate extends \ArrayObject {
 				elseif (strpos($rule, '::') === FALSE)
 				{
 					// Use a function call
-					$function = new ReflectionFunction($rule);
+					$function = new \ReflectionFunction($rule);
 
 					// Call $function($this[$field], $param, ...) with Reflection
 					$passed = $function->invokeArgs($params);
@@ -891,7 +885,7 @@ class Validate extends \ArrayObject {
 					list($class, $method) = explode('::', $rule, 2);
 
 					// Use a static method call
-					$method = new ReflectionMethod($class, $method);
+					$method = new \ReflectionMethod($class, $method);
 
 					// Call $Class::$method($this[$field], $param, ...) with Reflection
 					$passed = $method->invokeArgs(NULL, $params);
@@ -1070,7 +1064,7 @@ class Validate extends \ArrayObject {
 				}
 			}
 
-			if ($message = Kohana::message($file, "{$field}.{$error}"))
+			/*if ($message = Kohana::message($file, "{$field}.{$error}"))
 			{
 				// Found a message for this field and error
 			}
@@ -1090,7 +1084,7 @@ class Validate extends \ArrayObject {
 			{
 				// No message exists, display the path expected
 				$message = "{$file}.{$field}.{$error}";
-			}
+			}*/
 
 			if ($translate)
 			{

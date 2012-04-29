@@ -5,7 +5,7 @@ namespace cyclone\request;
 use cyclone as cy;
 
 /**
- * @author Bence Eros <crystal@cyclonephp.com>
+ * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
 abstract class AbstractDispatcher {
@@ -28,7 +28,7 @@ abstract class AbstractDispatcher {
     }
     
     /**
-     * Dispatches the request. The possible values of \c $strategy
+     * Dispatches the request. The possible values of @c $strategy
      * are implementation-specific.
      * 
      * @param string $strategy
