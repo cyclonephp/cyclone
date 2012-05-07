@@ -1186,13 +1186,13 @@ class Kohana {
 		{
 			$file = 'SYSPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(SYSPATH));
 		}
-		elseif (strpos($file, MODPATH) === 0)
+		elseif (strpos($file, LIBPATH) === 0)
 		{
-			$file = 'MODPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(MODPATH));
+			$file = 'LIBPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(MODPATH));
 		}
-                elseif (strpos($file, TOOLPATH) === 0)
+        elseif (strpos($file, TOOLPATH) === 0)
 		{
-			$file = 'MODPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(TOOLPATH));
+			$file = 'TOOLPATH'.DIRECTORY_SEPARATOR.substr($file, strlen(TOOLPATH));
 		}
 		elseif (strpos($file, SYSROOT) === 0)
 		{
