@@ -94,7 +94,7 @@ abstract class AbstractView implements View, \ArrayAccess {
      * @param   string $key variable name or an array of variables
      * @param   mixed $value  value
      */
-    public static function set_global($key, $value = NULL) {
+    public static function set_global($key, $value) {
         if (is_array($key)) {
             foreach ($key as $name => $value) {
                 self::$_global_data[$name] = $value;
@@ -129,7 +129,7 @@ abstract class AbstractView implements View, \ArrayAccess {
      * @param   mixed $value the value to be assigned
      * @return  View $this
      */
-    public function set($key, $value = NULL) {
+    public function set($key, $value) {
         if (is_array($key)) {
             foreach ($key as $name => $value) {
                 $this->_data[$name] = $value;
