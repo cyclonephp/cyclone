@@ -152,7 +152,7 @@ class BaseController extends SkeletonController {
         } catch (\Exception $ex) {}
 
         try {
-            $this->add_css($this->action_file_path);
+            $this->add_css($this->_action_file_path);
         } catch (\Exception $ex) {}
         try {
             $this->add_css($this->_controller_file_path);
