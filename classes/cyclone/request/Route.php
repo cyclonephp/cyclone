@@ -406,6 +406,8 @@ class Route {
 	 */
 	public function matches_uri($uri)
 	{
+        $uri = trim($uri, '/');
+
 		if ( ! \preg_match($this->_route_regex, $uri, $matches))
 			return FALSE;
 
