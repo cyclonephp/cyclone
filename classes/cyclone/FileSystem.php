@@ -225,7 +225,7 @@ class FileSystem {
         if ( ! file_exists($target_dir))
             mkdir($target_dir, 0777, TRUE);
 
-        if ( ! is_writable($target))
+        if ( ! is_writable($target_dir))
             throw new FileSystemException("file '$target' is not writable", FileSystemException::FILE_NOT_WRITABLE);
 
         copy($source, $target);
