@@ -208,6 +208,25 @@ class FileSystem {
         return FALSE;
     }
 
+    public static function explode_dir_file($path) {
+        $dir = substr($path, 0, strrpos($path, \DIRECTORY_SEPARATOR));
+        $file = substr($path, strrpos($path, \DIRECTORY_SEPARATOR) + 1);
+        return array($dir, $file);
+    }
+
+    public static function copy($source, $target) {
+        if ( ! file_exists($source))
+            throw new FileSystemException("file '$source' does not exist'", FileSystemException::FILE_NOT_FOUND);
+
+        if ( ! is_readable($source))
+            throw new FileSystemException("file '$source' is not readable'", FileSystemException::FILE_NOT_READABLE);
+
+        list($target_dir, $target_file) = self::explode_dir_file($target);
+        if ( ! file_exists($target_dir))
+            mkdir($target_dir, 0777, TRUE);
+        copy($source, $target);
+    }
+
     /**
      * If $array_merge is FALSE then collects all the occurences of the relative
      * file path in the library root directories and the return value will be an

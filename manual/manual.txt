@@ -1,5 +1,7 @@
 @section cyclone-intro Introduction
 
+@img img/crystalx.jpg
+
 CyclonePHP is a modern web application development framework designed to fit the needs
 of enterprise application development. CyclonePHP is originally build on Kohana 3.0, but
 currently it is not compatible with any version of Kohana.
