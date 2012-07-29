@@ -224,6 +224,10 @@ class FileSystem {
         list($target_dir, $target_file) = self::explode_dir_file($target);
         if ( ! file_exists($target_dir))
             mkdir($target_dir, 0777, TRUE);
+
+        if ( ! is_writable($target))
+            throw new FileSystemException("file '$target' is not writable", FileSystemException::FILE_NOT_WRITABLE);
+
         copy($source, $target);
     }
 
