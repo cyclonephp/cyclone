@@ -247,7 +247,7 @@ class Response {
         if (in_array($key, $enabled_attributes))
             return $this->{'_' . $key};
 
-        throw new cy\Exception('non-existent or unreadable attribute: ' . $key);
+        throw new \cyclone\PropertyAccessException(get_class($this), $key);
     }
 
 }

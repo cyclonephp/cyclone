@@ -319,8 +319,7 @@ class Request {
         if (\in_array($name, $enabled_attributes))
             return $this->{'_' . $name};
 
-        throw new \Exception('attribute ' . $name . ' of class '
-                . get_class($this) . ' does not exist or is not readable');
+        throw new \cyclone\PropertyAccessException(get_class($this), $name);
     }
 
     /**

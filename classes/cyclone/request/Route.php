@@ -382,7 +382,7 @@ class Route {
             );
             if (\in_array($key, $readonly_attributes))
                 return $this->{'_' . $key};
-            throw new \Exception("unknown property: '$key'");
+            throw new \cyclone\PropertyAccessException(get_class($this), $key);
         }
 
 	/**
@@ -478,7 +478,7 @@ class Route {
                      throw new DispatcherException('Route::$before must be a callable');
 
                 $before = $this->_before;
-                $before($params);
+                call_user_func($before, $params);
             }
 
             $request->params($params);

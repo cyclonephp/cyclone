@@ -119,7 +119,8 @@ class ValidationAggregate {
         if (in_array($name, $enabled_attrs)) {
             return $this->{'_' . $name};
         }
-        throw new Exception("property cyclone\\ValidationAggregate::\$$name does not exists");
+
+        throw new PropertyAccessException(get_class($this), $name);
     }
 
     /**

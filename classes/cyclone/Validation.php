@@ -48,7 +48,7 @@ class Validation {
         if (in_array($name, $_enabled_attrs)) {
             return $this->{'_' . $name};
         }
-        throw new cy\Exception('property "' . $name . '" does not exist');
+        throw new PropertyAccessException(get_class($this), $name);
     }
 
 
