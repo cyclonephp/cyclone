@@ -478,7 +478,7 @@ class Route {
                      throw new DispatcherException('Route::$before must be a callable');
 
                 $before = $this->_before;
-                call_user_func($before, $params);
+                call_user_func_array($before, array(&$params));
             }
 
             $request->params($params);
