@@ -71,27 +71,27 @@ class FileSystem {
      * @usedby index.php
      */
     public static function bootstrap($roots, $cache_dir = FALSE) {
-        self::$_roots = $roots;
+        static::$_roots = $roots;
         
         if ($cache_dir) {
-            self::$_cache_dir = $cache_dir;
-            self::$_path_cache_file = $cache_dir . 'filepaths.txt';
-            if (file_exists(self::$_path_cache_file)) {
-                self::$_abs_file_paths = unserialize(file_get_contents(self::$_path_cache_file));
+            static::$_cache_dir = $cache_dir;
+            static::$_path_cache_file = $cache_dir . 'filepaths.txt';
+            if (file_exists(static::$_path_cache_file)) {
+                static::$_abs_file_paths = unserialize(file_get_contents(static::$_path_cache_file));
             } else {
-                self::$_abs_file_paths = array();
+                static::$_abs_file_paths = array();
             }
             register_shutdown_function(array('\cyclone\FileSystem', 'save_cache'));
         } else {
-            self::$_abs_file_paths = array();
+            static::$_abs_file_paths = array();
         }
     }
 
     public static function enable_lib($name, $root_path) {
-        if (isset(self::$_roots[$name]))
+        if (isset(static::$_roots[$name]))
             throw new Exception("library '$name' is already enabled", 1);
 
-        self::$_roots[$name] = $root_path;
+        static::$_roots[$name] = $root_path;
     }
 
     /**
@@ -100,7 +100,7 @@ class FileSystem {
      * @return array
      */
     public static function enabled_libs() {
-        return array_keys(self::$_roots);
+        return array_keys(static::$_roots);
     }
 
     /**
@@ -110,13 +110,13 @@ class FileSystem {
      * @usedby FileSystem::bootstrap()
      */
     private static function create_cache_dir() {
-        if ( ! is_writable(self::$_cache_dir)) {
-            if ( ! file_exists(self::$_cache_dir)) {
-                if ( ! @mkdir(self::$_cache_dir, 0755, TRUE))
+        if ( ! is_writable(static::$_cache_dir)) {
+            if ( ! file_exists(static::$_cache_dir)) {
+                if ( ! @mkdir(static::$_cache_dir, 0755, TRUE))
                     throw new Exception('failed to create cache directory: '
-                            . self::$_cache_dir);
+                            . static::$_cache_dir);
             } else 
-                throw new Exception(self::$_cache_dir . ' is not writable');
+                throw new Exception(static::$_cache_dir . ' is not writable');
         }
     }
 
@@ -130,7 +130,7 @@ class FileSystem {
      * @return string the absolute path of the cache directory
      */
     public static function get_cache_dir($rel_path) {
-        $candidate = self::$_cache_dir . $rel_path;
+        $candidate = static::$_cache_dir . $rel_path;
         if ( ! is_dir($candidate)) {
             if (file_exists($candidate))
                 throw new Exception("cache path '$rel_path' exists but not a directory");
@@ -148,9 +148,9 @@ class FileSystem {
      * @usedby index.php
      */
     public static function run_init_scripts() {
-         foreach (self::$_roots as $library_name => $root_path) {
+         foreach (static::$_roots as $library_name => $root_path) {
             if (file_exists($fname =
-                    ($root_path . DIRECTORY_SEPARATOR . self::LIBRARY_BOOTSTRAP_FILE))) {
+                    ($root_path . DIRECTORY_SEPARATOR . static::LIBRARY_BOOTSTRAP_FILE))) {
                 include $fname;
             }
         }
@@ -162,9 +162,9 @@ class FileSystem {
      * Saves the internal absolute file path cache if it's invalid.
      */
     public static function save_cache() {
-        if (self::$_cache_invalid) {
-            file_put_contents(self::$_path_cache_file
-                    , serialize(self::$_abs_file_paths));
+        if (static::$_cache_invalid) {
+            file_put_contents(static::$_path_cache_file
+                    , serialize(static::$_abs_file_paths));
         }
     }
 
@@ -187,21 +187,21 @@ class FileSystem {
      * @return string the absolute file path.
      */
     public static function find_file($rel_filename){
-        if (isset(self::$_abs_file_paths[$rel_filename])) {
-            $candidate = self::$_abs_file_paths[$rel_filename];
-            if ( ! is_null(self::$_path_cache_file) && ! file_exists($candidate)) {
-                unset(self::$_abs_file_paths[$rel_filename]);
-                self::$_cache_invalid = TRUE;
+        if (isset(static::$_abs_file_paths[$rel_filename])) {
+            $candidate = static::$_abs_file_paths[$rel_filename];
+            if ( ! is_null(static::$_path_cache_file) && ! file_exists($candidate)) {
+                unset(static::$_abs_file_paths[$rel_filename]);
+                static::$_cache_invalid = TRUE;
             } else {
                 return $candidate;
             }
         }
         
-        foreach (self::$_roots as $root_path) {
+        foreach (static::$_roots as $root_path) {
             $candidate = $root_path . $rel_filename;
             if (file_exists($candidate)) {
-                self::$_cache_invalid = TRUE;
-                self::$_abs_file_paths[$rel_filename] = $candidate;
+                static::$_cache_invalid = TRUE;
+                static::$_abs_file_paths[$rel_filename] = $candidate;
                 return $candidate;
             }
         }
@@ -221,7 +221,7 @@ class FileSystem {
         if ( ! is_readable($source))
             throw new FileSystemException("file '$source' is not readable'", FileSystemException::FILE_NOT_READABLE);
 
-        list($target_dir, $target_file) = self::explode_dir_file($target);
+        list($target_dir, $target_file) = static::explode_dir_file($target);
         if ( ! file_exists($target_dir))
             mkdir($target_dir, 0777, TRUE);
 
@@ -246,14 +246,14 @@ class FileSystem {
     public static function list_files($rel_filename, $array_merge = FALSE) {
         $rval = array();
         if ($array_merge) {
-            foreach (self::$_roots as $library => $root_path) {
+            foreach (static::$_roots as $library => $root_path) {
                 $candidate = $root_path . $rel_filename;
                 if (file_exists($candidate)) {
                     $rval = Arr::merge(require $candidate, $rval);
                 }
             }
         } else {
-            foreach (self::$_roots as $library => $root_path) {
+            foreach (static::$_roots as $library => $root_path) {
                 $candidate = $root_path . $rel_filename;
                 if (file_exists($candidate)) {
                     $rval[$library] = $candidate;
@@ -264,8 +264,8 @@ class FileSystem {
     }
 
     public static function get_root_path($library) {
-        if (isset(self::$_roots[$library]))
-            return self::$_roots[$library];
+        if (isset(static::$_roots[$library]))
+            return static::$_roots[$library];
 
         throw new FileSystemException("library '$library' is not installed");
     }
@@ -280,13 +280,13 @@ class FileSystem {
      */
     public static function list_directory($dir, $libraries = NULL) {
         if (NULL === $libraries) {
-            $libraries = array_keys(self::$_roots);
+            $libraries = array_keys(static::$_roots);
         }
         $rval = array();
         foreach ($libraries as $library_name) {
-            if ( ! isset(self::$_roots[$library_name]))
+            if ( ! isset(static::$_roots[$library_name]))
                 throw new Exception("library '$library_name' is not installed");
-            $root_dir = self::$_roots[$library_name];
+            $root_dir = static::$_roots[$library_name];
             $candidate = $root_dir . $dir;
             if (is_dir($candidate)) {
                 $handle = opendir($candidate);
@@ -297,9 +297,9 @@ class FileSystem {
                         if ($file == '.' || $file == '..') 
                             continue;
                         if (isset($rval[$rel_path])) {
-                            $rval[$rel_path] += self::list_directory($rel_path);
+                            $rval[$rel_path] += static::list_directory($rel_path);
                         } else {
-                            $rval[$rel_path] = self::list_directory($rel_path);
+                            $rval[$rel_path] = static::list_directory($rel_path);
                         }
                     } elseif ( ! isset($rval[$rel_path])) {
                         $rval[$rel_path] = $abs_path;
@@ -328,7 +328,7 @@ class FileSystem {
                 continue;
             $file_abs_path = $abs_path . DIRECTORY_SEPARATOR . $file;
             if (is_dir($file_abs_path)) {
-                self::rmdir($file_abs_path);
+                static::rmdir($file_abs_path);
                 continue;
             }
             if ( ! @unlink($file_abs_path)) {
@@ -362,16 +362,23 @@ class FileSystem {
         return FALSE;
     }
 
+    public static function is_absolute_path($name) {
+        return $name{0} === \DIRECTORY_SEPARATOR;
+    }
 
     public static function mktree($dirs, $parent_root = NULL) {
         if (NULL === $parent_root) {
             $parent_root = '.';
         }
         foreach ($dirs as $name => $content) {
-            $file_path = $parent_root . \DIRECTORY_SEPARATOR . $name;
+            if ( ! self::is_absolute_path($name)) {
+                $file_path = $parent_root . \DIRECTORY_SEPARATOR . $name;
+            } else {
+                $file_path = $name;
+            }
             if (is_array($content)) {
                 mkdir($file_path);
-                self::mktree($content, $file_path);
+                static::mktree($content, $file_path);
             }
             else file_put_contents($file_path, $content);
         }
@@ -398,10 +405,10 @@ class FileSystem {
             )
         );
         try {
-            $sys_root = self::get_root_path('cyclone');
+            $sys_root = static::get_root_path('cyclone');
         } catch (Exception $ex) {
             // maybe the cyclone core is named system
-            $sys_root = self::get_root_path('system');
+            $sys_root = static::get_root_path('system');
         }
         if ($args['--app']) {
             $app_files = array(
@@ -419,7 +426,7 @@ class FileSystem {
             );
             $fs_tree = Arr::merge($fs_tree, $app_files);
         }
-	    self::mktree($fs_tree);
+	    static::mktree($fs_tree);
         if ($args['--app']) {
             chmod(realpath($root_dir) . '/.cache', 0777);
             chmod(realpath($root_dir) . '/logs', 0777);
@@ -463,7 +470,7 @@ class FileSystem {
                     if ( ! mkdir($dst_file_abs_path))
                         throw new FileSystemException("failed to create directoty '$dst_file_abs_path'");
                 }
-                self::copy_dir_contents($src_file_abs_path, $dst_file_abs_path, $forced);
+                static::copy_dir_contents($src_file_abs_path, $dst_file_abs_path, $forced);
             } else {
                 if (file_exists($dst_file_abs_path)) {
                     if ( ! $forced)
@@ -480,13 +487,13 @@ class FileSystem {
 
     public static function package_example($args) {
         try {
-            $src_path = self::get_root_path($args['--src-lib']);
+            $src_path = static::get_root_path($args['--src-lib']);
         } catch (Exception $ex) {
             echo "error: library '${args['--src-lib']}'' does not exist";
         }
 
         try {
-            $dst_path = self::get_root_path($args['--dst-lib']);
+            $dst_path = static::get_root_path($args['--dst-lib']);
             $dst_path .= 'examples' . \DIRECTORY_SEPARATOR . $args['--name'] . \DIRECTORY_SEPARATOR;
         } catch (Exception $ex) {
             echo "error: library ${args['--dst-lib']} does not exist";
@@ -512,7 +519,7 @@ class FileSystem {
         }
         if ( ! $failed) {
             try {
-                self::copy_dir_contents($src_path, $dst_path, $forced);
+                static::copy_dir_contents($src_path, $dst_path, $forced);
             } catch (FileSystemException $ex) {
                 echo $ex->getMessage() . PHP_EOL;
             }
@@ -521,7 +528,7 @@ class FileSystem {
 
     public static function get_available_examples() {
         $rval = array();
-        $example_dirs = self::list_files('examples');
+        $example_dirs = static::list_files('examples');
         foreach ($example_dirs as $lib_name => $dir) {
             $rval[$lib_name] = array();
             $dir_handle = opendir($dir);
@@ -539,7 +546,7 @@ class FileSystem {
     }
 
     public static function list_examples() {
-        foreach (self::get_available_examples() as $lib_name => $examples) {
+        foreach (static::get_available_examples() as $lib_name => $examples) {
             foreach ($examples as $example) {
                 echo "$lib_name/$example" . PHP_EOL;
             }
@@ -552,22 +559,22 @@ class FileSystem {
             return;
         }
         list($lib_name, $example_name) = explode('/', $args['--example']);
-        $avail_examples = self::get_available_examples();
+        $avail_examples = static::get_available_examples();
         if ( ! isset($avail_examples[$lib_name]) || ( ! in_array($example_name, $avail_examples[$lib_name]))) {
             echo "example '{$args['--example']}' does not exist. Failed to install" . PHP_EOL;
             return;
         }
 
-        $src_path = self::get_root_path($lib_name) . 'examples' . DIRECTORY_SEPARATOR . $example_name;
+        $src_path = static::get_root_path($lib_name) . 'examples' . DIRECTORY_SEPARATOR . $example_name;
 
         try {
-            $dst_path = self::get_root_path($args['--destination']);
+            $dst_path = static::get_root_path($args['--destination']);
         } catch (FileSystemException $ex) {
             echo "destination library '{$args['--destination']}' does not exist" . PHP_EOL;
             return;
         }
 
-        self::copy_dir_contents($src_path, $dst_path, $args['--forced']);
+        static::copy_dir_contents($src_path, $dst_path, $args['--forced']);
         $readme_file = $src_path . \DIRECTORY_SEPARATOR . 'README.txt';
         if (file_exists($readme_file) && is_readable($readme_file)) {
             echo file_get_contents($readme_file) . PHP_EOL;

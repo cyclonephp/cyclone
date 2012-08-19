@@ -291,7 +291,7 @@ class Request {
 
     public function execute($dispatcher_strategy = NULL) {
         AbstractDispatcher::for_request($this)->dispatch($dispatcher_strategy);
-        //return $this->response;
+        return $this;
     }
 
     /**
