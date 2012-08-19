@@ -89,7 +89,7 @@ class FileSystem {
 
     public static function enable_lib($name, $root_path) {
         if (isset(self::$_roots[$name]))
-            throw new Exception("library '$lib' is already enabled", 1);
+            throw new Exception("library '$name' is already enabled", 1);
 
         self::$_roots[$name] = $root_path;
     }
@@ -419,11 +419,104 @@ class FileSystem {
             );
             $fs_tree = Arr::merge($fs_tree, $app_files);
         }
-	self::mktree($fs_tree);
+	    self::mktree($fs_tree);
         if ($args['--app']) {
             chmod(realpath($root_dir) . '/.cache', 0777);
             chmod(realpath($root_dir) . '/logs', 0777);
         }
     }
+
+    public static function copy_dir_contents($src_path, $dst_path, $forced = TRUE) {
+        $dir_handle = opendir($src_path);
+        if (FALSE === $dir_handle)
+            throw new FileSystemException("failed to open directory '$src_path'");
+
+        if ( ! is_dir($dst_path))
+            throw new FileSystemException("'$dst_path' is not a directory");
+
+        if ( ! is_writable($dst_path))
+            throw new FileSystemException("'$dst_path' is not writable");
+
+        if ($src_path{strlen($src_path) - 1} != \DIRECTORY_SEPARATOR) {
+            $src_path .= \DIRECTORY_SEPARATOR;
+        }
+
+        if ($dst_path{strlen($dst_path) - 1} != \DIRECTORY_SEPARATOR) {
+            $dst_path .= \DIRECTORY_SEPARATOR;
+        }
+
+        while( ($filename = readdir($dir_handle)) !== FALSE) {
+            if ($filename === '.' || $filename === '..')
+                continue;
+            $src_file_abs_path = $src_path . $filename;
+            $dst_file_abs_path = $dst_path . $filename;
+            if (is_dir($src_file_abs_path)) {
+                if ( ! is_dir($dst_file_abs_path)) {
+                    if (file_exists($dst_file_abs_path)) {
+                        if ($forced) {
+                            if ( ! @unlink($dst_file_abs_path))
+                                throw new FileSystemException("failed to delete '$dst_file_abs_path'");
+                        } else {
+                            continue;
+                        }
+                    }
+                    if ( ! mkdir($dst_file_abs_path))
+                        throw new FileSystemException("failed to create directoty '$dst_file_abs_path'");
+                }
+                self::copy_dir_contents($src_file_abs_path, $dst_file_abs_path, $forced);
+            } else {
+                if (file_exists($dst_file_abs_path)) {
+                    if ( ! $forced)
+                        continue;
+                    if ( ! is_writable($dst_file_abs_path))
+                        throw new FileSystemException("cannot overwrite '$dst_file_abs_path'");
+                }
+                if ( ! copy($src_file_abs_path, $dst_file_abs_path))
+                    throw new FileSystemException("failed to copy '$src_file_abs_path' to '$dst_file_abs_path'");
+            }
+        }
+        closedir($dir_handle);
+    }
+
+    public static function package_example($args) {
+        try {
+            $src_path = self::get_root_path($args['--src-lib']);
+        } catch (Exception $ex) {
+            echo "error: library '${args['--src-lib']}'' does not exist";
+        }
+
+        try {
+            $dst_path = self::get_root_path($args['--dst-lib']);
+            $dst_path .= 'examples' . \DIRECTORY_SEPARATOR . $args['--name'] . \DIRECTORY_SEPARATOR;
+        } catch (Exception $ex) {
+            echo "error: library ${args['--dst-lib']} does not exist";
+        }
+
+        $forced = $args['--forced'];
+        $failed = FALSE;
+        if ( ! is_dir($dst_path)) {
+            if (file_exists($dst_path)) {
+                if ($forced) {
+                    if ( ! @unlink($dst_path)) {
+                        echo "failed to remove file '$dst_path'";
+                        $failed = TRUE;
+                    }
+                } else {
+                    echo "error: destination path $dst_path exists and not a directory";
+                    $failed = TRUE;
+                }
+            }
+            if ( ! $failed) {
+                mkdir($dst_path, 0755, TRUE);
+            }
+        }
+        if ( ! $failed) {
+            try {
+                self::copy_dir_contents($src_path, $dst_path, $forced);
+            } catch (FileSystemException $ex) {
+                echo $ex->getMessage() . PHP_EOL;
+            }
+        }
+    }
+
 }
-?>
