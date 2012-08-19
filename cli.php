@@ -56,6 +56,37 @@ Example:
                     )
                 ),
                 'callback' => array('cyclone\\FileSystem', 'package_example')
+            ),
+            'list-examples' => array(
+                'description' => 'lists the examples available in the installed libraries',
+                'arguments' => array(),
+                'callback' => array('cyclone\\FileSystem', 'list_examples')
+            ),
+            'install-example' => array(
+                'description' => 'installs an example from the examples/ directory of a library to the root directory of an other library.
+
+The destination library is recommeneded to be a local "sandbox" application library.',
+                'arguments' => array(
+                    '--example' => array(
+                        'alias' => '-e',
+                        'required' => TRUE,
+                        'parameter' => '<example>',
+                        'descr' => 'the name of the example to be installed. It should be a name listed by ./cyphp system list-examples'
+                    ),
+                    '--destination' => array(
+                        'alias' => '-d',
+                        'parameter' => '<destination-library>',
+                        'default' => 'app',
+                        'descr' => 'the name of the destination library where the example should be copied'
+                    ),
+                    '--forced' => array(
+                        'alias' => '-f',
+                        'default' => FALSE,
+                        'parameter' => NULL,
+                        'descr' => 'existing files in <destination-library> will be overwritten'
+                    )
+                ),
+                'callback' => array('cyclone\\FileSystem', 'install_example')
             )
         )
     )

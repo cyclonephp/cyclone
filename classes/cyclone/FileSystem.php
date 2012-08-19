@@ -267,7 +267,7 @@ class FileSystem {
         if (isset(self::$_roots[$library]))
             return self::$_roots[$library];
 
-        throw new Exception("library '$library' is not installed");
+        throw new FileSystemException("library '$library' is not installed");
     }
 
     /**
@@ -516,6 +516,61 @@ class FileSystem {
             } catch (FileSystemException $ex) {
                 echo $ex->getMessage() . PHP_EOL;
             }
+        }
+    }
+
+    public static function get_available_examples() {
+        $rval = array();
+        $example_dirs = self::list_files('examples');
+        foreach ($example_dirs as $lib_name => $dir) {
+            $rval[$lib_name] = array();
+            $dir_handle = opendir($dir);
+            while ( ($subdirname = readdir($dir_handle)) !== FALSE) {
+                if ($subdirname === '.' || $subdirname === '..')
+                    continue;
+                if ( ! is_dir($subdirname))
+                    log_warning(get_called_class(), "invalid example: '$subdirname' is not a directory");
+
+                $rval[$lib_name] []= $subdirname;
+            }
+            closedir($dir_handle);
+        }
+        return $rval;
+    }
+
+    public static function list_examples() {
+        foreach (self::get_available_examples() as $lib_name => $examples) {
+            foreach ($examples as $example) {
+                echo "$lib_name/$example" . PHP_EOL;
+            }
+        }
+    }
+
+    public static function install_example($args) {
+        if (strpos($args['--example'], '/') === FALSE) {
+            echo "invalid example name: '{$args['--example']}'" . PHP_EOL;
+            return;
+        }
+        list($lib_name, $example_name) = explode('/', $args['--example']);
+        $avail_examples = self::get_available_examples();
+        if ( ! isset($avail_examples[$lib_name]) || ( ! in_array($example_name, $avail_examples[$lib_name]))) {
+            echo "example '{$args['--example']}' does not exist. Failed to install" . PHP_EOL;
+            return;
+        }
+
+        $src_path = self::get_root_path($lib_name) . 'examples' . DIRECTORY_SEPARATOR . $example_name;
+
+        try {
+            $dst_path = self::get_root_path($args['--destination']);
+        } catch (FileSystemException $ex) {
+            echo "destination library '{$args['--destination']}' does not exist" . PHP_EOL;
+            return;
+        }
+
+        self::copy_dir_contents($src_path, $dst_path, $args['--forced']);
+        $readme_file = $src_path . \DIRECTORY_SEPARATOR . 'README.txt';
+        if (file_exists($readme_file) && is_readable($readme_file)) {
+            echo file_get_contents($readme_file) . PHP_EOL;
         }
     }
 
