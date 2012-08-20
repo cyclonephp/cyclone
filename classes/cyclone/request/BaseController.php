@@ -183,6 +183,37 @@ class BaseController extends SkeletonController {
     }
 
     /**
+     * Returns the query parameter of @c $_request specified by
+     * <code>$key</code> or <code>$default</code> if not found.
+     *
+     * @param $key
+     * @param $default
+     * @return string
+     * @see \cyclone\request\Request::$query
+     */
+    protected function get_query($key, $default) {
+        return isset($this->_request->query[$key])
+            ? $this->_request->query[$key]
+            : $default;
+    }
+
+
+    /**
+     * Returns the POST parameter of @c $_request specified by
+     * <code>$key</code> or <code>$default</code> if not found.
+     *
+     * @param $key
+     * @param $default
+     * @return string
+     * @see \cyclone\request\Request::$post
+     */
+    protected function get_post($key, $default) {
+        return isset($this->_request->post[$key])
+            ? $this->_request->post[$key]
+            : $default;
+    }
+
+    /**
      * Helper method for using <code>$this->_req->redirect()</code>.
      * Sends a HTTP redirection (Location header) to the client
      * and terminates the request execution.
