@@ -420,7 +420,7 @@ class FileSystem {
                         'setup.php' => file_get_contents($sys_root . 'config/setup.php')
                     ),
                     'views' => array(
-                        'layout.php' => file_get_contents($sys_root . 'examples/views/layout.php')
+                        'layout.php' => file_get_contents($sys_root . 'views/example.layout.php')
                     )
                 )
             );
