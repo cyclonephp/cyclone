@@ -1,0 +1,7 @@
+RewriteEngine On
+
+RewriteCond $1 !(^(index\.php|res|$)|assets)
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+SetEnv CYCLONEPHP_ENV dev
+

@@ -8,24 +8,135 @@ The framework itself basically consists of a small - even optional - core librar
 and some loosely coupled libraries. The core library provides an autoloader, a request dispatcher 
 and a good set of helper (utility) classes.
 
+@section cyclone-install Installation
+
+<p>CyclonePHP is available as a zip download at the official website and it can also be installed
+via git. The zip package is better for newcomers who want to have a look at and try out CyclonePHP
+since it is the easiest way to install it. Installing from git takes a bit more time and requires
+git installed on your computer, but it is better for people who want to keep an eye on the development
+of the framework and want to receive updates by simply running <code>git pull</code> without the
+need of reinstalling the entire framework. The git install is also highly recommended for contributors.</p>
+
+@subsection cyclone-install-requirements Requirements
+
+<p>To install CyclonePHP you should at least the following software installed:
+<ul>
+    <li>PHP 5.3</li>
+    <li>Apache2 (installation on other HTTP servers is of course possible but not yet documented</li>
+    <li>The Apache AllowOverride directive is recommended to be turned on</li>
+    <li>PHP CLI is optional but strongly recommended</li>
+</ul>
+</p>
+
+@subsection cyclone-install-zip Installing from the zip package
+
+<p>
+Installing CyclonePHP from the zipball to an apache2 web server is as simple as possible:
+<ol>
+<li>download the zipball</li>
+<li>extract it to your document root, for example to a <code>&lt;docroot&gt;/cyclonephp/</code>
+directory.</li>
+<li>point your web browser to <a href="http://localhost/cyclonephp/">http://localhost/cyclonephp/</a></li>
+<li>If everything is ok then you should see a blank white page with the "Hello World" text.</li>
+</ol>
+</p>
+
+<p>
+<em>Troubleshooting: if you can see "Fatal error: Exception thrown without a stack frame in Unknown
+on line 0" after "Hello World" then probably apache2 cannot write the internal cache file or the
+<code>logs/</code> directory. On UNIX systems the simplest way to solve it is to run<br/>
+<code>chmod -R a+w &lt;docroot&gt;/cyclonephp/app/{.cache,logs}</code><br/>
+</em>
+</p>
+
+@subsection cyclone-install-git Installing from git
+
+<p>
+Brief instructions to install CyclonePHP to <code>http://localhost/cyclonephp/</code> on UNIX
+systems, assuming that you use </code>/var/www/</code> as the apache document root:
+<pre><code>
+cd /var/www
+mkdir -p cyclonephp/lib
+cd cyclonephp/
+# cloning the libraries
+for i in cyclone CyForm DB JORK Logger; do git clone git://github.com/cyclonephp/$i.git lib/$i; done
+# downloading some additional tools: PHPUnit integration and the API docs generator
+for i in unittest CyDocs; do git clone git://github.com/cyclonephp/$i.git tools/$i; done
+# copying the example index.php tracked in the cyclone lib to the root directory
+cp lib/cyclone/example.index.php index.php
+# copying the example apache .htaccess file tracked in the cyclone lib to the root directory
+cp lib/cyclone/example..htaccess .htaccess
+# copying the command-line interface
+cp lib/cyclone/example.cyphp cyphp
+</code></pre>
+</p>
+
+@subsection cyclone-postinstall Post-installation steps
+
+<p><em>Note for Windows users: in the below commands <code>./cyphp</code> is used to boot the framework
+ from the commandline. On Windows you will have to use <code>php.exe -f cyphp</code> instead.</em></p>
+
+<p>
+After downloading the framework try out the following commands from the installation root directory:<br/>
+<code>./cyphp</code><br/>
+If everything is properly installed then you will get the following output:
+<code><pre>
+Available libraries:
+	system	 Core system commands of CyclonePHP
+	docs	 Documentation generator tool for CyclonePHP
+	jork	 JORK ORM command-line tools
+	db	 The DB library is a low-level database abstraction layer for CyclonePHP
+</pre></code></p>
+
+<p>This output may be preceeded by a <em>PHP Fatal error:  Exception thrown without a stack frame in Unknown on line 0</em>
+exception message. If you installed CyclonePHP from the zipball then just run
+<code>sudo chmod -R a+w app/{.cache,logs}</code></p>
+
+<p>If you installed CyclonePHP from git then you may notice that you don't have an <code>app/</code>
+directory which may contain your application. Instead of creating it by hand you can execute<br/>
+<code>./cyphp system initlib --app -d app</code><br/>
+It will create the usual directory layout used by CyclonePHP applications.
+Then maybe you will have to also execute<br/>
+<code>sudo chmod -R a+w app/{.cache,logs}</code></p>
+
+<p>
+When you have a working CyclonePHP installation you can simply generate the manual and API
+documentation of the downloaded libraries by executing<br/>
+<code>./cyphp docs api -Lifo docs/</code><br/>
+<em>Note: in the zipball package the documentation is included by default.</em>
+To get detailed instructions about the documentation generator you can read about all options
+by executing<br/>
+<code>./cyphp docs help api</code>
+</p>
+
+@subsection cyclone-install-examples Installing the in-built examples
+
+<p>The framework is shipped with some example codes for learning purposes which can be installed
+using the CLI. To list the available examples run<br/>
+<code>./cyphp system list-examples</code><br/>
+To install an example (listed by the above command) run<br/>
+<code>./cyphp system install-example -e &lt;example-name&gt; -d &lt;target-library&gt;</code><br/>
+For example the hello-world example (which is contained by the zip package) can be installed by<br/>
+<code>./cyphp system install-example -e cyclone/helloworld -d app</code></p>
+
+@section cyclone-postinstall Brief overview of the downloaded contents
+
 After downloading CyclonePHP you will find the following files and directories in it:
 <ul>
-	<li><code>example.index.php</code>: a general example for bootstrapping the framework</li>
-	<li><code>cyphp</code></li>: a very simple PHP script for running the CLI commands of the framework.</li>
-	<li><code>example.htaccess</code>: an example apache .htaccess file for using the framework.</li>
-	<li><code>cyclone/</code>: this is the core library of CyclonePHP (note that it's not the
-	same as the whole CyclonePHP framework)</li>
-	<li><code>libs/</code>: official libraries of the framework</li>
+	<li><code>index.php</code>: a general example for bootstrapping the framework</li>
+	<li><code>cyphp</code>: the command-line interface of the framework.</li>
+	<li><code>.htaccess</code>: an example apache .htaccess file for using the framework.</li>
+	<li><code>libs/</code>: official libraries of the framework including the </li>
 	<li><code>tools/</code>: in general, the <code>tools/</code> directory also contains libraries,
 		but these libraries are development tools, not really libraries that can be used by your
 		application itself.</li>
-	<li><code>example.app/</code> an example application directory structure.</li>
+	<li><code>app/</code> an example application directory structure containing a hello-world controller.</li>
 </ul>
 
 The directory layout of each library (including the core lib) may contain the following
 subdirectories:
 <ul>
-	<li><code>assets</code>: contains javascript files and stylesheets, maybe optional images too</li>
+	<li><code>assets/</code>: contains javascript files and stylesheets, maybe optional images too</li>
 	<li><code>config/</code>: holds configuration files. By default, configuration files are <code>.php</code>
 		files that return configuration data as PHP arrays.</li>
 	<li><code>classes/</code>: you can think about the <code>classes/</code> directory of a library
@@ -34,17 +145,16 @@ subdirectories:
 		libraries contain a <code>cyclone</code> subdirectory and nothing else. More about the class loading
 		later.</li>
 	<li><code>i18n/</code>: contains internationalization config files, also as PHP arrays. More about it later.</li>
-	<li>views/</li>: contains HTML template files.
+	<li><code>views/</code>: contains HTML template files.</li>
 	<li><code>init.php</code>: this file can contain some procedural bootstrap code for the library,
 		executed on each request. In most cases, these only contain some minimal code.</li>
 	<li><code>cli.php</code>: in this file the library can declare its own commands that can be
 		executed from the command line. Mainly libraries under the <code>tools/</code> utilize this feature.</li>
 </ul>
 
-Above these examples, the libraries can have any other subdirectories and files,but these are the 
-typical examples.
+Above these examples the libraries can have any other subdirectories and files too.
 
-The application itself is handled by the framework as a library too, so generally the <code>example.app/</code>
+The application itself is handled by the framework as a library too, so generally the <code>app/</code>
 directory will have a similar directory layout as the other libraries, but by default it contains 3 additional
 directories and files:
 <ul>
@@ -59,7 +169,7 @@ directories must be writable by PHP.
 @subsection cyclone-bootstrap bootstrap
 
 The framework bootstrap is done by some procedural code, which typically exists in the <code>index.php</code>
-of the framework. In the <code>example.index.php </code> you can see the followings:
+of the framework. In the <code>index.php </code> you can see the followings:
 <ul>
 	<li>few constant declarations</li>
 	<li>autoloader setup</li>
@@ -71,30 +181,30 @@ of the framework. In the <code>example.index.php </code> you can see the followi
 The configuration of the framework is mainly done in configuration files, but partly in the <code>index.php</code>
 programmatically.
 
-Please note that the <code>example.index.php</code> is really just an example, you can have really
+Please note that the <code>index.php</code> is really just an example, you can have really
 different bootstrap codes in your application. The constants and the library bootstrap will
 be needed for sure, but the request dispatch can simply be omitted eg. if you want to use some of the
 libraries of the framework in a project built on an other framework or CMS.
 
 @subsection cfs The cascading file system
 
-The cascading file system (CFS) has the same meaning in CyclonePHP as in Kohana. In short, when the framework
+<p>The cascading file system (CFS) has the same meaning in CyclonePHP as in Kohana. In short, when the framework
 searches for a file given by its relative path, it iterates on the loaded libraries, and checks
 if the relative path exists in the root directory of the library. The result of the search will be cached
-and stored in the <code><application-root-path>.cache/filepaths.txt</code>. See the 
+and stored in the <code><application-root-path>app/.cache/filepaths.txt</code>. See the
 @c cyclone\FileSystem::bootstrap() method for more details. The method must be called in the index.php,
 its first argument is an associative array of library name => library root path pairs, and the second
 argument is the path of the cache directory. In the first argument, it's recommended to pass the root
-directory of your application as the first array item.
+directory of your application as the first array item.</p>
 
-The cascading file system has some side effects. First of all, in your application you can override the files
+<p>The cascading file system has some side effects. First of all, in your application you can override the files
 of the libraries, or even libraries can rewrite the files of other libraries by loading them before
 the library then want to override. This behavior works very well on configuration files, or even
 forms, HTML templates, assets, etc, by taking the advantage of CFS you can easily build highly customizable
-libraries. See @c FileSystem::find_file() for more details.
+libraries. See @c cyclone\FileSystem::find_file() for more details.</p>
 
-The CFS also lets you to override classes of libraries, but it is not recommended, in a properly designed
-OO system it shouldn't be needed, so overriding class declarations is only to be used if nothing else works.
+<p>The CFS also lets you to override classes of libraries, but it is not recommended, in a properly designed
+OO system it shouldn't be needed, so overriding class declarations is only to be used if nothing else works.</p>
 
 @section req-exec Request execution flow
 
