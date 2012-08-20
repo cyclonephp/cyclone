@@ -20,3 +20,5 @@ otherwise it should be
 http://localhost/cyclonephp/index.php/main/index/
 
 If none of the above URL-s display "Hello World" then probably you have some configuration problem.
+
+To browse the source read the app/classes/app/controller/MainController.php file.
