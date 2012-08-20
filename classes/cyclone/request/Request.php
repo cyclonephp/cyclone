@@ -128,6 +128,8 @@ class Request {
             $rval->_client_ip = $_SERVER['REMOTE_ADDR'];
         }
 
+        $rval->_headers = \getallheaders();
+
         return $rval;
     }
 
