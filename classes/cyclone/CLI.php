@@ -68,6 +68,17 @@ class CLI {
 
         return $values;
     }
+    
+    public static function autocomplete($library = NULL) {
+		$lib_metadata = cli\LibraryHandler::inst()->get_cli_metadata();
+		if ($library === NULL) {
+			return implode(' ', array_keys($lib_metadata)) . \PHP_EOL;
+		} else {
+			if ( ! isset($lib_metadata[$library]) || ! isset($lib_metadata[$library]['commands']))
+				return '';
+			return implode(' ', array_keys($lib_metadata[$library]['commands'])) . \PHP_EOL;
+		}
+	}
 
     public static function bootstrap() {
 

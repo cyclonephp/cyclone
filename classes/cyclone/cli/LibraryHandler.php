@@ -28,6 +28,10 @@ class LibraryHandler {
         $this->_libraries = $libs;
         return $this;
     }
+    
+    public function get_cli_metadata() {
+		return $this->_libraries;
+	}
 
     public static function inst() {
         if (self::$_instance === null) {

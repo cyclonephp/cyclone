@@ -8,5 +8,11 @@ define('cyclone\SUPPRESS_REQUEST', TRUE);
 require realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'index.php';
 
 if (cy\Env::$is_cli) {
+	
+	if (isset($argv[1]) && $argv[1] === '__cyclone__check__') {
+		echo cy\CLI::autocomplete(isset($argv[2]) ? $argv[2] : NULL);
+		exit(0);
+	}
+	
     exit(cy\CLI::bootstrap());
 }
