@@ -5,7 +5,7 @@ namespace cyclone\request;
 use cyclone as cy;
 
 /**
- * Represents a request in the HMVC hierarchy.
+ * Represents a HTTP request in the HMVC hierarchy.
  *
  * @property-read string $uri
  * @property-read array $query
@@ -39,10 +39,10 @@ class Request {
     const METHOD_OPTIONS = 'OPTIONS';
 
     /**
-     * Creates the initial request based on the incoming uri. This request
-     * instance will be on the top of the HMVC hierarchy.
+     * <p>Creates the initial request based on the incoming uri. This request
+     * instance will be on the top of the HMVC hierarchy.</p>
      *
-     * Most of the sources of this method have been copied from Kohana.
+     * <em>Note: most of the sources of this method have been copied from Kohana.</em>
      *
      *
      * @return Request
@@ -280,6 +280,12 @@ class Request {
     protected $_lambda_controller;
 
     /**
+     * The route instance which matched this request during request dispatching.
+     *
+     * <em>Note: since the query-based dispatcher doesn't use routing at all, this
+     * value will be <code>NULL</code> in your controllers if you use the query-based
+     * dispatcher.</em>
+     *
      * @var Route
      */
     protected $_route;
