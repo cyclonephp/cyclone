@@ -41,6 +41,7 @@ class InternalDispatcher extends AbstractDispatcher {
         $last_dispatcher_exception = NULL;
         foreach (Route::all() as $route) {
             if ($route->matches($this->request)) {
+                $this->request->route($route);
                 try {
                     switch ($strategy) {
                         case self::STRATEGY_DEFAULT:

@@ -17,6 +17,7 @@ use cyclone as cy;
  * @property-read string $referrer
  * @property-read string $user_agent
  * @property-read string $protocol
+ * @property-read Route $protocol
  * @package cyclone
  */
 class Request {
@@ -279,6 +280,11 @@ class Request {
     protected $_lambda_controller;
 
     /**
+     * @var Route
+     */
+    protected $_route;
+
+    /**
      * @var Response
      */
     protected $_response;
@@ -317,6 +323,7 @@ class Request {
             , 'protocol'
             , 'referrer'
             , 'user_agent'
+            , 'route'
         );
         if (\in_array($name, $enabled_attributes))
             return $this->{'_' . $name};
@@ -515,6 +522,17 @@ class Request {
      */
     public function lambda_controller($lambda_controller) {
         $this->_lambda_controller = $lambda_controller;
+        return $this;
+    }
+
+    /**
+     * Called by the @c InternalDispatcher
+     *
+     * @param Route $route the route which matched the request before dispatching
+     * @return Request $this
+     */
+    public function route(Route $route) {
+        $this->_route = $route;
         return $this;
     }
 
