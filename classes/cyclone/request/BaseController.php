@@ -191,7 +191,7 @@ class BaseController extends SkeletonController {
      * @return string
      * @see \cyclone\request\Request::$query
      */
-    protected function get_query($key, $default) {
+    protected function get_query($key, $default = NULL) {
         return isset($this->_request->query[$key])
             ? $this->_request->query[$key]
             : $default;
@@ -207,9 +207,24 @@ class BaseController extends SkeletonController {
      * @return string
      * @see \cyclone\request\Request::$post
      */
-    protected function get_post($key, $default) {
+    protected function get_post($key, $default = NULL) {
         return isset($this->_request->post[$key])
             ? $this->_request->post[$key]
+            : $default;
+    }
+
+    /**
+     * Returns the URL parameter of @c $_request specified by
+     * <code>$key</code> or <code>$default</code> if not found.
+     *
+     * @param $key
+     * @param $default
+     * @return string
+     * @see \cyclone\request\Request::$params
+     */
+    protected function get_param($key, $default = NULL) {
+        return isset($this->_request->params[$key])
+            ? $this->_request->params[$key]
             : $default;
     }
 
