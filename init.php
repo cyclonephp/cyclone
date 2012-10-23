@@ -9,9 +9,9 @@ use cyclone as cy;
  *    __('Welcome back, :user', array(':user' => $username));
  *
  * @uses    I18n::get
- * @param   string  text to translate
- * @param   array   values to replace in the translated text
- * @param   string  target language
+ * @param   string  $text to translate
+ * @param   array   $values to replace in the translated text
+ * @param   string  $target language
  * @return  string
  */
 function __($string, array $values = NULL, $lang = 'en-us')

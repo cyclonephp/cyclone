@@ -17,7 +17,7 @@ use cyclone as cy;
  * @property-read string $referrer
  * @property-read string $user_agent
  * @property-read string $protocol
- * @property-read Route $protocol
+ * @property-read Route $route
  * @package cyclone
  */
 class Request {

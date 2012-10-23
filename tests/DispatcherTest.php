@@ -24,7 +24,7 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
     /**
      * @expectedException cyclone\request\DispatcherException
      */
-    public function testInternalLambda() {
+    public function test_internal_lambda() {
         req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_LAMBDA;
 
         req\Route::set('lambda-test', 'hello/<name>')
@@ -40,7 +40,7 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
         req\Request::factory('dummy')->execute();
     }
 
-    public function testInternalDefault() {
+    public function test_internal_default() {
         self::$beforeCalled = self::$afterCalled = self::$actionCalled = FALSE;
         req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_DEFAULT;
         req\Route::set('default-test', '<controller>(/<action>)');
@@ -62,7 +62,7 @@ class DispatcherTest extends Kohana_Unittest_TestCase {
         }
     }
 
-    public function testInternalQuery() {
+    public function test_internal_query() {
         self::$beforeCalled = self::$actionCalled = self::$afterCalled = FALSE;
         req\InternalDispatcher::$default_strategy = req\InternalDispatcher::STRATEGY_QUERY;
         req\Request::factory('/')->query(array(
