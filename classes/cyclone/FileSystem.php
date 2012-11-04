@@ -45,6 +45,14 @@ class FileSystem {
     private static $_cache_dir;
 
     /**
+     * The permission to create the cache file with. Override this value to change the
+     * permissions to be used when creating the path cache file.
+     *
+     * @var int
+     */
+    public static $cache_file_umask = 0777;
+
+    /**
      * Set to TRUE by find_file() if self::$_abs_file_paths changed and it
      * should be serialized by save_cache()
      *
@@ -112,7 +120,7 @@ class FileSystem {
     private static function create_cache_dir() {
         if ( ! is_writable(static::$_cache_dir)) {
             if ( ! file_exists(static::$_cache_dir)) {
-                if ( ! @mkdir(static::$_cache_dir, 0755, TRUE))
+                if ( ! @mkdir(static::$_cache_dir, static::$cache_file_umask, TRUE))
                     throw new Exception('failed to create cache directory: '
                             . static::$_cache_dir);
             } else 
