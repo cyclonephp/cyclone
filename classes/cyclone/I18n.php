@@ -64,7 +64,8 @@ class I18n
      *          ':name' => 'World'
      *     )); @endcode
      *
-     *
+     * <p>Hint: in most cases it is more convenient to use the __() alias function
+     * of this method, which is defined in the <code>init.php</code> of the library.</p>
      *
      * @param string $string  text to translate
      * @param array $values key-value pairs to be replaced in the translated text
@@ -72,8 +73,7 @@ class I18n
      *  null then the method will fall back to <code>I18n::$lang</code>
      * @return string the transtaled text with the parameters replaced
      */
-    public static function get($string, $values = array(), $lang = NULL)
-    {
+    public static function get($string, $values = array(), $lang = NULL) {
         if (NULL === $lang) {
             $lang = static::$lang;
         }
@@ -83,7 +83,7 @@ class I18n
             I18n::load($lang);
         }
 
-        $rval = isset(I18n::$_cache[$lang][$string]) ? I18n::$_cache[$lang][$string] : $string;
+        $string = isset(I18n::$_cache[$lang][$string]) ? I18n::$_cache[$lang][$string] : $string;
 
         $rval = strtr($string, $values);
 
@@ -112,29 +112,14 @@ class I18n
         // Split the language: language, region, locale, etc
         $parts = explode('-', $lang);
 
-        do
-        {
+        do {
             // Create a path for this set of parts
             $path = implode(\DIRECTORY_SEPARATOR, $parts);
 
-            /*if ($t += FileSystem::list_files("i18n/$path.php", TRUE))
-               {
-                   $t = array();
-                   foreach ($files as $file)
-                   {
-                       // Merge the language strings into the sub table
-                       $t = array_merge($t, require $file);
-                   }
-
-                   // Append the sub table, preventing less specific language
-                   // files from overloading more specific files
-                   $table += $t;
-               }*/
             $table += FileSystem::list_files("i18n/$path.php", TRUE);
             // Remove the last part
             array_pop($parts);
-        }
-        while ($parts);
+        } while ($parts);
 
         // Cache the translation table locally
         return I18n::$_cache[$lang] = $table;

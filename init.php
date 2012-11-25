@@ -1,27 +1,19 @@
 <?php
 
-use cyclone as cy;
+use cyclone\I18n;
 
 /**
  * Kohana translation/internationalization function. The PHP function
- * [strtr](http://php.net/strtr) is used for replacing parameters.
+ * <a href="http://php.net/strtr">strtr()</a> is used for replacing parameters.
  *
- *    __('Welcome back, :user', array(':user' => $username));
+ * Example:   @code __('Welcome back, :user', array(':user' => $username)); @endcode
  *
- * @uses    I18n::get
+ * @uses    \cyclone\I18n::get()
  * @param   string  $text to translate
  * @param   array   $values to replace in the translated text
  * @param   string  $target language
  * @return  string
  */
-function __($string, array $values = NULL, $lang = 'en-us')
-{
-	if ($lang !== cy\I18n::$lang)
-	{
-		// The message and target languages are different
-		// Get the translation for this message
-		$string = cy\I18n::get($string);
-	}
-
-	return empty($values) ? $string : strtr($string, $values);
+function __($string, array $values = array(), $lang = 'en-us') {
+    return I18n::get($string, $values, $lang);
 }
