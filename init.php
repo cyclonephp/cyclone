@@ -14,6 +14,6 @@ use cyclone\I18n;
  * @param   string  $target language
  * @return  string
  */
-function __($string, array $values = array(), $lang = 'en-us') {
+function __($string, array $values = array(), $lang = NULL) {
     return I18n::get($string, $values, $lang);
 }
