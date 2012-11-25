@@ -121,7 +121,11 @@ class BaseController extends SkeletonController {
             try {
                 $this->_content->set_template($this->_action_file_path);
             } catch (view\ViewException $ex) {
-                // the template file doesn't exist - failing silently
+                try {// the template file for the action doesn't exist, falling back to controller file path
+                    $this->_content->set_template($this->_controller_file_path);
+                } catch (view\ViewException $ex) {
+                    // not found either - failing silently
+                }
             }
         }
     }
