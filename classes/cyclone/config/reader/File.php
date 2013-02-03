@@ -31,7 +31,10 @@ class File implements \cyclone\config\Reader {
 
         $current = &$arr;
         while ( ! empty($segments)) {
-            $current = &$current[array_shift($segments)];
+            $segment = array_shift($segments);
+            if ( ! isset($current[$segment]))
+                return \cyclone\Config::NOT_FOUND;
+            $current = &$current[$segment];
         }
         return $current;
     }
