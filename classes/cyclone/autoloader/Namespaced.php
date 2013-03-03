@@ -29,7 +29,7 @@ class Namespaced extends AbstractAutoloader {
     }
 
     public function autoload($classname) {
-        $rel_filename = 'classes/' . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
+        $rel_filename = 'classes/' . str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $classname) . '.php';
         $result = cy\FileSystem::find_file($rel_filename);
         if ($result) {
             include $result;
