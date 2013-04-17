@@ -4,7 +4,7 @@ namespace cyclone\config\writer;
 use cyclone\db;
 use cyclone as cy;
 
-class Database implements \cyclone\config\Writer {
+class DatabaseWriter implements \cyclone\config\Writer {
 
     private $_table;
 

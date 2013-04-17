@@ -8,7 +8,7 @@ class Config_Reader_FileTest extends Kohana_Unittest_TestCase {
 
     public function  setUp() {
         parent::setUp();
-        $this->reader = new cy\config\reader\File;
+        $this->reader = new cy\config\reader\FileReader;
     }
 
     public function testGet() {

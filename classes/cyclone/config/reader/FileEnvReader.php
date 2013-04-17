@@ -8,7 +8,7 @@ use cyclone as cy;
  * @author Bence Eros <crystal@cyclonephp.org>
  * @package Config
  */
-class FileEnv implements \cyclone\config\Reader {
+class FileEnvReader implements \cyclone\config\Reader {
 
     /**
      * @var Config_Readed_Files
@@ -31,10 +31,10 @@ class FileEnv implements \cyclone\config\Reader {
     }
 
     public function  __construct($root_path = 'config') {
-        $this->env_reader = new File($root_path
+        $this->env_reader = new FileReader($root_path
                 .DIRECTORY_SEPARATOR
                 . cy\Env::$current);
-        $this->default_reader = new File($root_path);
+        $this->default_reader = new FileReader($root_path);
     }
 
     

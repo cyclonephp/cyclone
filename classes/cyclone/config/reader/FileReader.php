@@ -6,7 +6,7 @@ namespace cyclone\config\reader;
  * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
-class File implements \cyclone\config\Reader {
+class FileReader implements \cyclone\config\Reader {
 
     public $root_path;
 

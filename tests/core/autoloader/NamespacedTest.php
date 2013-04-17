@@ -7,10 +7,10 @@ class Core_Autoloader_NamespacedTest extends Kohana_Unittest_TestCase {
     public function testListClasses() {
         $classes = autoloader\Namespaced::inst()->list_classes('cyclone\\config');
         $expected = array(
-            'cyclone\\config\\reader\\Database',
-            'cyclone\\config\\reader\\File',
-            'cyclone\\config\\reader\\FileEnv',
-            'cyclone\\config\\writer\\Database',
+            'cyclone\\config\\reader\\DatabaseReader',
+            'cyclone\\config\\reader\\FileReader',
+            'cyclone\\config\\reader\\FileEnvReader',
+            'cyclone\\config\\writer\\DatabaseWriter',
             'cyclone\\config\\Exception',
             'cyclone\\config\\MockStorage',
             'cyclone\\config\\Reader',

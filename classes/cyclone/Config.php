@@ -29,7 +29,7 @@ class Config {
     }
 
     public static function setup($setupfile = 'setup') {
-        $reader = new \cyclone\config\reader\File;
+        $reader = new \cyclone\config\reader\FileReader;
         foreach ($reader->read($setupfile) as $name => $instance) {
             $cfg = new Config;
             $cfg->readers = $instance['readers'];

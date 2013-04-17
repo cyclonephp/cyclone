@@ -8,8 +8,8 @@ class Config_Test extends Kohana_Unittest_TestCase {
      * @expectedException \cyclone\config\Exception
      */
     public function testAttachDetach() {
-        $file_reader = new cy\config\reader\File;
-        $db_reader = new cy\config\reader\Database('config', 'key', 'value');
+        $file_reader = new cy\config\reader\FileReader;
+        $db_reader = new cy\config\reader\DatabaseReader('config', 'key', 'value');
         cy\Config::inst('test')->attach_reader($file_reader);
         cy\Config::inst('test')->attach_reader($db_reader);
         $this->assertEquals(cy\Config::inst('test')->readers, array($file_reader, $db_reader));
@@ -21,7 +21,7 @@ class Config_Test extends Kohana_Unittest_TestCase {
 
     public function testSetup() {
         cy\Config::setup();
-        $this->assertTrue(cy\Config::inst()->readers[0] instanceof cy\config\reader\FileEnv);
+        $this->assertTrue(cy\Config::inst()->readers[0] instanceof cy\config\reader\FileEnvReader);
     }
 
     public function testPrependMock() {

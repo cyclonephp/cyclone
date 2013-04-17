@@ -8,7 +8,7 @@ use cyclone as cy;
  * @author Bence Eros <crystal@cyclonephp.org>
  * @package cyclone
  */
-class Database implements \cyclone\config\Reader {
+class DatabaseReader implements \cyclone\config\Reader {
 
     private $_table;
 
