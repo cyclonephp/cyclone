@@ -696,7 +696,7 @@ class Kohana {
 							// Cache has expired
 							unlink($dir.$file);
 						}
-						catch (Exception $e)
+						catch (CycloneException $e)
 						{
 							// Cache has already been deleted
 							return NULL;
@@ -720,7 +720,7 @@ class Kohana {
 			// Write the cache
 			return (bool) file_put_contents($dir.$file, serialize($data));
 		}
-		catch (Exception $e)
+		catch (CycloneException $e)
 		{
 			throw $e;
 		}
@@ -798,7 +798,7 @@ class Kohana {
 	 * exception, and the stack trace of the error.
 	 *
 	 * @uses    Kohana::exception_text
-	 * @param   object   exception object
+	 * @param   object   CycloneException object
 	 * @return  boolean
 	 */
 	public static function exception_handler(\Exception $e)
@@ -913,7 +913,7 @@ class Kohana {
 				Kohana::cache('Kohana::find_file()', Kohana::$_files);
 			}
 		}
-		catch (Exception $e)
+		catch (CycloneException $e)
 		{
 			// Pass the exception to the handler
 			Kohana::exception_handler($e);
@@ -937,7 +937,7 @@ class Kohana {
 	 *
 	 * Error [ Code ]: Message ~ File [ Line ]
 	 *
-	 * @param   object  Exception
+	 * @param   object  CycloneException
 	 * @return  string
 	 */
 	public static function exception_text(\Exception $e)

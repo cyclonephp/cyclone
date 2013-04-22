@@ -11,7 +11,7 @@ class Core_Autoloader_NamespacedTest extends Kohana_Unittest_TestCase {
             'cyclone\\config\\reader\\FileReader',
             'cyclone\\config\\reader\\FileEnvReader',
             'cyclone\\config\\writer\\DatabaseWriter',
-            'cyclone\\config\\Exception',
+            'cyclone\\config\\CycloneException',
             'cyclone\\config\\MockStorage',
             'cyclone\\config\\Reader',
             'cyclone\\config\\Writer',

@@ -3,7 +3,7 @@
 namespace cyclone\cli;
 
 /**
- * Validation Exception class of Cyclone CLI.
+ * Validation CycloneException class of Cyclone CLI.
  *
  * @author Zoltan Toth <zoltan.toth@cyclonephp.org>
  * @usedby cli.php

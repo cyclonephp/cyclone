@@ -56,13 +56,13 @@ class ValidationAggregate {
      * Sets the data to be validated.
      *
      * @param array $data
-     * @throws \cyclone\Exception if <code>$data</code> is not an array and it doesn't
+     * @throws \cyclone\CycloneException if <code>$data</code> is not an array and it doesn't
      *  implement <code>ArrayAccess</code>
      * @return ValidationAggregate <code>$this</code>
      */
     public function data($data) {
         if ( ! (is_array($data) || $data instanceof \ArrayAccess))
-            throw new Exception("the data to be validated must be an array");
+            throw new CycloneException("the data to be validated must be an array");
 
         $this->_data = $data;
         foreach ($this->_validators as $field => $validator) {
@@ -84,7 +84,7 @@ class ValidationAggregate {
     public function label($field, $label) {
         if ( ! isset($this->_validators[$field])) {
             if ( ! array_key_exists($field, $this->_data))
-                throw new Exception("data does not have field '$field'");
+                throw new CycloneException("data does not have field '$field'");
 
             $this->_validators[$field] = new Validation($this->_data[$field], $this->_fail_on_first);
         }
@@ -106,7 +106,7 @@ class ValidationAggregate {
     public function rule($field, $rule, $params = array(), $error_msg = NULL) {
         if ( ! isset($this->_validators[$field])) {
             if ( ! array_key_exists($field, $this->_data))
-                throw new Exception("data does not have field '$field'");
+                throw new CycloneException("data does not have field '$field'");
             
             $this->_validators[$field] = new Validation($this->_data[$field], $this->_fail_on_first);
         }

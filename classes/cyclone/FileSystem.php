@@ -97,7 +97,7 @@ class FileSystem {
 
     public static function enable_lib($name, $root_path) {
         if (isset(static::$_roots[$name]))
-            throw new Exception("library '$name' is already enabled", 1);
+            throw new CycloneException("library '$name' is already enabled", 1);
 
         static::$_roots[$name] = $root_path;
     }
@@ -121,10 +121,10 @@ class FileSystem {
         if ( ! is_writable(static::$_cache_dir)) {
             if ( ! file_exists(static::$_cache_dir)) {
                 if ( ! @mkdir(static::$_cache_dir, static::$cache_file_umask, TRUE))
-                    throw new Exception('failed to create cache directory: '
+                    throw new CycloneException('failed to create cache directory: '
                             . static::$_cache_dir);
             } else 
-                throw new Exception(static::$_cache_dir . ' is not writable');
+                throw new CycloneException(static::$_cache_dir . ' is not writable');
         }
     }
 
@@ -134,17 +134,17 @@ class FileSystem {
      * If the directory doesn't exist then tries to create it, and throws an
      * exception if the creation fails.
      *
-     * @param string $rel_path the relative path to the subdirectory in system cache
+     * @param $rel_path string the relative path to the subdirectory in system cache
      * @return string the absolute path of the cache directory
      */
     public static function get_cache_dir($rel_path) {
         $candidate = static::$_cache_dir . $rel_path;
         if ( ! is_dir($candidate)) {
             if (file_exists($candidate))
-                throw new Exception("cache path '$rel_path' exists but not a directory");
+                throw new CycloneException("cache path '$rel_path' exists but not a directory");
 
             if ( ! @mkdir($candidate, 0755, TRUE))
-                throw new Exception("failed to create cache directory '$rel_path'");
+                throw new CycloneException("failed to create cache directory '$rel_path'");
         }
         return $candidate;
     }
@@ -293,7 +293,7 @@ class FileSystem {
         $rval = array();
         foreach ($libraries as $library_name) {
             if ( ! isset(static::$_roots[$library_name]))
-                throw new Exception("library '$library_name' is not installed");
+                throw new CycloneException("library '$library_name' is not installed");
             $root_dir = static::$_roots[$library_name];
             $candidate = $root_dir . $dir;
             if (is_dir($candidate)) {
@@ -324,11 +324,11 @@ class FileSystem {
      * This helper method has nothing to do with the cascading file system.
      *
      * @param string $abs_path
-     * @throws Exception if $abs_path is not a directory
+     * @throws CycloneException if $abs_path is not a directory
      */
     public static function rmdir($abs_path) {
         if ( ! is_dir($abs_path))
-            throw new Exception("'$abs_path' is not a directory");
+            throw new CycloneException("'$abs_path' is not a directory");
 
         $dir_handle = opendir($abs_path);
         while($file = readdir($dir_handle)) {
@@ -340,7 +340,7 @@ class FileSystem {
                 continue;
             }
             if ( ! @unlink($file_abs_path)) {
-                throw new Exception("failed to unlink '$file'");
+                throw new CycloneException("failed to unlink '$file'");
             }
         }
         closedir($dir_handle);
@@ -414,7 +414,7 @@ class FileSystem {
         );
         try {
             $sys_root = static::get_root_path('cyclone');
-        } catch (Exception $ex) {
+        } catch (CycloneException $ex) {
             // maybe the cyclone core is named system
             $sys_root = static::get_root_path('system');
         }
@@ -496,14 +496,14 @@ class FileSystem {
     public static function package_example($args) {
         try {
             $src_path = static::get_root_path($args['--src-lib']);
-        } catch (Exception $ex) {
+        } catch (CycloneException $ex) {
             echo "error: library '${args['--src-lib']}'' does not exist";
         }
 
         try {
             $dst_path = static::get_root_path($args['--dst-lib']);
             $dst_path .= 'examples' . \DIRECTORY_SEPARATOR . $args['--name'] . \DIRECTORY_SEPARATOR;
-        } catch (Exception $ex) {
+        } catch (CycloneException $ex) {
             echo "error: library ${args['--dst-lib']} does not exist";
         }
 

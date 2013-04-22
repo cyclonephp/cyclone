@@ -5,7 +5,7 @@ namespace cyclone;
  * @author Bence Erős <crystal@cyclonephp.org>
  * @package cyclone;
  */
-class FileSystemException extends Exception {
+class FileSystemException extends CycloneException {
 
     const FILE_NOT_FOUND = 1;
 

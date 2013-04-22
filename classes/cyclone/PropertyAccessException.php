@@ -14,7 +14,7 @@ namespace cyclone;
  * @property-read $class string the name of the class which threw the exception
  * @property-read $property string the name of the property which was referenced but isn't readable/writable
  */
-class PropertyAccessException extends Exception {
+class PropertyAccessException extends CycloneException {
 
     const READ = 'read';
 

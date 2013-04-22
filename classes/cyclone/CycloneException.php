@@ -9,4 +9,4 @@ namespace cyclone;
  * @package cyclone
  * @author Bence Eros <crystal@cyclonephp.org>
  */
-class Exception extends \Exception {}
+class CycloneException extends \Exception {}
