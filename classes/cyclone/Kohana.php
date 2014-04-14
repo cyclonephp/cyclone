@@ -540,9 +540,9 @@ class Kohana {
 		$path = $dir.DIRECTORY_SEPARATOR.$file.$ext;
 
                 if ($array) {
-                    return FileSystem::list_files($path);
+                    return FileSystem::get_default()->list_files($path);
                 } else {
-                    return FileSystem::find_file($path);
+                    return FileSystem::get_default()->find_file($path);
                 }
 
 		if (Kohana::$caching === TRUE AND isset(Kohana::$_files[$path]))
@@ -621,7 +621,7 @@ class Kohana {
 	 */
 	public static function list_files($directory = NULL, array $paths = NULL)
 	{
-            return FileSystem::list_directory($directory, $paths);
+            return FileSystem::get_default()->list_directory($directory, $paths);
 	}
 
 	/**

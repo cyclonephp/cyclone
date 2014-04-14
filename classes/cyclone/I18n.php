@@ -116,7 +116,7 @@ class I18n
             // Create a path for this set of parts
             $path = implode(\DIRECTORY_SEPARATOR, $parts);
 
-            $table += FileSystem::list_files("i18n/$path.php", TRUE);
+            $table += FileSystem::get_default()->list_files("i18n/$path.php", TRUE);
             // Remove the last part
             array_pop($parts);
         } while ($parts);

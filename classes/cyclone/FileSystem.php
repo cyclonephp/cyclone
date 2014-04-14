@@ -11,56 +11,22 @@ namespace cyclone;
  */
 class FileSystem {
 
-    /**
-     * Absolute paths to the roots of the CFS.
-     *
-     * Array keys are library names.
-     *
-     * @var array
-     */
-    private static $_roots;
-
-    /**
-     * Array keys are relative file names in the CFS, values are absolute paths.
-     *
-     * @var array
-     * @usedby FileSystem::find_file()
-     */
-    private static $_abs_file_paths;
-
-    /**
-     * Absolute path to file cache
-     *
-     * @var string
-     * @usedby FileSystem::save_cache()
-     * @usedby FileSystem::bootstrap()
-     */
-    private static $_path_cache_file;
-
-    /**
-     *
-     * @var string
-     * @usedby FileSystem::bootstrap()
-     */
-    private static $_cache_dir;
-
-    /**
-     * The permission to create the cache file with. Override this value to change the
-     * permissions to be used when creating the path cache file.
-     *
-     * @var int
-     */
-    public static $cache_file_umask = 0777;
-
-    /**
-     * Set to TRUE by find_file() if self::$_abs_file_paths changed and it
-     * should be serialized by save_cache()
-     *
-     * @var boolean
-     */
-    private static $_cache_invalid;
-
     const LIBRARY_BOOTSTRAP_FILE = 'init.php';
+
+    /**
+     * @var FileSystem
+     */
+    private static $_default_instance = NULL;
+
+    /**
+     * @return FileSystem
+     * @throws CycloneException
+     */
+    public static function get_default() {
+        if (NULL === self::$_default_instance)
+            throw new CycloneException("no default FileSystem instance has been initialized");
+        return self::$_default_instance;
+    }
 
     /**
      * Bootstrap method for the CFS.
@@ -73,33 +39,85 @@ class FileSystem {
      * $cache_dir/filepaths.txt will be used. This file should exist and it
      * should be writable.
      *
-     * @param array $roots assoc. array: keys are library names, values are absolute root
+     * @param $roots array: keys are library names, values are absolute root
      *  paths of the libraries
-     * @param string $cache_dir
-     * @usedby index.php
+     * @param $cache_dir boolean|string
      */
     public static function bootstrap($roots, $cache_dir = FALSE) {
-        static::$_roots = $roots;
-        
+        return self::$_default_instance = new FileSystem($roots, $cache_dir);
+    }
+
+    public function __construct($roots, $cache_dir = FALSE) {
+        $this->_roots = $roots;
+
         if ($cache_dir) {
-            static::$_cache_dir = $cache_dir;
-            static::$_path_cache_file = $cache_dir . 'filepaths.txt';
-            if (file_exists(static::$_path_cache_file)) {
-                static::$_abs_file_paths = unserialize(file_get_contents(static::$_path_cache_file));
+            $this->_cache_dir = $cache_dir;
+            $this->_path_cache_file = $cache_dir . 'filepaths.txt';
+            if (file_exists($this->_path_cache_file)) {
+                $this->_abs_file_paths = unserialize(file_get_contents($this->_path_cache_file));
             } else {
-                static::$_abs_file_paths = array();
+                $this->_abs_file_paths = array();
             }
-            register_shutdown_function(array('\cyclone\FileSystem', 'save_cache'));
+            register_shutdown_function(array($this, 'save_cache'));
         } else {
-            static::$_abs_file_paths = array();
+            $this->_abs_file_paths = array();
         }
     }
 
-    public static function enable_lib($name, $root_path) {
-        if (isset(static::$_roots[$name]))
+    /**
+     * Absolute paths to the roots of the CFS.
+     *
+     * Array keys are library names.
+     *
+     * @var array
+     */
+    private $_roots;
+
+    /**
+     * Array keys are relative file names in the CFS, values are absolute paths.
+     *
+     * @var array
+     * @usedby FileSystem::find_file()
+     */
+    private $_abs_file_paths;
+
+    /**
+     * Absolute path to file cache
+     *
+     * @var string
+     * @usedby FileSystem::save_cache()
+     * @usedby FileSystem::bootstrap()
+     */
+    private $_path_cache_file;
+
+    /**
+     *
+     * @var string
+     * @usedby FileSystem::bootstrap()
+     */
+    private $_cache_dir;
+
+    /**
+     * The permission to create the cache file with. Override this value to change the
+     * permissions to be used when creating the path cache file.
+     *
+     * @var int
+     */
+    public $cache_file_umask = 0777;
+
+    /**
+     * Set to TRUE by find_file() if self::$_abs_file_paths changed and it
+     * should be serialized by save_cache()
+     *
+     * @var boolean
+     */
+    private $_cache_invalid;
+
+    public function enable_lib($name, $root_path) {
+        if (isset($this->_roots[$name]))
             throw new CycloneException("library '$name' is already enabled", 1);
 
-        static::$_roots[$name] = $root_path;
+        $this->_roots[$name] = $root_path;
     }
 
     /**
@@ -107,8 +125,8 @@ class FileSystem {
      *
      * @return array
      */
-    public static function enabled_libs() {
-        return array_keys(static::$_roots);
+    public function enabled_libs() {
+        return array_keys($this->_roots);
     }
 
     /**
@@ -117,14 +135,14 @@ class FileSystem {
      * @see FileSystem::$_cache_dir
      * @usedby FileSystem::bootstrap()
      */
-    private static function create_cache_dir() {
-        if ( ! is_writable(static::$_cache_dir)) {
-            if ( ! file_exists(static::$_cache_dir)) {
-                if ( ! @mkdir(static::$_cache_dir, static::$cache_file_umask, TRUE))
+    private function create_cache_dir() {
+        if ( ! is_writable($this->_cache_dir)) {
+            if ( ! file_exists($this->_cache_dir)) {
+                if ( ! @mkdir($this->_cache_dir, $this->cache_file_umask, TRUE))
                     throw new CycloneException('failed to create cache directory: '
-                            . static::$_cache_dir);
+                            . $this->_cache_dir);
             } else 
-                throw new CycloneException(static::$_cache_dir . ' is not writable');
+                throw new CycloneException($this->_cache_dir . ' is not writable');
         }
     }
 
@@ -136,9 +154,10 @@ class FileSystem {
      *
      * @param $rel_path string the relative path to the subdirectory in system cache
      * @return string the absolute path of the cache directory
+     * @throws CycloneException if failed to create the cache directory
      */
-    public static function get_cache_dir($rel_path) {
-        $candidate = static::$_cache_dir . $rel_path;
+    public function get_cache_dir($rel_path) {
+        $candidate = $this->_cache_dir . $rel_path;
         if ( ! is_dir($candidate)) {
             if (file_exists($candidate))
                 throw new CycloneException("cache path '$rel_path' exists but not a directory");
@@ -155,8 +174,8 @@ class FileSystem {
      *
      * @usedby index.php
      */
-    public static function run_init_scripts() {
-         foreach (static::$_roots as $library_name => $root_path) {
+    public function run_init_scripts() {
+         foreach ($this->_roots as $library_name => $root_path) {
             if (file_exists($fname =
                     ($root_path . DIRECTORY_SEPARATOR . static::LIBRARY_BOOTSTRAP_FILE))) {
                 include $fname;
@@ -169,10 +188,9 @@ class FileSystem {
      *
      * Saves the internal absolute file path cache if it's invalid.
      */
-    public static function save_cache() {
-        if (static::$_cache_invalid) {
-            file_put_contents(static::$_path_cache_file
-                    , serialize(static::$_abs_file_paths));
+    public function save_cache() {
+        if ($this->_cache_invalid) {
+            file_put_contents($this->_path_cache_file, serialize($this->_abs_file_paths));
         }
     }
 
@@ -194,22 +212,22 @@ class FileSystem {
      * @param string $rel_filename
      * @return string the absolute file path.
      */
-    public static function find_file($rel_filename){
-        if (isset(static::$_abs_file_paths[$rel_filename])) {
-            $candidate = static::$_abs_file_paths[$rel_filename];
-            if ( ! is_null(static::$_path_cache_file) && ! file_exists($candidate)) {
-                unset(static::$_abs_file_paths[$rel_filename]);
-                static::$_cache_invalid = TRUE;
+    public function find_file($rel_filename){
+        if (isset($this->_abs_file_paths[$rel_filename])) {
+            $candidate = $this->_abs_file_paths[$rel_filename];
+            if ( ! is_null($this->_path_cache_file) && ! file_exists($candidate)) {
+                unset($this->_abs_file_paths[$rel_filename]);
+                $this->_cache_invalid = TRUE;
             } else {
                 return $candidate;
             }
         }
         
-        foreach (static::$_roots as $root_path) {
+        foreach ($this->_roots as $root_path) {
             $candidate = $root_path . $rel_filename;
             if (file_exists($candidate)) {
-                static::$_cache_invalid = TRUE;
-                static::$_abs_file_paths[$rel_filename] = $candidate;
+                $this->_cache_invalid = TRUE;
+                $this->_abs_file_paths[$rel_filename] = $candidate;
                 return $candidate;
             }
         }
@@ -251,17 +269,17 @@ class FileSystem {
      * @param boolean $array_merge
      * @return array
      */
-    public static function list_files($rel_filename, $array_merge = FALSE) {
+    public function list_files($rel_filename, $array_merge = FALSE) {
         $rval = array();
         if ($array_merge) {
-            foreach (static::$_roots as $library => $root_path) {
+            foreach ($this->_roots as $library => $root_path) {
                 $candidate = $root_path . $rel_filename;
                 if (file_exists($candidate)) {
                     $rval = Arr::merge(require $candidate, $rval);
                 }
             }
         } else {
-            foreach (static::$_roots as $library => $root_path) {
+            foreach ($this->_roots as $library => $root_path) {
                 $candidate = $root_path . $rel_filename;
                 if (file_exists($candidate)) {
                     $rval[$library] = $candidate;
@@ -271,9 +289,9 @@ class FileSystem {
         return $rval;
     }
 
-    public static function get_root_path($library) {
-        if (isset(static::$_roots[$library]))
-            return static::$_roots[$library];
+    public function get_root_path($library) {
+        if (isset($this->_roots[$library]))
+            return $this->_roots[$library];
 
         throw new FileSystemException("library '$library' is not installed");
     }
@@ -286,15 +304,15 @@ class FileSystem {
      * @param array $libraries
      * @return array
      */
-    public static function list_directory($dir, $libraries = NULL) {
+    public function list_directory($dir, $libraries = NULL) {
         if (NULL === $libraries) {
-            $libraries = array_keys(static::$_roots);
+            $libraries = array_keys($this->_roots);
         }
         $rval = array();
         foreach ($libraries as $library_name) {
-            if ( ! isset(static::$_roots[$library_name]))
+            if ( ! isset($this->_roots[$library_name]))
                 throw new CycloneException("library '$library_name' is not installed");
-            $root_dir = static::$_roots[$library_name];
+            $root_dir = $this->_roots[$library_name];
             $candidate = $root_dir . $dir;
             if (is_dir($candidate)) {
                 $handle = opendir($candidate);
@@ -305,9 +323,9 @@ class FileSystem {
                         if ($file == '.' || $file == '..') 
                             continue;
                         if (isset($rval[$rel_path])) {
-                            $rval[$rel_path] += static::list_directory($rel_path);
+                            $rval[$rel_path] += $this->list_directory($rel_path);
                         } else {
-                            $rval[$rel_path] = static::list_directory($rel_path);
+                            $rval[$rel_path] = $this->list_directory($rel_path);
                         }
                     } elseif ( ! isset($rval[$rel_path])) {
                         $rval[$rel_path] = $abs_path;
@@ -320,7 +338,7 @@ class FileSystem {
 
     /**
      * Removes a directory from the file system, regardless if it's empty or not
-     * (so it's equivalent to the unix rm -r command).
+     * (so it's equivalent to the unix <code>rm -r</code> command).
      * This helper method has nothing to do with the cascading file system.
      *
      * @param string $abs_path
@@ -351,7 +369,7 @@ class FileSystem {
         $classname = strtolower($classname);
         $rel_filename = 'tests/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
 
-        $result = FileSystem::find_file($rel_filename);
+        $result = FileSystem::get_default()->find_file($rel_filename);
         if ($result) {
             include_once $result;
             return TRUE;
@@ -362,7 +380,7 @@ class FileSystem {
     public static function autoloader_camelcase($classname){
         $rel_filename = 'classes/'.str_replace('_', DIRECTORY_SEPARATOR, $classname).'.php';
 
-        $result = FileSystem::find_file($rel_filename);
+        $result = FileSystem::get_default()->find_file($rel_filename);
         if($result){
             include_once $result;
             return TRUE;
@@ -413,10 +431,10 @@ class FileSystem {
             )
         );
         try {
-            $sys_root = static::get_root_path('cyclone');
+            $sys_root = FileSystem::get_default()->get_root_path('cyclone');
         } catch (CycloneException $ex) {
             // maybe the cyclone core is named system
-            $sys_root = static::get_root_path('system');
+            $sys_root = FileSystem::get_default()->get_root_path('system');
         }
         if ($args['--app']) {
             $app_files = array(
@@ -495,13 +513,13 @@ class FileSystem {
 
     public static function package_example($args) {
         try {
-            $src_path = static::get_root_path($args['--src-lib']);
+            $src_path = FileSystem::get_default()->get_root_path($args['--src-lib']);
         } catch (CycloneException $ex) {
             echo "error: library '${args['--src-lib']}'' does not exist";
         }
 
         try {
-            $dst_path = static::get_root_path($args['--dst-lib']);
+            $dst_path = FileSystem::get_default()->get_root_path($args['--dst-lib']);
             $dst_path .= 'examples' . \DIRECTORY_SEPARATOR . $args['--name'] . \DIRECTORY_SEPARATOR;
         } catch (CycloneException $ex) {
             echo "error: library ${args['--dst-lib']} does not exist";
@@ -573,10 +591,10 @@ class FileSystem {
             return;
         }
 
-        $src_path = static::get_root_path($lib_name) . 'examples' . DIRECTORY_SEPARATOR . $example_name;
+        $src_path = FileSystem::get_default()->get_root_path($lib_name) . 'examples' . DIRECTORY_SEPARATOR . $example_name;
 
         try {
-            $dst_path = static::get_root_path($args['--destination']);
+            $dst_path = FileSystem::get_default()->get_root_path($args['--destination']);
         } catch (FileSystemException $ex) {
             echo "destination library '{$args['--destination']}' does not exist" . PHP_EOL;
             return;

@@ -90,9 +90,9 @@ class Env {
 
         self::$eol = self::$is_cli ? PHP_EOL : '<br />';
 
-        set_error_handler('\cyclone\Kohana::error_handler');
+        set_error_handler('\\cyclone\\Kohana::error_handler');
 
-        set_exception_handler('\cyclone\Kohana::exception_handler');
+        set_exception_handler('\\cyclone\\Kohana::exception_handler');
 
         $_GET = Kohana::sanitize($_GET);
         $_POST = Kohana::sanitize($_POST);

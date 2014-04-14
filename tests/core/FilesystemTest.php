@@ -1,6 +1,6 @@
 <?php
 
-use cyclone as cy;
+use cyclone\FileSystem;
 
 class Core_FileSystemTest extends Kohana_Unittest_TestCase {
 
@@ -23,10 +23,10 @@ class Core_FileSystemTest extends Kohana_Unittest_TestCase {
     }
 
     public function test_find_file(){
-        $test_abs_path = cy\FileSystem::find_file('classes/cyclone/FileSystem.php');
+        $test_abs_path = FileSystem::get_default()->find_file('classes/cyclone/FileSystem.php');
         $this->assertEquals($test_abs_path, SYSPATH . 'classes/cyclone/FileSystem.php');
 
-        $test_abs_path = cy\FileSystem::find_file('classes/cyclone/File.php');
+        $test_abs_path = FileSystem::get_default()->find_file('classes/cyclone/File.php');
         $this->assertEquals($test_abs_path, SYSPATH.'classes/cyclone/File.php');
     }
 
@@ -42,7 +42,7 @@ class Core_FileSystemTest extends Kohana_Unittest_TestCase {
         if (file_exists(self::$_nonexistent_file)) {
             $this->markTestSkipped('file ' . self::$_nonexistent_file . ' exists');
         }
-        cy\FileSystem::copy(self::$_nonexistent_file, self::$_target_file);
+        FileSystem::get_default()->copy(self::$_nonexistent_file, self::$_target_file);
     }
 
     public function test_copy() {
@@ -51,11 +51,11 @@ class Core_FileSystemTest extends Kohana_Unittest_TestCase {
             return;
         }
         file_put_contents(self::$_source_file, 'hello');
-        cy\FileSystem::copy(self::$_source_file, self::$_target_file);
+        FileSystem::get_default()->copy(self::$_source_file, self::$_target_file);
         $this->assertTrue(file_exists(self::$_target_file));
         $this->assertEquals('hello', file_get_contents(self::$_target_file));
 
-        cy\FileSystem::copy(self::$_source_file, self::$_target_file_2);
+        FileSystem::get_default()->copy(self::$_source_file, self::$_target_file_2);
         $this->assertTrue(file_exists(self::$_target_file_2));
         $this->assertEquals('hello', file_get_contents(self::$_target_file_2));
     }

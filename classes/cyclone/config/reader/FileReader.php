@@ -26,7 +26,7 @@ class FileReader implements Reader {
         
         if ( ! isset($this->_loaded_files[$filename])) {
             $this->_loaded_files[$filename] =
-                    FileSystem::list_files($this->root_path . $filename . '.php', true);
+                    FileSystem::get_default()->list_files($this->root_path . $filename . '.php', true);
         }
         $arr = $this->_loaded_files[$filename];
 

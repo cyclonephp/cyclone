@@ -1,10 +1,7 @@
 <?php
-
 use cyclone as cy;
 use cyclone\request as req;
-
 ob_start();
-
 define('EXT', '.php');
 
 error_reporting(E_ALL | E_STRICT);
@@ -16,12 +13,6 @@ define('cyclone\LIBPATH', cy\SYSROOT.'lib'.DIRECTORY_SEPARATOR);
 define('cyclone\SYSPATH', cy\LIBPATH.'cyclone'.DIRECTORY_SEPARATOR);
 define('cyclone\TOOLPATH', cy\SYSROOT.'tools'.DIRECTORY_SEPARATOR);
 
-date_default_timezone_set('Europe/Budapest');
-
-//-- Environment setup --------------------------------------------------------
-
-
-
 require cy\LIBPATH.'cyclone/classes/cyclone/autoloader/Kohana.php';
 cy\autoloader\Kohana::inst()->register();
 require cy\LIBPATH.'cyclone/classes/cyclone/autoloader/Namespaced.php';
@@ -31,23 +22,17 @@ spl_autoload_register(array('\\cyclone\\FileSystem', 'autoloader_tests'));
 
 cy\FileSystem::bootstrap(array(
     'app' => cy\APPPATH,
-    'cyform' => cy\LIBPATH . 'CyForm' . DIRECTORY_SEPARATOR,
-    'db' => cy\LIBPATH . 'DB' . DIRECTORY_SEPARATOR,
-    'jork' => cy\LIBPATH . 'JORK' . DIRECTORY_SEPARATOR,
-//    'unittest' => TOOLPATH . 'unittest' . DIRECTORY_SEPARATOR,
-    'cytpl' => cy\LIBPATH . 'CyTpl' . DIRECTORY_SEPARATOR,
-    'logger' => cy\LIBPATH . 'Logger' . DIRECTORY_SEPARATOR,
+    'cyform' => cy\LIBPATH . 'CyForm/',
+    'db' => cy\LIBPATH . 'DB/',
+    'jork' => cy\LIBPATH . 'JORK/',
+    'logger' => cy\LIBPATH . 'Logger/',
     'cydocs' => cy\TOOLPATH . 'CyDocs/',
     'dbdeploy' => cy\TOOLPATH . 'dbdeploy/',
-    'cyclone' => cy\LIBPATH . 'cyclone' . DIRECTORY_SEPARATOR,
-), cy\APPPATH . '.cache' . DIRECTORY_SEPARATOR);
-
-
-cy\FileSystem::run_init_scripts();
-
+    'cyclone' => cy\LIBPATH . 'cyclone/',
+), cy\APPPATH . '.cache/');
+cy\FileSystem::get_default()->run_init_scripts();
 cy\Env::init_legacy();
 
-ini_set('unserialize_callback_func', 'spl_autoload_call');
 cy\Session::instance();
 
 /**

@@ -32,7 +32,7 @@ class Kohana extends AbstractAutoloader {
         $classname = strtolower($classname);
         $rel_filename = 'classes/' . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
 
-        $result = \cyclone\FileSystem::find_file($rel_filename);
+        $result = \cyclone\FileSystem::get_default()->find_file($rel_filename);
         if ($result) {
             include $result;
             return TRUE;
@@ -44,7 +44,7 @@ class Kohana extends AbstractAutoloader {
         $rel_path = 'classes' . DIRECTORY_SEPARATOR;
         $rel_path .= str_replace('_', DIRECTORY_SEPARATOR, $namespace);
 
-        $files = cy\FileSystem::list_directory($rel_path);
+        $files = cy\FileSystem::get_default()->list_directory($rel_path);
         return $this->extract_classnames($files, $with_subnamespaces);
     }
 

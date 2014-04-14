@@ -30,7 +30,7 @@ class Namespaced extends AbstractAutoloader {
 
     public function autoload($classname) {
         $rel_filename = 'classes/' . str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $classname) . '.php';
-        $result = cy\FileSystem::find_file($rel_filename);
+        $result = cy\FileSystem::get_default()->find_file($rel_filename);
         if ($result) {
             include $result;
             return TRUE;
@@ -46,7 +46,7 @@ class Namespaced extends AbstractAutoloader {
 
         $rel_path .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
         
-        $files = cy\FileSystem::list_directory($rel_path);
+        $files = cy\FileSystem::get_default()->list_directory($rel_path);
         return $this->extract_classnames($files, $with_subnamespaces);
     }
 

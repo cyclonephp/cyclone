@@ -2,7 +2,8 @@
 
 namespace cyclone\view;
 
-use cyclone as cy;
+use cyclone\FileSystem;
+use cyclone\Kohana;
 
 /**
  * Abstract implementation of the @c View interface. Implements all methods of
@@ -72,7 +73,7 @@ abstract class AbstractView implements View, \ArrayAccess {
      */
     public function set_template($file, $is_absolute = FALSE) {
         if (!$is_absolute) {
-            if (($abs_file = cy\FileSystem::find_file('views/'
+            if (($abs_file = FileSystem::get_default()->find_file('views/'
                             . $file
                             . static::$_file_extension)) === FALSE) {
                 throw new ViewException("The requested view '$file' could not be found");
@@ -204,7 +205,7 @@ abstract class AbstractView implements View, \ArrayAccess {
             return $this->render();
         } catch (\Exception $e) {
             // Display the exception message
-            cy\Kohana::exception_handler($e);
+            Kohana::exception_handler($e);
             return '';
         }
     }

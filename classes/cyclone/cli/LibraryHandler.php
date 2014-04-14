@@ -17,7 +17,7 @@ class LibraryHandler {
     private static $_instance = null;
 
     private function __construct() {
-        $this->_libraries = cy\FileSystem::list_files('cli.php', true);
+        $this->_libraries = cy\FileSystem::get_default()->list_files('cli.php', true);
     }
 
     /**

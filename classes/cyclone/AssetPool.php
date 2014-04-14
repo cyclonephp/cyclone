@@ -111,7 +111,7 @@ class AssetPool {
                 $new_assets = array();
                 $path = 'assets'.DIRECTORY_SEPARATOR.$type;
                 foreach ($this->assets[$type] as $file => $minify) {
-                    $abs_path = FileSystem::find_file($path . DIRECTORY_SEPARATOR . $file . '.' . $type);
+                    $abs_path = FileSystem::get_default()->find_file($path . DIRECTORY_SEPARATOR . $file . '.' . $type);
                     $new_assets []= substr($abs_path, strlen(SYSROOT));
                 }
                 $this->assets[$type] = $new_assets;
